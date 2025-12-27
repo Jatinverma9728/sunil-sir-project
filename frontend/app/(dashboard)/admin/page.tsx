@@ -862,7 +862,7 @@ export default function AdminDashboard() {
                                                             >
                                                                 Edit
                                                             </button>
-                                                            {u._id !== user?._id && (
+                                                            {u._id !== user?.id && (
                                                                 <button
                                                                     onClick={() => handleDeleteUser(u._id)}
                                                                     className="text-red-600 hover:text-red-700 text-sm font-medium"
