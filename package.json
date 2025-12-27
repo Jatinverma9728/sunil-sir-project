@@ -1,0 +1,29 @@
+{
+  "name": "ecommerce-course-platform",
+  "version": "1.0.0",
+  "description": "Modern scalable e-commerce + course platform monorepo",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "build": "npm run build --workspace=frontend && npm run build --workspace=backend",
+    "start": "npm start --workspace=backend",
+    "install:all": "npm install"
+  },
+  "keywords": [
+    "ecommerce",
+    "course-platform",
+    "mern",
+    "monorepo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
