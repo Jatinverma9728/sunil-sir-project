@@ -1,33 +1,53 @@
 
 import { API_URL } from '../constants';
 
+export interface Lesson {
+    _id: string;
+    title: string;
+    description?: string;
+    duration: number;
+    videoUrl?: string;
+    isFree: boolean;
+    completed?: boolean;
+}
+
 export interface Course {
     _id: string;
     title: string;
     description: string;
+    thumbnail: string;
     instructor: {
         name: string;
-        title: string;
-        bio: string;
-        rating: number;
-        students: number;
-        courses: number;
+        email: string;
+        avatar?: string;
+        title?: string;
+        bio?: string;
+        rating?: number;
+        students?: number;
+        courses?: number;
     };
     price: number;
     originalPrice?: number;
-    duration: number;
-    rating: number;
-    reviews: number;
-    students: number;
+    totalDuration: number;
+    rating: {
+        average: number;
+        count: number;
+    };
+    enrolledStudents: number;
     level: string;
     category: string;
-    lessons: number;
+    lessons: Lesson[];
     language: string;
     lastUpdated: string;
     isPurchased?: boolean;
-    whatYouLearn: string[];
+    whatYouWillLearn: string[];
     requirements: string[];
-    syllabus: Array<{
+    features: string[];
+    isPublished?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+    // Keeping older flexible fields just in case
+    syllabus?: Array<{
         title: string;
         lessons: number;
         duration: string;
@@ -37,11 +57,6 @@ export interface Course {
             isPreview?: boolean;
         }>;
     }>;
-    features: string[];
-    enrolledStudents?: number;
-    isPublished?: boolean;
-    createdAt?: string;
-    updatedAt?: string;
 }
 
 export const getCourses = async (): Promise<{ success: boolean; data: Course[] }> => {
@@ -49,29 +64,32 @@ export const getCourses = async (): Promise<{ success: boolean; data: Course[] }
     return response.json();
 };
 
-export const getCourse = async (id: string): Promise<Course | null> => {
+export const getCourse = async (id: string): Promise<{ success: boolean; data: Course }> => {
     try {
         const response = await fetch(`${API_URL}/courses/${id}`);
-        if (!response.ok) return null;
-        const result = await response.json();
-        return result.data;
+        if (!response.ok) throw new Error('Failed to fetch course');
+        return await response.json();
     } catch (error) {
-        console.error('Error fetching course:', error);
-        return null;
+        throw error;
     }
 };
 
-export const purchaseCourse = async (courseId: string, token: string) => {
+export const purchaseCourse = async (courseId: string, token?: string) => {
     try {
+        const headers: HeadersInit = {
+            'Content-Type': 'application/json'
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${API_URL}/courses/purchase`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers,
             body: JSON.stringify({ courseId })
         });
         const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to purchase course');
         return data;
     } catch (error) {
         throw error;
