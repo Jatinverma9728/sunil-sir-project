@@ -2,14 +2,19 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure upload directories exist
+// Ensure upload directories exist (skip on serverless - read-only filesystem)
 const uploadDirs = ['uploads', 'uploads/products', 'uploads/courses', 'uploads/users'];
-uploadDirs.forEach(dir => {
-    const fullPath = path.join(__dirname, '../../', dir);
-    if (!fs.existsSync(fullPath)) {
-        fs.mkdirSync(fullPath, { recursive: true });
-    }
-});
+try {
+    uploadDirs.forEach(dir => {
+        const fullPath = path.join(__dirname, '../../', dir);
+        if (!fs.existsSync(fullPath)) {
+            fs.mkdirSync(fullPath, { recursive: true });
+        }
+    });
+} catch (error) {
+    // Ignore directory creation errors on serverless (read-only filesystem)
+    console.log('Note: Upload directories not created (likely serverless environment)');
+}
 
 // Storage configuration
 const storage = multer.diskStorage({
