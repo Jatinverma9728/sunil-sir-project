@@ -3,13 +3,10 @@
  * Ensures all required environment variables are set
  */
 
+// For Vercel serverless, PORT is managed automatically
 const requiredEnvVars = [
-    'NODE_ENV',
-    'PORT',
     'MONGODB_URI',
     'JWT_SECRET',
-    'JWT_EXPIRE',
-    'FRONTEND_URL',
 ];
 
 const optionalEnvVars = [

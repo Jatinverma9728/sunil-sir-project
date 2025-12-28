@@ -43,9 +43,29 @@ const createApp = () => {
     // Data Sanitization against XSS
     app.use(xss());
 
-    // CORS Configuration
+    // CORS Configuration - Support multiple origins for production
+    const allowedOrigins = [
+        process.env.FRONTEND_URL,
+        'http://localhost:3000',
+        'http://localhost:3001'
+    ].filter(Boolean);
+
     app.use(cors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        origin: function (origin, callback) {
+            // Allow requests with no origin (mobile apps, curl, etc.)
+            if (!origin) return callback(null, true);
+
+            if (allowedOrigins.some(allowed => origin.startsWith(allowed.replace(/\/$/, '')))) {
+                return callback(null, true);
+            }
+
+            // In development, allow all origins
+            if (process.env.NODE_ENV !== 'production') {
+                return callback(null, true);
+            }
+
+            callback(new Error('Not allowed by CORS'));
+        },
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
         allowedHeaders: ['Content-Type', 'Authorization']
