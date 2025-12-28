@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useToast } from "@/components/ui/Toast";
 
-export default function LoginPage() {
+// Inner component that uses useSearchParams
+function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { login } = useAuth();
@@ -244,5 +245,18 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+// Wrapper with Suspense boundary for useSearchParams
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+        }>
+            <LoginContent />
+        </Suspense>
     );
 }

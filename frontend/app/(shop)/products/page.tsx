@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCart } from "@/lib/context/CartContext";
 import Breadcrumb from "@/components/products/Breadcrumb";
@@ -25,7 +25,8 @@ interface Product {
     tags?: string[];
 }
 
-export default function ProductsPage() {
+// Inner component using useSearchParams
+function ProductsContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { addToCart } = useCart();
@@ -238,5 +239,18 @@ export default function ProductsPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+// Wrapper with Suspense boundary for useSearchParams
+export default function ProductsPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+        }>
+            <ProductsContent />
+        </Suspense>
     );
 }

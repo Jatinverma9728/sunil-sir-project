@@ -7,6 +7,9 @@ import { useAuth } from "@/lib/context/AuthContext";
 import Button from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 
+// Prevent static generation - this page requires client-side rendering
+export const dynamic = 'force-dynamic';
+
 export default function RegisterPage() {
     const router = useRouter();
     const { register } = useAuth();
