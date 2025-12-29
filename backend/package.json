@@ -7,7 +7,8 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node src/scripts/seed.js",
-    "build": "echo 'No build step required for Node.js backend'",
+    "build": "npm install --production",
+    "postinstall": "echo '✅ Dependencies installed successfully'",
     "test": "echo 'No tests configured yet'",
     "lint": "echo 'No linting configured yet'"
   },
