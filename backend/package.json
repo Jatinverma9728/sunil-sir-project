@@ -42,6 +42,7 @@
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
+    "@types/estree": "^1.0.8",
     "nodemon": "^3.0.2"
   }
 }

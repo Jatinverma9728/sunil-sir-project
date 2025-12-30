@@ -12,6 +12,7 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
+        "types": [],
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
         "declaration": true,
