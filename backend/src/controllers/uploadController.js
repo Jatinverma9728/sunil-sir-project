@@ -51,20 +51,37 @@ const upload = multer({
  */
 const uploadImages = async (req, res) => {
     try {
+        console.log('📤 Upload request received');
+        console.log('Files count:', req.files ? req.files.length : 0);
+
         if (!req.files || req.files.length === 0) {
+            console.log('❌ No files in request');
             return res.status(400).json({
                 success: false,
                 message: 'No files uploaded'
             });
         }
 
+        console.log('✅ Processing', req.files.length, 'files');
+
         // Cloudinary URLs are already available in req.files
-        const urls = req.files.map(file => ({
-            url: file.path, // Cloudinary URL
-            alt: file.originalname.replace(/\.[^/.]+$/, ''), // Remove extension for alt text
-            publicId: file.filename, // Cloudinary public ID for deletion
-            cloudinaryUrl: file.path
-        }));
+        const urls = req.files.map((file, index) => {
+            console.log(`📁 File ${index + 1}:`, {
+                originalName: file.originalname,
+                cloudinaryUrl: file.path,
+                publicId: file.filename
+            });
+
+            return {
+                url: file.path, // Cloudinary URL
+                alt: file.originalname.replace(/\.[^/.]+$/, ''), // Remove extension for alt text
+                publicId: file.filename, // Cloudinary public ID for deletion
+                cloudinaryUrl: file.path
+            };
+        });
+
+        console.log('✅ All files uploaded to Cloudinary successfully!');
+        console.log('🌐 URLs:', urls.map(u => u.url));
 
         res.status(200).json({
             success: true,
@@ -73,7 +90,7 @@ const uploadImages = async (req, res) => {
             urls: urls.map(u => u.url) // Simple array of URLs for convenience
         });
     } catch (error) {
-        console.error('Cloudinary upload error:', error);
+        console.error('❌ Cloudinary upload error:', error);
         res.status(500).json({
             success: false,
             message: 'Error uploading files to Cloudinary',
