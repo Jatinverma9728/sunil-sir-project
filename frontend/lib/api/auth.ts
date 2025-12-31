@@ -1,4 +1,4 @@
-import { API_URL } from '../constants';
+import { apiClient, ApiResponse } from './client';
 
 // Types
 export interface LoginCredentials {
@@ -34,52 +34,30 @@ export interface AuthResponse {
  * Register new user
  */
 export const register = async (data: RegisterData): Promise<AuthResponse> => {
-    const response = await fetch(`${API_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-        throw new Error(result.message || 'Registration failed');
-    }
+    const result = await apiClient.post<{ user: User; token: string }>('/auth/register', data);
 
     // Store token in cookie
     if (result.data?.token) {
         setAuthToken(result.data.token);
+        apiClient.setAuthToken(result.data.token);
     }
 
-    return result;
+    return result as AuthResponse;
 };
 
 /**
  * Login user
  */
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-        throw new Error(result.message || 'Login failed');
-    }
+    const result = await apiClient.post<{ user: User; token: string }>('/auth/login', credentials);
 
     // Store token in cookie with remember me preference
     if (result.data?.token) {
         setAuthToken(result.data.token, credentials.rememberMe || false);
+        apiClient.setAuthToken(result.data.token);
     }
 
-    return result;
+    return result as AuthResponse;
 };
 
 /**
@@ -92,21 +70,8 @@ export const getProfile = async (): Promise<{ success: boolean; data: { user: Us
         throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${API_URL}/auth/profile`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-        },
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-        throw new Error(result.message || 'Failed to fetch profile');
-    }
-
-    return result;
+    const result = await apiClient.get<{ user: User }>('/auth/profile', true);
+    return result as { success: boolean; data: { user: User } };
 };
 
 /**
@@ -114,6 +79,7 @@ export const getProfile = async (): Promise<{ success: boolean; data: { user: Us
  */
 export const logout = (): void => {
     removeAuthToken();
+    apiClient.removeAuthToken();
 };
 
 /**

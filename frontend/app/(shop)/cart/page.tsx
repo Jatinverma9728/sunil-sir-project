@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/context/CartContext";
 import CartItem from "@/components/cart/CartItem";
@@ -7,12 +8,18 @@ import CartItem from "@/components/cart/CartItem";
 export default function CartPage() {
     const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
 
-    // Calculate totals
-    const subtotal = getTotalPrice();
-    const discount = 0;
-    const tax = subtotal * 0.1;
-    const shipping = subtotal > 50 ? 0 : 10;
-    const total = subtotal - discount + tax + shipping;
+    // Memoize calculations to prevent recalculation on every render
+    const calculations = useMemo(() => {
+        const subtotal = getTotalPrice();
+        const discount = 0;
+        const tax = subtotal * 0.1;
+        const shipping = subtotal > 50 ? 0 : 10;
+        const total = subtotal - discount + tax + shipping;
+
+        return { subtotal, discount, tax, shipping, total };
+    }, [getTotalPrice]);
+
+    const { subtotal, discount, tax, shipping, total } = calculations;
 
     if (items.length === 0) {
         return (

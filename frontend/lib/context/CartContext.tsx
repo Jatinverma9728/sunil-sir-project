@@ -140,7 +140,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         return items.reduce((total, item) => total + (item.product.price || 0) * item.quantity, 0);
     }, [items]);
 
-    const value = {
+    const value = React.useMemo(() => ({
         items,
         addToCart,
         removeFromCart,
@@ -148,7 +148,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         clearCart,
         getTotalItems,
         getTotalPrice,
-    };
+    }), [items, addToCart, removeFromCart, updateQuantity, clearCart, getTotalItems, getTotalPrice]);
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

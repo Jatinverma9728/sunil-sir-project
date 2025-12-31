@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useCart } from "@/lib/context/CartContext";
 import { useWishlist } from "@/lib/context/WishlistContext";
 import { useRouter } from "next/navigation";
 import ReviewSection from "@/components/products/ReviewSection";
+import { JsonLd, generateProductSchema, generateBreadcrumbSchema } from "@/lib/seo/structured-data";
 
 interface Product {
     _id: string;
@@ -194,9 +196,13 @@ export default function ProductDetailPage() {
                         {/* Main Image */}
                         <div className="relative aspect-[4/3] bg-white rounded-[2rem] overflow-hidden mb-6 group shadow-sm">
                             {images.length > 0 ? (
-                                <img
+                                <Image
                                     src={images[selectedImage]}
                                     alt={product.title}
+                                    width={1200}
+                                    height={900}
+                                    priority
+                                    unoptimized
                                     className="w-full h-full object-contain p-12 group-hover:scale-105 transition-transform duration-700"
                                 />
                             ) : (

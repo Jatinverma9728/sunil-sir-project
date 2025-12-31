@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { getProducts } from "@/lib/api/products";
 
 interface Product {
@@ -210,12 +211,15 @@ export default function HeroBanner() {
                                         </svg>
                                     </span>
                                 </div>
-                                <div className="h-24 flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden">
-                                    {product.images?.[0]?.url ? (
-                                        <img
-                                            src={product.images[0].url}
+                                <div className="h-24 flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden relative">
+                                    {product.images?.[0] ? (
+                                        <Image
+                                            src={typeof product.images[0] === 'string' ? product.images[0] : product.images[0].url}
                                             alt={product.title}
-                                            className="h-full w-full object-cover"
+                                            width={200}
+                                            height={200}
+                                            unoptimized
+                                            className="w-full h-full object-cover"
                                         />
                                     ) : (
                                         <span className="text-4xl opacity-50">📦</span>

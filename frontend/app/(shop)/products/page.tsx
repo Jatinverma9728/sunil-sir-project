@@ -39,6 +39,7 @@ function ProductsContent() {
     const [totalPages, setTotalPages] = useState(1);
     const [totalProducts, setTotalProducts] = useState(0);
     const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+    const [showFilters, setShowFilters] = useState(false);
 
     // Filter states
     const [categories, setCategories] = useState<string[]>([]);
@@ -152,6 +153,10 @@ function ProductsContent() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    const handleCategorySelect = (category: string) => {
+        router.push(`/products?category=${category}`);
+    };
+
     const breadcrumbItems = [];
     const categoryParam = searchParams.get('category');
     if (categoryParam) {
@@ -161,25 +166,51 @@ function ProductsContent() {
     }
 
     return (
-        <div className="min-h-screen bg-white">
-            <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-12">
+        <div className="min-h-screen bg-white overflow-x-hidden">
+            <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
                 <Breadcrumb items={breadcrumbItems} />
 
-                {/* Premium Header */}
-                <div className="mb-12">
-                    <p className="text-sm font-medium text-gray-400 uppercase tracking-[0.2em] mb-4">
-                        {categoryParam ? 'Category' : 'Browse'}
-                    </p>
-                    <h1 className="text-4xl md:text-5xl font-medium text-gray-900 tracking-tight mb-8">
+                {/* Header */}
+                <div className="mb-8">
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
                         {categoryParam ? `${categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1)}` : 'All Products'}
                     </h1>
 
-                    <div className="mb-8">
+                    {/* Category Pills */}
+                    <div className="mb-6 overflow-x-auto hide-scrollbar">
+                        <div className="flex items-center gap-3 pb-2">
+                            <button
+                                onClick={() => router.push('/products')}
+                                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${!categoryParam
+                                    ? 'bg-[#C1FF72] text-gray-900 shadow-md'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                            >
+                                All
+                            </button>
+                            {categories.map((category) => (
+                                <button
+                                    key={category}
+                                    onClick={() => handleCategorySelect(category)}
+                                    className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all capitalize whitespace-nowrap ${categoryParam === category
+                                        ? 'bg-[#C1FF72] text-gray-900 shadow-md'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        }`}
+                                >
+                                    {category}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="mb-6">
                         <SearchBar onSearch={handleSearch} initialValue={searchQuery} />
                     </div>
 
-                    <div className="flex items-center justify-between">
-                        <p className="text-gray-500">
+                    {/* Controls */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <p className="text-gray-600 text-sm">
                             {loading ? (
                                 <span className="flex items-center gap-2">
                                     <span className="w-4 h-4 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin"></span>
@@ -189,27 +220,76 @@ function ProductsContent() {
                                 <span><span className="font-semibold text-gray-900">{totalProducts}</span> products found</span>
                             )}
                         </p>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
+                            {/* Mobile Filter Toggle */}
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className="lg:hidden px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center gap-2 transition-colors"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                </svg>
+                                <span className="text-sm font-medium">Filters</span>
+                            </button>
                             <SortDropdown value={sortBy} onChange={handleSortChange} />
                             <ViewToggle view={view} onViewChange={setView} />
                         </div>
                     </div>
                 </div>
 
-                <div className="flex gap-10">
-                    <FilterSidebar
-                        onFilterChange={handleFilterChange}
-                        categories={categories}
-                        brands={brands}
-                        tags={tags}
-                    />
+                {/* Main Content */}
+                <div className="lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
+                    {/* Desktop Sidebar */}
+                    <div className="hidden lg:block">
+                        <FilterSidebar
+                            onFilterChange={handleFilterChange}
+                            categories={categories}
+                            brands={brands}
+                            tags={tags}
+                        />
+                    </div>
 
-                    <div className="flex-1">
+                    {/* Mobile Filters Modal */}
+                    {showFilters && (
+                        <div className="fixed inset-0 z-50 lg:hidden">
+                            <div
+                                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                                onClick={() => setShowFilters(false)}
+                            ></div>
+                            <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white shadow-2xl overflow-y-auto">
+                                <div className="sticky top-0 bg-white border-b border-gray-100 p-4 flex items-center justify-between z-10">
+                                    <h3 className="text-lg font-bold text-gray-900">Filters</h3>
+                                    <button
+                                        onClick={() => setShowFilters(false)}
+                                        className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div className="p-4">
+                                    <FilterSidebar
+                                        onFilterChange={(newFilters) => {
+                                            handleFilterChange(newFilters);
+                                            setShowFilters(false);
+                                        }}
+                                        categories={categories}
+                                        brands={brands}
+                                        tags={tags}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Products Grid */}
+                    <div className="w-full min-w-0">
                         {loading ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                                 {[...Array(6)].map((_, i) => (
-                                    <div key={i} className="bg-white rounded-3xl border border-gray-100 p-4 animate-pulse">
-                                        <div className="h-64 bg-gradient-to-b from-gray-100 to-gray-50 rounded-2xl mb-4"></div>
+                                    <div key={i} className="bg-white rounded-3xl border border-gray-100 p-4 animate-pulse w-full">
+                                        <div className="aspect-square bg-gradient-to-b from-gray-100 to-gray-50 rounded-2xl mb-4 w-full"></div>
                                         <div className="px-1">
                                             <div className="h-3 bg-gray-100 rounded w-20 mb-3"></div>
                                             <div className="h-5 bg-gray-100 rounded w-full mb-2"></div>
@@ -238,6 +318,16 @@ function ProductsContent() {
                     </div>
                 </div>
             </div>
+
+            <style jsx global>{`
+                .hide-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .hide-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            `}</style>
         </div>
     );
 }

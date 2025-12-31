@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useWishlist } from "@/lib/context/WishlistContext";
 import { useCart } from "@/lib/context/CartContext";
@@ -72,10 +73,10 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
             return { text: "Limited Stock", bgColor: "bg-orange-50", textColor: "text-orange-600" };
         }
         if (product.isFeatured) {
-            return { text: "Featured", bgColor: "bg-violet-50", textColor: "text-violet-600" };
+            return { text: "Featured", bgColor: "bg-[#C1FF72]/20", textColor: "text-gray-900" };
         }
         if (product.isBestSeller || (product.rating && product.rating >= 4.5)) {
-            return { text: "Best Seller", bgColor: "bg-emerald-50", textColor: "text-emerald-600" };
+            return { text: "Best Seller", bgColor: "bg-[#C1FF72]/20", textColor: "text-gray-900" };
         }
         if (product.originalPrice && product.originalPrice > product.price) {
             const discount = Math.round((1 - product.price / product.originalPrice) * 100);
@@ -91,7 +92,8 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
                 bg-white rounded-3xl overflow-hidden group relative
                 border border-gray-100
                 transition-all duration-500
-                ${isHovered ? 'shadow-2xl shadow-gray-200/80 border-gray-200 -translate-y-2' : 'shadow-sm hover:shadow-lg'}
+                w-full
+                ${isHovered ? 'shadow-2xl shadow-gray-200/80 border-[#C1FF72] -translate-y-2' : 'shadow-sm hover:shadow-lg'}
             `}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -100,54 +102,58 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
             <div className="relative">
                 {/* Product Tag Badge */}
                 {productTag && (
-                    <div className={`absolute top-4 left-4 z-10 px-3 py-1.5 rounded-full ${productTag.bgColor} ${productTag.textColor} text-xs font-semibold`}>
+                    <div className={`absolute top-3 left-3 z-10 px-3 py-1.5 rounded-full ${productTag.bgColor} ${productTag.textColor} text-xs font-semibold shadow-sm`}>
                         {productTag.text}
                     </div>
                 )}
 
+                {/* Wishlist Button - Always Visible */}
+                <button
+                    onClick={handleToggleWishlist}
+                    className={`
+                        absolute top-3 right-3 w-10 h-10 z-10
+                        bg-white/95 backdrop-blur-sm rounded-full 
+                        flex items-center justify-center 
+                        shadow-md
+                        transition-all duration-300
+                        hover:scale-110
+                        ${isWishlisted ? 'bg-red-50' : ''}
+                    `}
+                >
+                    <svg
+                        className={`w-5 h-5 transition-colors ${isWishlisted ? "text-red-500" : "text-gray-400"}`}
+                        fill={isWishlisted ? "currentColor" : "none"}
+                        stroke="currentColor"
+                        strokeWidth={isWishlisted ? 0 : 1.5}
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </button>
+
                 {/* Product Image */}
                 <Link href={`/products/${product._id}`} className="block">
-                    <div className="relative h-64 flex items-center justify-center bg-gradient-to-b from-gray-50 to-white m-4 rounded-2xl overflow-hidden">
+                    <div className="relative aspect-square w-full flex items-center justify-center bg-gradient-to-b from-gray-50 to-white p-4 md:p-6 overflow-hidden">
                         {images.length > 0 ? (
-                            <img
+                            <Image
                                 src={images[0]}
                                 alt={product.title}
+                                fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                unoptimized
                                 className={`
-                                    w-full h-full object-cover 
+                                    object-contain p-4
                                     transition-all duration-700
                                     ${isHovered ? 'scale-110' : 'scale-100'}
                                 `}
                             />
                         ) : (
-                            <span className="text-6xl opacity-30">📦</span>
+                            <span className="text-4xl md:text-6xl opacity-30">📦</span>
                         )}
 
-                        {/* Wishlist Button */}
-                        <button
-                            onClick={handleToggleWishlist}
-                            className={`
-                                absolute top-4 right-4 w-10 h-10 
-                                bg-white/95 backdrop-blur-sm rounded-full 
-                                flex items-center justify-center 
-                                shadow-lg
-                                transition-all duration-300
-                                ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}
-                                hover:scale-110
-                            `}
-                        >
-                            <svg
-                                className={`w-5 h-5 transition-colors ${isWishlisted ? "text-red-500" : "text-gray-400"}`}
-                                fill={isWishlisted ? "currentColor" : "none"}
-                                stroke="currentColor"
-                                strokeWidth={isWishlisted ? 0 : 1.5}
-                                viewBox="0 0 24 24"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                            </svg>
-                        </button>
-
-                        {/* Quick View Button */}
+                        {/* Quick View Button - Desktop Only */}
                         <div className={`
+                            hidden md:block
                             absolute bottom-4 left-4 right-4
                             transition-all duration-300
                             ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
@@ -164,13 +170,13 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
             </div>
 
             {/* Product Info */}
-            <div className="px-5 pb-6">
+            <div className="px-4 md:px-5 pb-5 md:pb-6">
                 {/* Category */}
                 <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">{product.category}</p>
 
                 {/* Product Title */}
                 <Link href={`/products/${product._id}`}>
-                    <h3 className="text-base font-semibold text-gray-900 line-clamp-2 hover:text-gray-600 transition-colors leading-snug mb-3">
+                    <h3 className="text-sm md:text-base font-semibold text-gray-900 line-clamp-2 hover:text-gray-600 transition-colors leading-snug mb-3 min-h-[2.5rem]">
                         {product.title}
                     </h3>
                 </Link>
@@ -184,31 +190,32 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
                         <span className="text-sm font-medium text-gray-700">{product.rating?.toFixed(1) || "4.5"}</span>
                     </div>
                     <span className="text-gray-200">|</span>
-                    <span className="text-sm text-gray-400">{product.reviews || 0} reviews</span>
+                    <span className="text-sm text-gray-400 hidden sm:inline">{product.reviews || 0} reviews</span>
+                    <span className="text-sm text-gray-400 sm:hidden">{product.reviews || 0}</span>
                 </div>
 
                 {/* Price & Add to Cart */}
                 <div className="flex items-center justify-between">
-                    <div className="flex items-baseline gap-2">
-                        <span className="text-xl font-semibold text-gray-900">${product.price.toFixed(2)}</span>
+                    <div className="flex flex-col">
+                        <span className="text-lg md:text-xl font-semibold text-gray-900">${product.price.toFixed(2)}</span>
                         {product.originalPrice && product.originalPrice > product.price && (
-                            <span className="text-sm text-gray-400 line-through">${product.originalPrice.toFixed(2)}</span>
+                            <span className="text-xs md:text-sm text-gray-400 line-through">${product.originalPrice.toFixed(2)}</span>
                         )}
                     </div>
                     <button
                         onClick={handleBuyNow}
                         disabled={!isInStock}
                         className={`
-                            w-11 h-11 rounded-full flex items-center justify-center 
+                            w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center 
                             transition-all duration-300
                             ${isHovered
-                                ? 'bg-gray-900 text-white scale-110'
-                                : 'border border-gray-200 text-gray-400 hover:bg-gray-900 hover:border-gray-900 hover:text-white'
+                                ? 'bg-[#C1FF72] text-gray-900 scale-110 shadow-lg shadow-[#C1FF72]/20'
+                                : 'bg-gray-900 text-white hover:bg-[#C1FF72] hover:text-gray-900 hover:shadow-lg hover:shadow-[#C1FF72]/20'
                             }
                             disabled:opacity-40 disabled:cursor-not-allowed
                         `}
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                         </svg>
                     </button>
