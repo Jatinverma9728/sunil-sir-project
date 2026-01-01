@@ -95,7 +95,7 @@ export default function CartPage() {
                             <div className="space-y-4 mb-6 pb-6 border-b border-gray-200">
                                 <div className="flex justify-between text-gray-600">
                                     <span>Subtotal</span>
-                                    <span className="font-medium text-gray-900">${subtotal.toFixed(2)}</span>
+                                    <span className="font-medium text-gray-900">₹{subtotal.toFixed(2)}</span>
                                 </div>
 
                                 <div className="flex justify-between text-gray-600">
@@ -104,7 +104,7 @@ export default function CartPage() {
                                         {shipping === 0 ? (
                                             <span className="text-green-600">FREE</span>
                                         ) : (
-                                            <span className="text-gray-900">${shipping.toFixed(2)}</span>
+                                                <span className="text-gray-900">₹{shipping.toFixed(2)}</span>
                                         )}
                                     </span>
                                 </div>
@@ -112,13 +112,13 @@ export default function CartPage() {
                                 {shipping > 0 && (
                                     <div className="text-sm text-gray-500 bg-blue-50 p-4 rounded-2xl">
                                         <span className="font-medium text-blue-600">💡 Almost there!</span>
-                                        <br />Add ${(50 - subtotal).toFixed(2)} more for free shipping
+                                        <br />Add ₹{(50 - subtotal).toFixed(2)} more for free shipping
                                     </div>
                                 )}
 
                                 <div className="flex justify-between text-gray-600">
                                     <span>Tax (10%)</span>
-                                    <span className="font-medium text-gray-900">${tax.toFixed(2)}</span>
+                                    <span className="font-medium text-gray-900">₹{tax.toFixed(2)}</span>
                                 </div>
                             </div>
 
@@ -139,7 +139,7 @@ export default function CartPage() {
                             {/* Total */}
                             <div className="flex justify-between text-lg font-semibold text-gray-900 mb-6">
                                 <span>Total</span>
-                                <span>${total.toFixed(2)}</span>
+                                <span>₹{total.toFixed(2)}</span>
                             </div>
 
                             {/* Checkout Button */}
@@ -165,7 +165,7 @@ export default function CartPage() {
                 <div className="mt-16 grid md:grid-cols-3 gap-8">
                     {[
                         { icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z", title: "Secure Payment", desc: "256-bit SSL encryption" },
-                        { icon: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", title: "Free Shipping", desc: "On orders over $50" },
+                        { icon: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", title: "Free Shipping", desc: "On orders over ₹50" },
                         { icon: "M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6", title: "Easy Returns", desc: "30-day return policy" },
                     ].map((badge, i) => (
                         <div key={i} className="flex items-start gap-4 p-6 bg-gray-50 rounded-2xl">

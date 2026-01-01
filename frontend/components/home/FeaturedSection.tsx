@@ -137,11 +137,11 @@ export default function FeaturedSection() {
                             <div className="flex items-center gap-3 mb-6">
                                 <span className="text-sm text-white/80 uppercase tracking-wider">Starting at</span>
                                 <span className="text-3xl font-bold text-[#C1FF72] drop-shadow-lg">
-                                    ${featuredProduct.price.toFixed(2)}
+                                    ₹{featuredProduct.price.toFixed(2)}
                                 </span>
                                 {featuredProduct.originalPrice && featuredProduct.originalPrice > featuredProduct.price && (
                                     <span className="text-lg text-white/60 line-through">
-                                        ${featuredProduct.originalPrice.toFixed(2)}
+                                        ₹{featuredProduct.originalPrice.toFixed(2)}
                                     </span>
                                 )}
                             </div>
@@ -278,11 +278,11 @@ export default function FeaturedSection() {
                                             {/* Price */}
                                             <div className="flex items-center gap-2">
                                                 <span className="text-lg font-bold text-gray-900">
-                                                    ${product.price.toFixed(2)}
+                                                    ₹{product.price.toFixed(2)}
                                                 </span>
                                                 {product.originalPrice && product.originalPrice > product.price && (
                                                     <span className="text-sm text-gray-400 line-through">
-                                                        ${product.originalPrice.toFixed(2)}
+                                                        ₹{product.originalPrice.toFixed(2)}
                                                     </span>
                                                 )}
                                             </div>

@@ -319,13 +319,13 @@ export default function ProductDetailPage() {
                         {/* Price Block */}
                         <div className="bg-white rounded-2xl p-6 mb-8">
                             <div className="flex items-end gap-4 mb-3">
-                                <span className="text-4xl font-light text-gray-900">${product.price.toFixed(2)}</span>
+                                <span className="text-4xl font-light text-gray-900">₹{product.price.toFixed(2)}</span>
                                 {product.originalPrice && (
-                                    <span className="text-lg text-gray-400 line-through pb-1">${product.originalPrice.toFixed(2)}</span>
+                                    <span className="text-lg text-gray-400 line-through pb-1">₹{product.originalPrice.toFixed(2)}</span>
                                 )}
                             </div>
                             {discount > 0 && (
-                                <p className="text-sm text-green-600 font-medium">You save ${(product.originalPrice! - product.price).toFixed(2)}</p>
+                                <p className="text-sm text-green-600 font-medium">You save ₹{(product.originalPrice! - product.price).toFixed(2)}</p>
                             )}
                         </div>
 

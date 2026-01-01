@@ -173,9 +173,9 @@ export default function AccountPage() {
                                                     <h3 className="font-medium text-gray-900 mb-2 line-clamp-1">{item.title}</h3>
                                                     <div className="flex items-center justify-between mb-4">
                                                         <div className="flex items-baseline gap-2">
-                                                            <span className="text-lg font-medium text-gray-900">${item.price}</span>
+                                                            <span className="text-lg font-medium text-gray-900">₹{item.price}</span>
                                                             {item.originalPrice && (
-                                                                <span className="text-sm text-gray-400 line-through">${item.originalPrice}</span>
+                                                                <span className="text-sm text-gray-400 line-through">₹{item.originalPrice}</span>
                                                             )}
                                                         </div>
                                                         <span className={`text-xs px-2 py-1 rounded-full ${item.inStock !== false ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'

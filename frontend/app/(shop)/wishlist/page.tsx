@@ -113,9 +113,9 @@ export default function WishlistPage() {
                                         <p className="text-sm text-gray-500 mb-2">{item.category}</p>
                                     )}
                                     <div className="flex items-baseline gap-2 mb-4">
-                                        <span className="text-xl font-bold text-gray-900">${item.price.toFixed(2)}</span>
+                                        <span className="text-xl font-bold text-gray-900">₹{item.price.toFixed(2)}</span>
                                         {item.originalPrice && (
-                                            <span className="text-sm text-gray-400 line-through">${item.originalPrice.toFixed(2)}</span>
+                                            <span className="text-sm text-gray-400 line-through">₹{item.originalPrice.toFixed(2)}</span>
                                         )}
                                     </div>
 

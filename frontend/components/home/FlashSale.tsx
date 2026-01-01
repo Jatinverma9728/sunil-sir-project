@@ -169,11 +169,11 @@ export default function FlashSale() {
                                 {/* Price */}
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="text-lg font-bold text-red-600">
-                                        ${product.price.toFixed(2)}
+                                        ₹{product.price.toFixed(2)}
                                     </span>
                                     {product.originalPrice && (
                                         <span className="text-sm text-gray-400 line-through">
-                                            ${product.originalPrice.toFixed(2)}
+                                            ₹{product.originalPrice.toFixed(2)}
                                         </span>
                                     )}
                                 </div>

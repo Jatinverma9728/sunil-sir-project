@@ -99,7 +99,7 @@ export default function HeroBanner() {
                                 <h3 className="text-3xl lg:text-4xl font-bold text-white mb-2">
                                     Humidifying Fan
                                 </h3>
-                                <p className="text-white/90 text-sm">From $299</p>
+                                <p className="text-white/90 text-sm">From ₹299</p>
                             </div>
 
                             <div className="relative h-64 my-4">
@@ -158,7 +158,7 @@ export default function HeroBanner() {
                                 <h4 className="text-xl font-semibold text-white mb-1">Air</h4>
                                 <h4 className="text-xl font-semibold text-white mb-2">Purifier</h4>
                                 <p className="text-gray-400 text-xs mb-2">FROM</p>
-                                <p className="text-green-400 text-2xl font-bold">$169</p>
+                                <p className="text-green-400 text-2xl font-bold">₹169</p>
                             </div>
                             <div className="relative w-28 h-28">
                                 <Image

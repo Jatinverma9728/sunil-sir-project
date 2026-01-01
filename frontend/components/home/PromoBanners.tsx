@@ -54,7 +54,7 @@ export default function PromoBanners() {
                             <h3 className="text-4xl md:text-5xl font-medium text-gray-900 mb-3 tracking-tight">
                                 Free Shipping
                             </h3>
-                            <p className="text-gray-500 text-xl">On orders over $50</p>
+                            <p className="text-gray-500 text-xl">On orders over ₹50</p>
                         </div>
 
                         <div className="relative z-10 flex items-center justify-between mt-6">

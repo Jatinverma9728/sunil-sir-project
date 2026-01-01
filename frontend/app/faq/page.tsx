@@ -37,7 +37,7 @@ export default function FAQPage() {
                             isOpen={openIndex === 0}
                             onClick={() => setOpenIndex(openIndex === 0 ? null : 0)}
                             question="How long does shipping take?"
-                            answer="Standard shipping typically takes 5-7 business days. Express shipping is available for 2-3 business day delivery. We also offer free shipping on all orders over $50. You'll receive tracking information via email once your order ships."
+                            answer="Standard shipping typically takes 5-7 business days. Express shipping is available for 2-3 business day delivery. We also offer free shipping on all orders over ₹50. You'll receive tracking information via email once your order ships."
                         />
                         <FAQ
                             isOpen={openIndex === 1}

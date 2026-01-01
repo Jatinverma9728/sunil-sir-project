@@ -87,7 +87,7 @@ export default function ProductSlider() {
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-2xl font-bold text-gray-900">
-                                            $ {product.price}.00 <span className="text-sm font-normal text-gray-500">USD</span>
+                                            ₹ {product.price}.00 <span className="text-sm font-normal text-gray-500">USD</span>
                                         </span>
                                     </div>
                                 </div>

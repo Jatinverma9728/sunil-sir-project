@@ -42,12 +42,12 @@ export default function ShippingPage() {
                         <h3 className="text-2xl font-bold text-gray-900 mb-2">Standard Shipping</h3>
                         <p className="text-gray-600 mb-6">5-7 business days</p>
                         <div className="space-y-3 mb-8">
-                            <Feature text="Free on orders over $50" />
+                            <Feature text="Free on orders over ₹50" />
                             <Feature text="Full tracking included" />
                             <Feature text="Secure packaging" />
                         </div>
-                        <p className="text-3xl font-bold text-gray-900">$0</p>
-                        <p className="text-sm text-gray-500">on orders $50+</p>
+                        <p className="text-3xl font-bold text-gray-900">₹0</p>
+                        <p className="text-sm text-gray-500">on orders ₹50+</p>
                     </div>
 
                     {/* Express */}
@@ -67,7 +67,7 @@ export default function ShippingPage() {
                             <Feature text="Real-time GPS tracking" white />
                             <Feature text="Signature on delivery" white />
                         </div>
-                        <p className="text-3xl font-bold text-white">$12.99</p>
+                        <p className="text-3xl font-bold text-white">₹129</p>
                         <p className="text-sm text-gray-400">per order</p>
                     </div>
 
@@ -88,7 +88,7 @@ export default function ShippingPage() {
                             <Feature text="Guaranteed arrival time" />
                             <Feature text="Premium white-glove service" />
                         </div>
-                        <p className="text-3xl font-bold text-gray-900">$24.99</p>
+                        <p className="text-3xl font-bold text-gray-900">₹249</p>
                         <p className="text-sm text-gray-500">per order</p>
                     </div>
                 </div>
@@ -143,7 +143,7 @@ export default function ShippingPage() {
                             </li>
                             <li className="flex items-start gap-3">
                                 <span className="text-[#C1FF72] mt-1">✓</span>
-                                <span>Signature required for orders over $500</span>
+                                <span>Signature required for orders over ₹500</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <span className="text-[#C1FF72] mt-1">✓</span>

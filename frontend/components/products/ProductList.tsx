@@ -95,7 +95,7 @@ export default function ProductList({ products, onAddToCart }: ProductListProps)
                             {/* Price and Actions */}
                             <div className="flex items-center justify-between mt-auto">
                                 <span className="text-3xl font-bold text-gray-900">
-                                    ${product.price}
+                                    ₹{product.price}
                                 </span>
                                 <div className="flex gap-3">
                                     <button className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">

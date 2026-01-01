@@ -197,9 +197,9 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
                 {/* Price & Add to Cart */}
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="text-lg md:text-xl font-semibold text-gray-900">${product.price.toFixed(2)}</span>
+                        <span className="text-lg md:text-xl font-semibold text-gray-900">₹{product.price.toFixed(2)}</span>
                         {product.originalPrice && product.originalPrice > product.price && (
-                            <span className="text-xs md:text-sm text-gray-400 line-through">${product.originalPrice.toFixed(2)}</span>
+                            <span className="text-xs md:text-sm text-gray-400 line-through">₹{product.originalPrice.toFixed(2)}</span>
                         )}
                     </div>
                     <button

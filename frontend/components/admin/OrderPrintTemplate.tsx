@@ -160,11 +160,11 @@ export default function OrderPrintTemplate({ order }: OrderPrintTemplateProps) {
                                         <span className="text-sm font-semibold text-gray-900">{item.quantity}</span>
                                     </td>
                                     <td className="text-right py-4">
-                                        <span className="text-sm text-gray-700">${item.price.toFixed(2)}</span>
+                                        <span className="text-sm text-gray-700">₹{item.price.toFixed(2)}</span>
                                     </td>
                                     <td className="text-right py-4">
                                         <span className="text-sm font-semibold text-gray-900">
-                                            ${(item.quantity * item.price).toFixed(2)}
+                                            ₹{(item.quantity * item.price).toFixed(2)}
                                         </span>
                                     </td>
                                 </tr>
@@ -179,20 +179,20 @@ export default function OrderPrintTemplate({ order }: OrderPrintTemplateProps) {
                         <div className="space-y-3 p-6 bg-gray-50 rounded-lg border-2 border-gray-200">
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-700">Subtotal</span>
-                                <span className="font-semibold text-gray-900">${order.itemsPrice.toFixed(2)}</span>
+                                <span className="font-semibold text-gray-900">₹{order.itemsPrice.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-700">Tax</span>
-                                <span className="font-semibold text-gray-900">${order.taxPrice.toFixed(2)}</span>
+                                <span className="font-semibold text-gray-900">₹{order.taxPrice.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-700">Shipping</span>
-                                <span className="font-semibold text-gray-900">${order.shippingPrice.toFixed(2)}</span>
+                                <span className="font-semibold text-gray-900">₹{order.shippingPrice.toFixed(2)}</span>
                             </div>
                             <div className="border-t-2 border-gray-900 pt-3 mt-3">
                                 <div className="flex justify-between">
                                     <span className="text-lg font-bold text-gray-900 uppercase">Total</span>
-                                    <span className="text-2xl font-bold text-gray-900">${order.totalPrice.toFixed(2)}</span>
+                                    <span className="text-2xl font-bold text-gray-900">₹{order.totalPrice.toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>

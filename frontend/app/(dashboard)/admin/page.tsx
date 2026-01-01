@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import Link from "next/link";
+import CategoryManagement from "@/components/admin/CategoryManagement";
 import {
     getAdminDashboardStats,
     getAdminProducts,
@@ -20,10 +21,12 @@ import {
     createAdminUser,
     updateAdminUser,
     deleteAdminUser,
+    getAllCategories,
     Product,
     Order,
     Course,
     User,
+    Category,
     ProductFormData,
     CourseFormData,
     UserFormData,
@@ -47,7 +50,7 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-type TabType = "overview" | "products" | "orders" | "courses" | "users";
+type TabType = "overview" | "products" | "categories" | "orders" | "courses" | "users";
 
 // Modal Component
 function Modal({
@@ -101,6 +104,9 @@ export default function AdminDashboard() {
     const [productsLoading, setProductsLoading] = useState(false);
     const [showProductModal, setShowProductModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+    // Categories state
+    const [categories, setCategories] = useState<Category[]>([]);
 
     // Orders state
     const [orders, setOrders] = useState<Order[]>([]);
@@ -209,6 +215,18 @@ export default function AdminDashboard() {
         }
     };
 
+    // Categories functions
+    const fetchCategories = useCallback(async () => {
+        try {
+            const result = await getAllCategories();
+            if (result.success && result.data) {
+                setCategories(result.data);
+            }
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    }, []);
+
     // Orders functions
     const fetchOrders = useCallback(async () => {
         setOrdersLoading(true);
@@ -289,11 +307,12 @@ export default function AdminDashboard() {
 
     // Load data when tab changes
     useEffect(() => {
+        fetchCategories(); // Load categories for product form
         if (activeTab === "products") fetchProducts();
         if (activeTab === "orders") fetchOrders();
         if (activeTab === "courses") fetchCourses();
         if (activeTab === "users") fetchUsers();
-    }, [activeTab, fetchProducts, fetchOrders, fetchCourses, fetchUsers]);
+    }, [activeTab, fetchProducts, fetchOrders, fetchCourses, fetchUsers, fetchCategories]);
 
     const COLORS = ["#C1FF72", "#2D5A27", "#4CAF50", "#81C784", "#A5D6A7"];
 
@@ -335,7 +354,8 @@ export default function AdminDashboard() {
                         {[
                             { id: "overview" as TabType, label: "Overview", icon: "📊" },
                             { id: "products" as TabType, label: "Products", icon: "📱" },
-                            { id: "orders" as TabType, label: "Orders", icon: "📦" },
+                            { id: "categories" as TabType, label: "Categories", icon: "📦" },
+                            { id: "orders" as TabType, label: "Orders", icon: "�" },
                             { id: "courses" as TabType, label: "Courses", icon: "📚" },
                             { id: "users" as TabType, label: "Users", icon: "👥" },
                         ].map((tab) => (
@@ -360,7 +380,7 @@ export default function AdminDashboard() {
                         {/* Stats Grid */}
                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                             {[
-                                { label: "Total Revenue", value: `$${stats.totalRevenue.toLocaleString()}`, icon: "💰", change: "+12%" },
+                                { label: "Total Revenue", value: `₹${stats.totalRevenue.toLocaleString()}`, icon: "💰", change: "+12%" },
                                 { label: "Total Orders", value: stats.totalOrders.toLocaleString(), icon: "📦", change: `${stats.pendingOrders} pending` },
                                 { label: "Total Products", value: stats.totalProducts.toLocaleString(), icon: "📱", change: "Active" },
                                 { label: "Total Users", value: stats.totalUsers.toLocaleString(), icon: "👥", change: "Registered" },
@@ -432,7 +452,7 @@ export default function AdminDashboard() {
                                                 <tr key={order._id} className="border-b border-gray-100 hover:bg-gray-50">
                                                     <td className="py-3 px-4 font-medium">#{order._id.slice(-6).toUpperCase()}</td>
                                                     <td className="py-3 px-4">{order.user?.name || "N/A"}</td>
-                                                    <td className="py-3 px-4 font-semibold">${order.totalPrice?.toFixed(2)}</td>
+                                                    <td className="py-3 px-4 font-semibold">₹{order.totalPrice?.toFixed(2)}</td>
                                                     <td className="py-3 px-4">
                                                         <span
                                                             className={`px-2 py-1 rounded-full text-xs font-medium ${order.orderStatus === "delivered"
@@ -501,7 +521,7 @@ export default function AdminDashboard() {
                                             {products.map((product) => (
                                                 <tr key={product._id} className="border-b border-gray-100 hover:bg-gray-50">
                                                     <td className="py-3 px-4 font-medium">{product.title}</td>
-                                                    <td className="py-3 px-4 font-semibold">${product.price}</td>
+                                                    <td className="py-3 px-4 font-semibold">₹{product.price}</td>
                                                     <td className="py-3 px-4">{product.stock}</td>
                                                     <td className="py-3 px-4 capitalize">{product.category}</td>
                                                     <td className="py-3 px-4">
@@ -567,6 +587,13 @@ export default function AdminDashboard() {
                     </div>
                 )}
 
+                {/* Categories Tab */}
+                {activeTab === "categories" && (
+                    <div className="bg-white rounded-xl p-6 shadow-sm">
+                        <CategoryManagement />
+                    </div>
+                )}
+
                 {/* Orders Tab */}
                 {activeTab === "orders" && (
                     <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -612,7 +639,7 @@ export default function AdminDashboard() {
                                                 <tr key={order._id} className="border-b border-gray-100 hover:bg-gray-50">
                                                     <td className="py-3 px-4 font-medium">#{order._id.slice(-6).toUpperCase()}</td>
                                                     <td className="py-3 px-4">{order.user?.name || "N/A"}</td>
-                                                    <td className="py-3 px-4 font-semibold">${order.totalPrice?.toFixed(2)}</td>
+                                                    <td className="py-3 px-4 font-semibold">₹{order.totalPrice?.toFixed(2)}</td>
                                                     <td className="py-3 px-4">
                                                         <span
                                                             className={`px-2 py-1 rounded-full text-xs font-medium ${order.paymentInfo?.status === "completed"
@@ -759,7 +786,7 @@ export default function AdminDashboard() {
                                             {courses.map((course) => (
                                                 <tr key={course._id} className="border-b border-gray-100 hover:bg-gray-50">
                                                     <td className="py-3 px-4 font-medium">{course.title}</td>
-                                                    <td className="py-3 px-4 font-semibold">${course.price}</td>
+                                                    <td className="py-3 px-4 font-semibold">₹{course.price}</td>
                                                     <td className="py-3 px-4">{course.enrolledStudents}</td>
                                                     <td className="py-3 px-4">
                                                         <span
@@ -959,6 +986,7 @@ export default function AdminDashboard() {
                 >
                     <ProductForm
                         product={editingProduct}
+                        categories={categories}
                         onSubmit={async (data) => {
                             let result;
                             if (editingProduct) {
@@ -1039,10 +1067,12 @@ export default function AdminDashboard() {
 // Product Form Component with Image Upload
 function ProductForm({
     product,
+    categories,
     onSubmit,
     onCancel,
 }: {
     product: Product | null;
+    categories: Category[];
     onSubmit: (data: ProductFormData) => void;
     onCancel: () => void;
 }) {
@@ -1220,7 +1250,7 @@ function ProductForm({
             {/* Pricing & Inventory */}
             <div className="grid grid-cols-3 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Price ($) *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹) *</label>
                     <input
                         type="number"
                         value={formData.price}
@@ -1262,19 +1292,18 @@ function ProductForm({
                         value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         className="w-full px-3 py-2 border rounded-lg"
+                        required
                     >
-                        <option value="electronics">📱 Electronics</option>
-                        <option value="clothing">👔 Clothing</option>
-                        <option value="books">📚 Books</option>
-                        <option value="home">🏠 Home & Garden</option>
-                        <option value="sports">⚽ Sports & Fitness</option>
-                        <option value="toys">🧸 Toys & Games</option>
-                        <option value="beauty">💄 Beauty & Personal Care</option>
-                        <option value="food">🍔 Food & Beverages</option>
-                        <option value="automotive">🚗 Automotive</option>
-                        <option value="jewelry">💍 Jewelry & Watches</option>
-                        <option value="furniture">🛋️ Furniture</option>
-                        <option value="other">📦 Other</option>
+                        <option value="">Select Category</option>
+                        {categories && categories.length > 0 ? (
+                            categories.map((cat) => (
+                                <option key={cat._id} value={cat.slug}>
+                                    {cat.icon} {cat.name}
+                                </option>
+                            ))
+                        ) : (
+                            <option disabled>Loading categories...</option>
+                        )}
                     </select>
                 </div>
                 <div>

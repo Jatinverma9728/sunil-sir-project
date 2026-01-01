@@ -291,7 +291,7 @@ export default function CoursesPage() {
                         {/* Price Range */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Max Price: <span className="font-semibold text-gray-900">${priceRange[1]}</span>
+                                Max Price: <span className="font-semibold text-gray-900">₹{priceRange[1]}</span>
                             </label>
                             <input
                                 type="range"

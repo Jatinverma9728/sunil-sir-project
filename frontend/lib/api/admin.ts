@@ -488,3 +488,84 @@ export const uploadImages = async (files: File[]): Promise<{ success: boolean; u
         return { success: false, message: 'Failed to upload images' };
     }
 };
+
+// ============================================
+// CATEGORY MANAGEMENT
+// ============================================
+
+export interface Category {
+    _id: string;
+    name: string;
+    slug: string;
+    icon: string;
+    description: string;
+    isActive: boolean;
+    productCount?: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export const getAllCategories = async () => {
+    try {
+        const response = await fetch(`${API_URL}/admin/categories`, {
+            headers: getAuthHeaders(),
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        return { success: false, message: 'Failed to fetch categories' };
+    }
+};
+
+export const getCategoryById = async (id: string) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/categories/${id}`, {
+            headers: getAuthHeaders(),
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching category:', error);
+        return { success: false, message: 'Failed to fetch category' };
+    }
+};
+
+export const createCategory = async (categoryData: Partial<Category>) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/categories`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(categoryData),
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Error creating category:', error);
+        return { success: false, message: 'Failed to create category' };
+    }
+};
+
+export const updateCategory = async (id: string, categoryData: Partial<Category>) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/categories/${id}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(categoryData),
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Error updating category:', error);
+        return { success: false, message: 'Failed to update category' };
+    }
+};
+
+export const deleteCategory = async (id: string) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/categories/${id}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        return { success: false, message: 'Failed to delete category' };
+    }
+};

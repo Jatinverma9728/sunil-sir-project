@@ -156,8 +156,8 @@ export default function CourseShowcase() {
                                 {/* Price */}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-2xl font-semibold text-gray-900">${course.price}</span>
-                                        <span className="text-sm text-gray-400 line-through">${course.originalPrice}</span>
+                                        <span className="text-2xl font-semibold text-gray-900">₹{course.price}</span>
+                                        <span className="text-sm text-gray-400 line-through">₹{course.originalPrice}</span>
                                     </div>
                                     <span className={`
                                         w-11 h-11 rounded-full flex items-center justify-center 

@@ -135,7 +135,7 @@ export default function RelatedProducts({ currentProductId, category }: RelatedP
                                         {product.title}
                                     </h3>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-xl font-bold">${product.price}</span>
+                                        <span className="text-xl font-bold">₹{product.price}</span>
                                         {product.rating && (
                                             <div className="flex text-yellow-400 text-xs">
                                                 {"★".repeat(Math.floor(product.rating))}

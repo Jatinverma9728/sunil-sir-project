@@ -506,11 +506,11 @@ This course is designed to take you from zero to hero in web development. You'll
                                     <div className="mb-6">
                                         <div className="flex items-baseline gap-3 mb-2">
                                             <span className="text-4xl font-bold text-gray-900">
-                                                ${course.price}
+                                                ₹{course.price}
                                             </span>
                                             {course.originalPrice && (
                                                 <span className="text-xl text-gray-400 line-through">
-                                                    ${course.originalPrice}
+                                                    ₹{course.originalPrice}
                                                 </span>
                                             )}
                                         </div>

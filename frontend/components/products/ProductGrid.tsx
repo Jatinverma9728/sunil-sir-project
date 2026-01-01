@@ -123,7 +123,7 @@ export default function ProductGrid({ products, onAddToCart }: ProductGridProps)
                             {/* Price & Add to Cart */}
                             <div className="flex items-center justify-between">
                                 <span className="text-lg md:text-xl font-semibold text-gray-900">
-                                    ${product.price.toFixed(2)}
+                                    ₹{product.price.toFixed(2)}
                                 </span>
                                 <button
                                     onClick={(e) => {

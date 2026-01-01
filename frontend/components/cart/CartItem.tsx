@@ -101,10 +101,10 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
             {/* Price Info */}
             <div className="text-right flex flex-col justify-center">
                 <p className="text-xl font-semibold text-gray-900">
-                    ${itemTotal.toFixed(2)}
+                    ₹{itemTotal.toFixed(2)}
                 </p>
                 <p className="text-sm text-gray-400">
-                    ${product.price.toFixed(2)} each
+                    ₹{product.price.toFixed(2)} each
                 </p>
             </div>
         </div>

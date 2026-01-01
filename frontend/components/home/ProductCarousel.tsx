@@ -244,9 +244,9 @@ export default function ProductCarousel({
                                         {/* Price & Add to Cart */}
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-baseline gap-2">
-                                                <span className="text-xl font-semibold text-gray-900">${product.price.toFixed(2)}</span>
+                                                <span className="text-xl font-semibold text-gray-900">₹{product.price.toFixed(2)}</span>
                                                 {product.originalPrice && product.originalPrice > product.price && (
-                                                    <span className="text-sm text-gray-400 line-through">${product.originalPrice.toFixed(2)}</span>
+                                                    <span className="text-sm text-gray-400 line-through">₹{product.originalPrice.toFixed(2)}</span>
                                                 )}
                                             </div>
                                             <button

@@ -34,6 +34,14 @@ const {
     getUserStats,
 } = require('../controllers/admin/userAdminController');
 
+const {
+    getAllCategories,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    getCategoryById,
+} = require('../controllers/admin/categoryAdminController');
+
 // All admin routes require authentication and admin role
 router.use(protect);
 router.use(authorize('admin'));
@@ -62,6 +70,15 @@ router.get('/orders/stats', getOrderStats);  // Must be before /:id
 router.get('/orders', getAllOrders);
 router.get('/orders/:id', getOrderById);
 router.put('/orders/:id/status', updateOrderStatus);
+
+// ============================================
+// CATEGORY MANAGEMENT ROUTES
+// ============================================
+router.get('/categories', getAllCategories);
+router.post('/categories', createCategory);
+router.get('/categories/:id', getCategoryById);
+router.put('/categories/:id', updateCategory);
+router.delete('/categories/:id', deleteCategory);
 
 // ============================================
 // USER MANAGEMENT ROUTES

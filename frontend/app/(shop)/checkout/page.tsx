@@ -228,7 +228,7 @@ export default function CheckoutPage() {
                                                         Standard Delivery
                                                     </h4>
                                                     <span className="font-bold text-gray-900">
-                                                        {shipping === 0 ? "FREE" : `$${shipping}`}
+                                                        {shipping === 0 ? "FREE" : `₹${shipping}`}
                                                     </span>
                                                 </div>
                                                 <p className="text-sm text-gray-600">
@@ -244,7 +244,7 @@ export default function CheckoutPage() {
                                                     <h4 className="font-semibold text-gray-900">
                                                         Express Delivery
                                                     </h4>
-                                                    <span className="font-bold text-gray-900">$20</span>
+                                                    <span className="font-bold text-gray-900">₹20</span>
                                                 </div>
                                                 <p className="text-sm text-gray-600">
                                                     Delivery in 1-2 business days

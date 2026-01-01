@@ -54,7 +54,7 @@ export default function OrderSummary({
                             <p className="text-xs text-gray-600 mt-1">Qty: {item.quantity}</p>
                         </div>
                         <p className="font-bold text-gray-900 text-sm">
-                            ${(item.product.price * item.quantity).toFixed(2)}
+                            ₹{(item.product.price * item.quantity).toFixed(2)}
                         </p>
                     </div>
                 ))}
@@ -64,7 +64,7 @@ export default function OrderSummary({
             <div className="space-y-3 mb-6 pb-6 border-b border-gray-200">
                 <div className="flex justify-between text-gray-700">
                     <span>Subtotal ({items.length} items)</span>
-                    <span className="font-medium">${subtotal.toFixed(2)}</span>
+                    <span className="font-medium">₹{subtotal.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between text-gray-700">
@@ -73,20 +73,20 @@ export default function OrderSummary({
                         {shipping === 0 ? (
                             <span className="text-green-600">FREE</span>
                         ) : (
-                            `$${shipping.toFixed(2)}`
+                            `₹${shipping.toFixed(2)}`
                         )}
                     </span>
                 </div>
 
                 <div className="flex justify-between text-gray-700">
                     <span>Tax (GST 10%)</span>
-                    <span className="font-medium">${tax.toFixed(2)}</span>
+                    <span className="font-medium">₹{tax.toFixed(2)}</span>
                 </div>
 
                 {discount > 0 && (
                     <div className="flex justify-between text-green-600">
                         <span>Discount</span>
-                        <span className="font-medium">-${discount.toFixed(2)}</span>
+                        <span className="font-medium">₹{discount.toFixed(2)}</span>
                     </div>
                 )}
             </div>
@@ -94,7 +94,7 @@ export default function OrderSummary({
             {/* Total */}
             <div className="flex justify-between text-xl font-bold text-gray-900 mb-4">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>₹{total.toFixed(2)}</span>
             </div>
 
             {/* Estimated Delivery */}

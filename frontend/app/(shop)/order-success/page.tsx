@@ -149,7 +149,7 @@ export default function OrderSuccessPage() {
                                                             {item.title} × {item.quantity}
                                                         </span>
                                                         <span className="text-sm font-medium text-gray-900">
-                                                            ${(item.price * item.quantity).toFixed(2)}
+                                                            ₹{(item.price * item.quantity).toFixed(2)}
                                                         </span>
                                                     </div>
                                                 ))}
@@ -161,7 +161,7 @@ export default function OrderSuccessPage() {
                                     <div className="flex items-center justify-between pt-4 mt-4 border-t-2 border-gray-300">
                                         <span className="text-lg font-bold text-gray-900">Total</span>
                                         <span className="text-2xl font-bold text-green-600">
-                                            ${order.totalPrice?.toFixed(2)}
+                                            ₹{order.totalPrice?.toFixed(2)}
                                         </span>
                                     </div>
                                 </div>

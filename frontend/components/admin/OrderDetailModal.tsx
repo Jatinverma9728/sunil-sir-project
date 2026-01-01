@@ -255,12 +255,12 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: OrderDeta
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="font-bold text-gray-900 truncate">{item.title}</h4>
                                                     <p className="text-sm text-gray-600 mt-1">
-                                                        Qty: <span className="font-semibold">{item.quantity}</span> × ${item.price.toFixed(2)}
+                                                        Qty: <span className="font-semibold">{item.quantity}</span> × ₹{item.price.toFixed(2)}
                                                     </p>
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                                                        ${(item.quantity * item.price).toFixed(2)}
+                                                        ₹{(item.quantity * item.price).toFixed(2)}
                                                     </p>
                                                 </div>
                                             </div>
@@ -277,20 +277,20 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: OrderDeta
                                     <div className="space-y-3">
                                         <div className="flex justify-between text-sm pb-3 border-b border-gray-700">
                                             <span className="text-gray-300">Items Subtotal</span>
-                                            <span className="font-semibold text-white">${order.itemsPrice.toFixed(2)}</span>
+                                            <span className="font-semibold text-white">₹{order.itemsPrice.toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-sm pb-3 border-b border-gray-700">
                                             <span className="text-gray-300">Tax</span>
-                                            <span className="font-semibold text-white">${order.taxPrice.toFixed(2)}</span>
+                                            <span className="font-semibold text-white">₹{order.taxPrice.toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-sm pb-4 border-b border-gray-700">
                                             <span className="text-gray-300">Shipping</span>
-                                            <span className="font-semibold text-white">${order.shippingPrice.toFixed(2)}</span>
+                                            <span className="font-semibold text-white">₹{order.shippingPrice.toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between pt-2">
                                             <span className="text-xl font-bold text-white">Total Amount</span>
                                             <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                                                ${order.totalPrice.toFixed(2)}
+                                                ₹{order.totalPrice.toFixed(2)}
                                             </span>
                                         </div>
                                     </div>

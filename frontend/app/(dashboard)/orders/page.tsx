@@ -146,7 +146,7 @@ function OrdersContent() {
                                 <div className="flex justify-between items-center">
                                     <span className="font-medium text-gray-900">Total</span>
                                     <span className="text-2xl font-light text-gray-900">
-                                        ${latestOrder.totalPrice?.toFixed(2)}
+                                        ₹{latestOrder.totalPrice?.toFixed(2)}
                                     </span>
                                 </div>
                             </div>
@@ -230,7 +230,7 @@ function OrdersContent() {
                                         </p>
                                     </div>
                                     <div className="mt-4 md:mt-0 text-right">
-                                        <p className="text-2xl font-light text-gray-900">${order.totalPrice?.toFixed(2)}</p>
+                                        <p className="text-2xl font-light text-gray-900">₹{order.totalPrice?.toFixed(2)}</p>
                                         <p className="text-xs text-gray-500">{order.orderItems?.length} items</p>
                                     </div>
                                 </div>

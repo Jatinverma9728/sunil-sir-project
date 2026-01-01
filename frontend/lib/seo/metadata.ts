@@ -115,7 +115,7 @@ export function generateCategoryMetadata(
 
     return {
         title: `${categoryTitle} - Shop ${productCount}+ Products | Flash`,
-        description: `Browse ${productCount}+ ${categoryTitle.toLowerCase()} products. Find the best deals on electronics, gadgets, and more. Free shipping on orders over $50.`,
+        description: `Browse ${productCount}+ ${categoryTitle.toLowerCase()} products. Find the best deals on electronics, gadgets, and more. Free shipping on orders over ₹50.`,
         keywords: [category, "buy", "shop", "online", "flash", "deals"],
         openGraph: {
             title: `${categoryTitle} Products`,

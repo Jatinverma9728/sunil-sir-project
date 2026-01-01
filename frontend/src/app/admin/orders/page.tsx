@@ -169,7 +169,7 @@ export default function AdminOrdersPage() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                ${order.totalPrice.toFixed(2)}
+                                                ₹{order.totalPrice.toFixed(2)}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
