@@ -251,6 +251,18 @@ export const updateAdminOrderStatus = async (id: string, status: string, reason?
     }
 };
 
+export const getAdminOrderById = async (id: string) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/orders/${id}`, {
+            headers: getAuthHeaders(),
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching order details:', error);
+        return { success: false, message: 'Failed to fetch order details' };
+    }
+};
+
 export const getAdminOrderStats = async () => {
     try {
         const response = await fetch(`${API_URL}/admin/orders/stats`, {

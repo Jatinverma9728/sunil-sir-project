@@ -3,309 +3,198 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { getProducts } from "@/lib/api/products";
-
-interface Product {
-    _id: string;
-    title: string;
-    price: number;
-    images: { url: string; alt?: string }[];
-    category: string;
-    rating: { average: number; count: number };
-}
-
-const heroSlides = [
-    {
-        id: 1,
-        tag: "🎧 Music is Classic",
-        title: "Sequoia Inspiring\nMusico.",
-        subtitle: "Clear Sounds",
-        description: "Making your dream music come true stay with Sequios Sounds!",
-        buttonText: "View All Products",
-        buttonLink: "/products",
-        emoji: "🎧",
-    },
-    {
-        id: 2,
-        tag: "🏠 Smart Home",
-        title: "Transform Your\nHome.",
-        subtitle: "IoT Devices",
-        description: "Experience the future with smart home automation!",
-        buttonText: "Explore Devices",
-        buttonLink: "/products?category=home",
-        emoji: "🏠",
-    },
-    {
-        id: 3,
-        tag: "📚 Learn & Grow",
-        title: "Master New\nSkills.",
-        subtitle: "Online Courses",
-        description: "Learn from experts and upgrade your career!",
-        buttonText: "Start Learning",
-        buttonLink: "/courses",
-        emoji: "📚",
-    },
-];
-
-const popularColors = [
-    { color: "#3B82F6", name: "Blue" },
-    { color: "#F59E0B", name: "Orange" },
-    { color: "#10B981", name: "Green" },
-    { color: "#06B6D4", name: "Cyan" },
-];
 
 export default function HeroBanner() {
     const [currentSlide, setCurrentSlide] = useState(0);
-    const [products, setProducts] = useState<Product[]>([]);
-    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+    const mainSlides = [
+        {
+            title: "EKO 40\"",
+            subtitle: "Android TV",
+            description: "SMART FULL HD\nANDROID TV WITH\nGOOGLE ASSISTANT",
+            image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&q=80",
+            bgColor: "from-gray-900 to-gray-800",
+        },
+        {
+            title: "Smart Watch",
+            subtitle: "Series 7",
+            description: "ADVANCED HEALTH\nFEATURES WITH\nSTYLISH DESIGN",
+            image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80",
+            bgColor: "from-gray-900 to-gray-800",
+        },
+    ];
 
     useEffect(() => {
-        fetchProducts();
+        const timer = setInterval(() => {
+            setCurrentSlide((prev) => (prev + 1) % mainSlides.length);
+        }, 5000);
+        return () => clearInterval(timer);
     }, []);
 
-    useEffect(() => {
-        if (!isAutoPlaying) return;
-        const interval = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
-        }, 6000);
-        return () => clearInterval(interval);
-    }, [isAutoPlaying]);
-
-    const fetchProducts = async () => {
-        try {
-            const response = await getProducts({ limit: 3, featured: true });
-            setProducts(response.data || []);
-        } catch (error) {
-            console.error("Error fetching products:", error);
-        }
-    };
-
-    const goToSlide = (index: number) => {
-        setCurrentSlide(index);
-        setIsAutoPlaying(false);
-        setTimeout(() => setIsAutoPlaying(true), 10000);
-    };
-
-    const slide = heroSlides[currentSlide];
-
     return (
-        <section className="min-h-screen py-6 px-4 md:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 50%, #A5D6A7 100%)' }}>
-            <div className="max-w-[1600px] mx-auto h-full">
-                {/* Bento Grid Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-
-                    {/* Main Hero Card - Takes 3 columns */}
-                    <div className="lg:col-span-3 glass-card p-8 md:p-10 relative overflow-hidden min-h-[480px]">
-                        {/* Tag */}
-                        <span className="product-tag mb-6 inline-block">
-                            {slide.tag}
-                        </span>
-
-                        <div className="grid md:grid-cols-2 gap-8 items-center h-full">
-                            {/* Content */}
-                            <div className="z-10">
-                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight whitespace-pre-line">
-                                    {slide.title}
-                                </h1>
-
-                                {/* Slide Number */}
-                                <div className="flex items-center gap-4 mb-6">
-                                    <span className="text-4xl font-light text-gray-300">
-                                        0{currentSlide + 1}
-                                    </span>
-                                    <div className="h-px w-12 bg-gray-300"></div>
-                                    <div>
-                                        <p className="font-semibold text-gray-900">{slide.subtitle}</p>
-                                        <p className="text-sm text-gray-500">{slide.description}</p>
+        <section className="bg-white py-4">
+            <div className="max-w-[1600px] mx-auto px-4">
+                <div className="grid lg:grid-cols-3 gap-4 h-[60vh] min-h-[500px]">
+                    {/* Main Slideshow - 2 columns */}
+                    <div className="lg:col-span-2 relative rounded-3xl overflow-hidden h-full">
+                        {mainSlides.map((slide, index) => (
+                            <div
+                                key={index}
+                                className={`absolute inset-0 transition-opacity duration-700 ${index === currentSlide ? "opacity-100" : "opacity-0"
+                                    }`}
+                            >
+                                <div className={`h-full bg-gradient-to-br ${slide.bgColor} grid md:grid-cols-2`}>
+                                    {/* Left Content */}
+                                    <div className="flex flex-col justify-center p-8 md:p-12 lg:p-16">
+                                        <h2 className="text-5xl md:text-6xl font-light text-white mb-2 leading-tight">
+                                            {slide.title}
+                                        </h2>
+                                        <h3 className="text-5xl md:text-6xl font-light text-white mb-8">
+                                            {slide.subtitle}
+                                        </h3>
+                                        <p className="text-white/80 text-sm uppercase tracking-wider mb-8 whitespace-pre-line">
+                                            {slide.description}
+                                        </p>
+                                        <Link
+                                            href="/products"
+                                            className="inline-flex items-center justify-center px-10 py-4 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition-colors w-fit"
+                                        >
+                                            Shop Now
+                                        </Link>
                                     </div>
-                                </div>
 
-                                {/* CTA Button */}
-                                <Link href={slide.buttonLink} className="btn-accent">
-                                    {slide.buttonText}
-                                    <span className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7V17" />
-                                        </svg>
-                                    </span>
-                                </Link>
-
-                                {/* Social Links */}
-                                <div className="flex items-center gap-4 mt-8">
-                                    <span className="text-sm text-gray-500">Follow us on:</span>
-                                    <div className="flex gap-3">
-                                        {["twitter", "tiktok", "instagram", "linkedin"].map((social) => (
-                                            <a key={social} href="#" className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-                                                <span className="text-xs">
-                                                    {social === "twitter" && "𝕏"}
-                                                    {social === "tiktok" && "♪"}
-                                                    {social === "instagram" && "◎"}
-                                                    {social === "linkedin" && "in"}
-                                                </span>
-                                            </a>
-                                        ))}
+                                    {/* Right Image */}
+                                    <div className="relative hidden md:flex items-center justify-center p-8">
+                                        <Image
+                                            src={slide.image}
+                                            alt={slide.title}
+                                            width={400}
+                                            height={400}
+                                            className="object-contain"
+                                        />
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Product Image Area */}
-                            <div className="hidden md:flex items-center justify-center relative">
-                                <div className="text-[180px] opacity-90 animate-pulse">
-                                    {slide.emoji}
-                                </div>
-                                {/* Dots decoration */}
-                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                                    <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
-                                    <span className="w-2 h-2 bg-gray-300 rounded-full"></span>
-                                </div>
-                            </div>
-                        </div>
+                        ))}
 
                         {/* Slide Indicators */}
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-                            {heroSlides.map((_, index) => (
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                            {mainSlides.map((_, index) => (
                                 <button
                                     key={index}
-                                    onClick={() => goToSlide(index)}
+                                    onClick={() => setCurrentSlide(index)}
                                     className={`h-2 rounded-full transition-all ${index === currentSlide
-                                        ? "bg-gray-900 w-8"
-                                        : "bg-gray-300 w-2 hover:bg-gray-400"
+                                            ? "w-8 bg-white"
+                                            : "w-2 bg-white/40 hover:bg-white/60"
                                         }`}
                                 />
                             ))}
                         </div>
                     </div>
 
-                    {/* Sidebar Cards - Takes 1 column */}
-                    <div className="flex flex-col gap-4">
-                        {/* Popular Colors Card */}
-                        <div className="glass-card p-5">
-                            <h3 className="font-semibold text-gray-900 mb-4">Popular Colors</h3>
-                            <div className="flex gap-2">
-                                {popularColors.map((item, index) => (
-                                    <button
-                                        key={index}
-                                        className="color-dot"
-                                        style={{ backgroundColor: item.color }}
-                                        title={item.name}
-                                    />
-                                ))}
+                    {/* Right Side Banner - 1 column */}
+                    <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600 to-purple-600 h-full">
+                        <div className="h-full flex flex-col justify-between p-8 lg:p-10">
+                            <div>
+                                <h3 className="text-3xl lg:text-4xl font-bold text-white mb-2">
+                                    Humidifying Fan
+                                </h3>
+                                <p className="text-white/90 text-sm">From $299</p>
                             </div>
-                        </div>
 
-                        {/* Featured Product Cards */}
-                        {products.slice(0, 2).map((product, index) => (
-                            <Link key={product._id} href={`/products/${product._id}`} className="glass-card p-4 group cursor-pointer flex-1">
-                                <div className="flex justify-between items-start mb-3">
-                                    <div>
-                                        <h4 className="font-semibold text-gray-900 text-sm leading-tight">
-                                            {product.title.length > 20
-                                                ? product.title.substring(0, 20) + "..."
-                                                : product.title}
-                                        </h4>
-                                        <p className="text-xs text-gray-500 mt-1">{product.category}</p>
-                                    </div>
-                                    <span className="arrow-link group-hover:bg-[#C1FF72]">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7V17" />
-                                        </svg>
-                                    </span>
-                                </div>
-                                <div className="h-24 flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden relative">
-                                    {product.images?.[0] ? (
-                                        <Image
-                                            src={typeof product.images[0] === 'string' ? product.images[0] : product.images[0].url}
-                                            alt={product.title}
-                                            width={200}
-                                            height={200}
-                                            unoptimized
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <span className="text-4xl opacity-50">📦</span>
-                                    )}
-                                </div>
+                            <div className="relative h-64 my-4">
+                                <Image
+                                    src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80"
+                                    alt="Humidifying Fan"
+                                    fill
+                                    className="object-contain"
+                                />
+                            </div>
+
+                            <Link
+                                href="/products"
+                                className="inline-flex items-center justify-center px-8 py-3 bg-white text-gray-900 font-semibold rounded-full hover:bg-gray-100 transition-colors w-fit"
+                            >
+                                Discover Now
                             </Link>
-                        ))}
+                        </div>
                     </div>
                 </div>
 
-                {/* Bottom Stats Row */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                    {/* More Products Card */}
-                    <Link href="/products" className="glass-card p-5 group cursor-pointer">
-                        <div className="flex justify-between items-start mb-3">
+                {/* Bottom Row - 3 Smaller Banners */}
+                <div className="grid md:grid-cols-3 gap-4 mt-4">
+                    {/* iPad Mini */}
+                    <Link
+                        href="/products"
+                        className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-orange-100 via-amber-100 to-yellow-100 h-48 group"
+                    >
+                        <div className="h-full flex items-center justify-between p-6 lg:p-8">
                             <div>
-                                <h4 className="font-semibold text-gray-900">More Products</h4>
-                                <p className="text-sm text-gray-500">460 plus items.</p>
+                                <h4 className="text-2xl font-bold text-gray-900 mb-1">iPad mini</h4>
+                                <h4 className="text-2xl font-bold text-gray-900 mb-2">2022</h4>
+                                <p className="text-gray-600 text-sm mb-4">Mega Power in mini size</p>
+                                <span className="inline-flex items-center justify-center px-6 py-2.5 bg-gray-900 text-white text-sm font-semibold rounded-full group-hover:bg-gray-800 transition-colors">
+                                    Shop Now
+                                </span>
                             </div>
-                            <span className="text-red-500 text-xl">♥</span>
-                        </div>
-                        <div className="flex -space-x-2">
-                            {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="w-10 h-10 rounded-xl bg-gray-100 border-2 border-white flex items-center justify-center text-xs">
-                                    📦
-                                </div>
-                            ))}
+                            <div className="relative w-32 h-32">
+                                <Image
+                                    src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&q=80"
+                                    alt="iPad mini"
+                                    fill
+                                    className="object-contain"
+                                />
+                            </div>
                         </div>
                     </Link>
 
-                    {/* Downloads Card */}
-                    <div className="glass-card p-5 flex items-center gap-4">
-                        <div className="flex -space-x-2">
-                            {["👨‍💻", "👩‍💻", "🧑‍💻"].map((emoji, i) => (
-                                <div key={i} className="w-10 h-10 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center">
-                                    {emoji}
-                                </div>
-                            ))}
-                        </div>
-                        <div>
-                            <div className="bg-[#C1FF72] px-3 py-1 rounded-full text-sm font-bold inline-block mb-1">
-                                5m+
+                    {/* Air Purifier */}
+                    <Link
+                        href="/products"
+                        className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 h-48 group"
+                    >
+                        <div className="h-full flex items-center justify-between p-6 lg:p-8">
+                            <div>
+                                <h4 className="text-xl font-semibold text-white mb-1">Air</h4>
+                                <h4 className="text-xl font-semibold text-white mb-2">Purifier</h4>
+                                <p className="text-gray-400 text-xs mb-2">FROM</p>
+                                <p className="text-green-400 text-2xl font-bold">$169</p>
                             </div>
-                            <p className="text-xs text-gray-500">Downloads</p>
-                            <div className="flex items-center gap-1 mt-1">
-                                <span className="text-yellow-500">★</span>
-                                <span className="text-xs text-gray-600">4.6 reviews</span>
+                            <div className="relative w-28 h-28">
+                                <Image
+                                    src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=300&q=80"
+                                    alt="Air Purifier"
+                                    fill
+                                    className="object-contain"
+                                />
                             </div>
                         </div>
-                    </div>
+                    </Link>
 
-                    {/* Popular Card */}
-                    <div className="glass-card p-5">
-                        <span className="product-tag mb-2 inline-block">
-                            ♥ Popular
-                        </span>
-                        <h4 className="font-semibold text-gray-900 text-sm">Listening Has</h4>
-                        <h4 className="font-semibold text-gray-900 text-sm">Been Released</h4>
-                        <div className="flex gap-2 mt-3">
-                            {["🎧", "🎵"].map((emoji, i) => (
-                                <div key={i} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm">
-                                    {emoji}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Rating Card */}
-                    <div className="glass-card p-5 relative overflow-hidden">
-                        <div className="flex justify-between items-start">
-                            <span className="arrow-link">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7V17" />
-                                </svg>
-                            </span>
-                            <div className="flex items-center gap-1 bg-white/80 px-2 py-1 rounded-full">
-                                <span className="text-yellow-500">★</span>
-                                <span className="text-sm font-semibold">4.7</span>
+                    {/* Washing Machine */}
+                    <Link
+                        href="/products"
+                        className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 h-48 group"
+                    >
+                        <div className="h-full flex items-center justify-between p-6 lg:p-8">
+                            <div>
+                                <p className="text-gray-500 text-xs uppercase mb-2">WASHING MACHINE</p>
+                                <h4 className="text-xl font-semibold text-gray-900 mb-1">Anatico</h4>
+                                <h4 className="text-xl font-semibold text-gray-900 mb-4">Max 2</h4>
+                                <span className="inline-flex items-center justify-center px-6 py-2 bg-white text-gray-900 text-sm font-semibold rounded-full group-hover:bg-gray-50 transition-colors shadow-sm">
+                                    Shop Now
+                                </span>
+                            </div>
+                            <div className="relative w-28 h-28">
+                                <Image
+                                    src="https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=300&q=80"
+                                    alt="Washing Machine"
+                                    fill
+                                    className="object-contain"
+                                />
                             </div>
                         </div>
-                        <div className="mt-auto pt-8">
-                            <h4 className="font-semibold text-gray-900 text-sm">Light Grey Surface</h4>
-                            <h4 className="font-semibold text-gray-900 text-sm">Headphone</h4>
-                            <p className="text-xs text-gray-500 mt-1">Boosted with bass</p>
-                        </div>
-                    </div>
+                    </Link>
                 </div>
             </div>
         </section>

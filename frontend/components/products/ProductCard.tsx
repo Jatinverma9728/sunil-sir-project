@@ -160,7 +160,7 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
                         `}>
                             <Link
                                 href={`/products/${product._id}`}
-                                className="block w-full py-2.5 bg-white/95 backdrop-blur-sm rounded-xl text-sm font-medium text-gray-900 hover:bg-gray-900 hover:text-white transition-colors shadow-lg text-center"
+                                className="block w-full py-2.5 bg-[#C1FF72] backdrop-blur-sm rounded-xl text-sm font-medium text-gray-900 hover:bg-gray-900 hover:text-white transition-colors shadow-lg text-center"
                             >
                                 Quick View
                             </Link>

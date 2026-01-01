@@ -20,6 +20,7 @@ const {
 
 const {
     getAllOrders,
+    getOrderById,
     updateOrderStatus,
     getOrderStats,
 } = require('../controllers/admin/orderAdminController');
@@ -57,8 +58,9 @@ router.delete('/courses/:id', deleteCourse);
 // ============================================
 // ORDER MANAGEMENT ROUTES
 // ============================================
+router.get('/orders/stats', getOrderStats);  // Must be before /:id
 router.get('/orders', getAllOrders);
-router.get('/orders/stats', getOrderStats);
+router.get('/orders/:id', getOrderById);
 router.put('/orders/:id/status', updateOrderStatus);
 
 // ============================================

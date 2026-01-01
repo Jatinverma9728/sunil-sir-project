@@ -18,6 +18,14 @@ const nextConfig: NextConfig = {
         hostname: '**.onrender.com', // Backend on Render
       },
       {
+        protocol: 'https',
+        hostname: 'images.unsplash.com', // Unsplash images for hero
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com', // Cloudinary for product images
+      },
+      {
         protocol: 'http',
         hostname: 'localhost',
         port: '5000',

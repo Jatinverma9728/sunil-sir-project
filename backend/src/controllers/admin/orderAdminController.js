@@ -50,6 +50,38 @@ const getAllOrders = async (req, res) => {
 };
 
 /**
+ * @desc    Get single order by ID (Admin)
+ * @route   GET /api/admin/orders/:id
+ * @access  Private/Admin
+ */
+const getOrderById = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .populate('user', 'name email')
+            .populate('orderItems.product', 'title images');
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: order,
+        });
+    } catch (error) {
+        console.error('Get order by ID error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching order details',
+            error: error.message,
+        });
+    }
+};
+
+/**
  * @desc    Update order status (Admin)
  * @route   PUT /api/admin/orders/:id/status
  * @access  Private/Admin
@@ -159,6 +191,7 @@ const getOrderStats = async (req, res) => {
 
 module.exports = {
     getAllOrders,
+    getOrderById,
     updateOrderStatus,
     getOrderStats,
 };

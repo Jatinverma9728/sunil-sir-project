@@ -28,6 +28,7 @@ import {
     CourseFormData,
     UserFormData,
 } from "@/lib/api/admin";
+import OrderDetailModal from "@/components/admin/OrderDetailModal";
 import {
     LineChart,
     Line,
@@ -107,6 +108,8 @@ export default function AdminDashboard() {
     const [ordersTotalPages, setOrdersTotalPages] = useState(1);
     const [ordersLoading, setOrdersLoading] = useState(false);
     const [orderStatusFilter, setOrderStatusFilter] = useState("");
+    const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+    const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
     // Courses state
     const [courses, setCourses] = useState<Course[]>([]);
@@ -601,6 +604,7 @@ export default function AdminDashboard() {
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Payment</th>
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Date</th>
+                                                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -644,6 +648,36 @@ export default function AdminDashboard() {
                                                     <td className="py-3 px-4 text-sm text-gray-600">
                                                         {new Date(order.createdAt).toLocaleDateString()}
                                                     </td>
+                                                    <td className="py-3 px-4 text-center">
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedOrderId(order._id);
+                                                                setIsOrderModalOpen(true);
+                                                            }}
+                                                            className="inline-flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="View Details"
+                                                        >
+                                                            <svg
+                                                                className="w-5 h-5"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={2}
+                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                                />
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={2}
+                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -673,6 +707,18 @@ export default function AdminDashboard() {
                             </>
                         ) : (
                             <p className="text-center py-12 text-gray-500">No orders found</p>
+                        )}
+
+                        {/* Order Detail Modal */}
+                        {selectedOrderId && (
+                            <OrderDetailModal
+                                orderId={selectedOrderId}
+                                isOpen={isOrderModalOpen}
+                                onClose={() => {
+                                    setIsOrderModalOpen(false);
+                                    setSelectedOrderId(null);
+                                }}
+                            />
                         )}
                     </div>
                 )}
