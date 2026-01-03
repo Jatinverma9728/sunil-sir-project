@@ -22,16 +22,31 @@ const userSchema = new mongoose.Schema(
         },
         password: {
             type: String,
-            required: [true, 'Please provide a password'],
+            required: function () {
+                // Password is only required for local authentication
+                return this.authProvider === 'local';
+            },
             minlength: [8, 'Password must be at least 8 characters'],
             validate: {
                 validator: function (v) {
+                    // Skip validation for OAuth users
+                    if (this.authProvider !== 'local') return true;
                     // Require at least: 1 uppercase, 1 lowercase, 1 number, 1 special char
                     return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(v);
                 },
                 message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)'
             },
             select: false, // Don't return password by default
+        },
+        googleId: {
+            type: String,
+            unique: true,
+            sparse: true, // Allows multiple null values
+        },
+        authProvider: {
+            type: String,
+            enum: ['local', 'google'],
+            default: 'local',
         },
         role: {
             type: String,
@@ -72,8 +87,8 @@ const userSchema = new mongoose.Schema(
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
-    // Only hash if password is modified
-    if (!this.isModified('password')) {
+    // Only hash if password is modified and exists (skip for OAuth users)
+    if (!this.isModified('password') || !this.password) {
         return next();
     }
 
@@ -89,9 +104,13 @@ userSchema.pre('save', async function (next) {
 // Method to compare passwords
 userSchema.methods.comparePassword = async function (candidatePassword) {
     try {
+        // OAuth users don't have passwords
+        if (!this.password) {
+            throw new Error('This account uses OAuth authentication. Please sign in with Google.');
+        }
         return await bcrypt.compare(candidatePassword, this.password);
     } catch (error) {
-        throw new Error('Password comparison failed');
+        throw error;
     }
 };
 

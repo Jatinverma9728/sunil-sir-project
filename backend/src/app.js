@@ -79,6 +79,10 @@ const createApp = () => {
     // Compression Middleware
     app.use(compression());
 
+    // Passport Middleware (for OAuth)
+    const passport = require('passport');
+    app.use(passport.initialize());
+
     // Logging Middleware
     if (process.env.NODE_ENV === 'development') {
         app.use(morgan('dev'));

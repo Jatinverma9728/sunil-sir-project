@@ -4,7 +4,7 @@ import { AuthProvider } from "@/lib/context/AuthContext";
 import { CartProvider } from "@/lib/context/CartContext";
 
 export const metadata: Metadata = {
-    title: "E-Commerce + Course Platform",
+    title: "North tech hub",
     description: "Modern e-commerce and online course platform built with Next.js",
 };
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
+import GoogleButton from "@/components/auth/GoogleButton";
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -321,6 +322,19 @@ export default function RegisterPage() {
                             )}
                         </button>
                     </form>
+
+                    {/* OR Divider */}
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-200"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-4 bg-white text-gray-500">Or continue with</span>
+                        </div>
+                    </div>
+
+                    {/* Google OAuth */}
+                    <GoogleButton text="Sign up with Google" />
 
                     {/* Login Link */}
                     <p className="mt-8 text-center text-sm text-gray-500">

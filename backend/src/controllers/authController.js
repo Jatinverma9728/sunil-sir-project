@@ -289,9 +289,36 @@ const updateProfile = async (req, res) => {
     }
 };
 
+/**
+ * @desc    Handle Google OAuth callback
+ * @route   GET /api/auth/google/callback
+ * @access  Public
+ */
+const googleCallback = async (req, res) => {
+    try {
+        // User is attached by Passport strategy
+        const user = req.user;
+
+        if (!user) {
+            return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+        }
+
+        // Generate JWT token (30 days for OAuth users)
+        const token = generateToken(user._id, '30d');
+
+        // Redirect to frontend callback page with token
+        const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?token=${encodeURIComponent(token)}`;
+        res.redirect(redirectUrl);
+    } catch (error) {
+        console.error('Google OAuth callback error:', error);
+        res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+    }
+};
+
 module.exports = {
     register,
     login,
     getProfile,
     updateProfile,
+    googleCallback,
 };
