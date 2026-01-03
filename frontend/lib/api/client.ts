@@ -42,27 +42,40 @@ class ApiClient {
     }
 
     /**
-     * Get auth token from localStorage
+     * Get auth token from cookie (matches auth.ts storage)
      */
     private getAuthToken(): string | null {
         if (typeof window === 'undefined') return null;
-        return localStorage.getItem('token');
+
+        // Read from cookie (matching auth.ts)
+        const cookies = document.cookie.split(';');
+        const tokenCookie = cookies.find((cookie) => cookie.trim().startsWith('auth_token='));
+
+        if (!tokenCookie) return null;
+
+        return tokenCookie.split('=')[1];
     }
 
     /**
-     * Set auth token in localStorage
+     * Set auth token in cookie (matches auth.ts storage)
      */
     setAuthToken(token: string): void {
         if (typeof window === 'undefined') return;
-        localStorage.setItem('token', token);
+
+        // Store in cookie with 30 day expiry (matching auth.ts)
+        const expires = new Date();
+        expires.setDate(expires.getDate() + 30);
+
+        document.cookie = `auth_token=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Strict`;
     }
 
     /**
-     * Remove auth token from localStorage
+     * Remove auth token from cookie
      */
     removeAuthToken(): void {
         if (typeof window === 'undefined') return;
-        localStorage.removeItem('token');
+
+        document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     }
 
     /**
