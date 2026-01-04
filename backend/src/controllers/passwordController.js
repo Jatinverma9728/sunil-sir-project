@@ -29,12 +29,12 @@ const forgotPassword = async (req, res) => {
             });
         }
 
-        // Rate limiting: max 3 OTP requests per hour
-        if (user.lastOTPSent && Date.now() - user.lastOTPSent < 20 * 60 * 1000) { // 20 minutes
-            const waitTime = Math.ceil((20 * 60 * 1000 - (Date.now() - user.lastOTPSent)) / 60000);
+        // Rate limiting: Allow new OTP every 2 minutes
+        if (user.lastOTPSent && Date.now() - user.lastOTPSent < 2 * 60 * 1000) { // 2 minutes
+            const waitTime = Math.ceil((2 * 60 * 1000 - (Date.now() - user.lastOTPSent)) / 1000);
             return res.status(429).json({
                 success: false,
-                message: `Please wait ${waitTime} minutes before requesting another OTP`,
+                message: `Please wait ${waitTime} seconds before requesting another OTP`,
             });
         }
 

@@ -265,7 +265,7 @@ const verify2FALogin = async (req, res) => {
         await user.save({ validateBeforeSave: false });
 
         // Generate JWT token
-        const { generateToken } = require('../utils/generateToken');
+        const { generateToken } = require('../utils/token');
         const token = generateToken(user._id);
 
         res.status(200).json({

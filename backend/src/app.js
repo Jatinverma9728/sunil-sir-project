@@ -83,6 +83,7 @@ const createApp = () => {
     const passport = require('passport');
     app.use(passport.initialize());
 
+
     // Logging Middleware
     if (process.env.NODE_ENV === 'development') {
         app.use(morgan('dev'));
