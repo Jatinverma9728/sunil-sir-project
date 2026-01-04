@@ -21,7 +21,7 @@ const apiLimiter = rateLimit({
  */
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 50, // TEMPORARILY INCREASED for OAuth testing - change back to 5 in production
+    max: 5, // Limit each IP to 5 login/register requests per windowMs
     skipSuccessfulRequests: true, // Don't count successful requests
     message: {
         success: false,

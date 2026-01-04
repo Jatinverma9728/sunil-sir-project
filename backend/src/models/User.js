@@ -63,6 +63,28 @@ const userSchema = new mongoose.Schema(
         },
         resetPasswordToken: String,
         resetPasswordExpire: Date,
+
+        // Two-Factor Authentication
+        twoFactorEnabled: {
+            type: Boolean,
+            default: false,
+        },
+        backupCodes: [String], // Hashed backup codes
+
+        // OTP (for password reset and 2FA)
+        otp: String, // Hashed OTP
+        otpExpires: Date,
+        otpPurpose: {
+            type: String,
+            enum: ['password-reset', '2fa-setup', '2fa-login', null],
+            default: null,
+        },
+        otpAttempts: {
+            type: Number,
+            default: 0,
+        },
+        lastOTPSent: Date,
+
         phone: {
             type: String,
             default: '',

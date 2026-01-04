@@ -6,7 +6,7 @@ const nodemailer = require('nodemailer');
  * For production, use services like SendGrid, AWS SES, or Mailgun
  */
 const createTransporter = () => {
-    return nodemailer.createTransporter({
+    return nodemailer.createTransport({
         service: 'gmail',
         auth: {
             user: process.env.EMAIL_USER,
@@ -195,7 +195,137 @@ const sendWelcomeEmail = async (to, name) => {
     }
 };
 
+
+/**
+ * Send password reset confirmation
+ */
+const sendPasswordResetConfirmation = async (to, name = 'User') => {
+    try {
+        const transporter = createTransporter();
+
+        const mailOptions = {
+            from: `"Flash E-Commerce" <${process.env.EMAIL_USER}>`,
+            to,
+            subject: 'Password Reset Successful - Flash',
+            html: `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+                        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+                        .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 30px; text-align: center; color: white; }
+                        .content { padding: 40px 30px; }
+                        .success-icon { font-size: 48px; text-align: center; margin: 20px 0; }
+                        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #6c757d; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>✅ Password Reset Successful</h1>
+                        </div>
+                        <div class="content">
+                            <div class="success-icon">🎉</div>
+                            <h2>Hello ${name}!</h2>
+                            <p>Your password has been successfully reset.</p>
+                            <p>You can now log in with your new password.</p>
+                            <p style="color: #dc3545; margin-top: 30px;"><strong>⚠️ Didn't make this change?</strong><br>Please contact us immediately to secure your account.</p>
+                        </div>
+                        <div class="footer">
+                            <p>This is an automated message from Flash E-Commerce</p>
+                            <p>&copy; ${new Date().getFullYear()} Flash. All rights reserved.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Password reset confirmation sent:', info.messageId);
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Error sending password reset confirmation:', error);
+        return { success: false };
+    }
+};
+
+/**
+ * Send 2FA enabled notification with backup codes
+ */
+const send2FAEnabledNotification = async (to, name = 'User', backupCodes = []) => {
+    try {
+        const transporter = createTransporter();
+
+        const backupCodesHTML = backupCodes.map((code, index) =>
+            `<li style="margin: 5px 0;"><code style="background: #f0f0f0; padding: 5px 10px; border-radius: 4px; font-family: monospace;">${code}</code></li>`
+        ).join('');
+
+        const mailOptions = {
+            from: `"Flash E-Commerce" <${process.env.EMAIL_USER}>`,
+            to,
+            subject: 'Two-Factor Authentication Enabled - Flash',
+            html: `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+                        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+                        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; color: white; }
+                        .content { padding: 40px 30px; }
+                        .backup-codes { background: #f8f9fa; border: 2px solid #667eea; border-radius: 8px; padding: 20px; margin: 20px 0; }
+                        .warning { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px; }
+                        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #6c757d; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>🔐 2FA Enabled Successfully</h1>
+                        </div>
+                        <div class="content">
+                            <h2>Hello ${name}!</h2>
+                            <p>Two-Factor Authentication has been successfully enabled on your account.</p>
+                            
+                            <div class="backup-codes">
+                                <h3 style="margin-top: 0;">🔑 Your Backup Codes</h3>
+                                <p>Save these codes in a safe place. Each code can be used once if you lose access to your email:</p>
+                                <ul style="list-style: none; padding: 0;">
+                                    ${backupCodesHTML}
+                                </ul>
+                            </div>
+
+                            <div class="warning">
+                                <strong>⚠️ Important:</strong> Store these backup codes securely. You won't be able to see them again!
+                            </div>
+
+                            <p>From now on, you'll need to enter a verification code sent to your email when logging in.</p>
+                        </div>
+                        <div class="footer">
+                            <p>This is an automated message from Flash E-Commerce</p>
+                            <p>&copy; ${new Date().getFullYear()} Flash. All rights reserved.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ 2FA enabled notification sent:', info.messageId);
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Error sending 2FA enabled notification:', error);
+        return { success: false };
+    }
+};
+
 module.exports = {
     sendOTPEmail,
     sendWelcomeEmail,
+    send2FACode: sendOTPEmail,
+    sendPasswordResetConfirmation,
+    send2FAEnabledNotification,
 };

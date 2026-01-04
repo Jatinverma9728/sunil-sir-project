@@ -98,19 +98,32 @@ export default function ResetPasswordPage() {
         setErrors({});
 
         try {
-            const response = await fetch(`${API_URL}/auth/reset-password`, {
+            // Step 2a: Verify OTP first to get reset token
+            const verifyResponse = await fetch(`${API_URL}/auth/verify-reset-otp`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, otp }),
+            });
+
+            const verifyData = await verifyResponse.json();
+
+            if (!verifyResponse.ok) {
+                throw new Error(verifyData.message || "Invalid OTP");
+            }
+
+            // Step 2b: Reset password with the token
+            const resetResponse = await fetch(`${API_URL}/auth/reset-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    email,
-                    otp,
-                    password: formData.password
+                    resetToken: verifyData.resetToken,
+                    newPassword: formData.password
                 }),
             });
 
-            const data = await response.json();
+            const data = await resetResponse.json();
 
-            if (response.ok) {
+            if (resetResponse.ok) {
                 toast.success("Password reset successful! Redirecting to login...");
                 setTimeout(() => router.push("/login"), 2000);
             } else {
