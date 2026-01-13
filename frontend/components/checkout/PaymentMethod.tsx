@@ -1,15 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import RazorpayScript, { useRazorpay } from "./RazorpayScript";
+
+declare global {
+    interface Window {
+        Razorpay: any;
+    }
+}
 
 interface PaymentMethodProps {
     totalAmount: number;
-    onPayment: (method: string) => Promise<void>;
+    razorpayOrderId?: string | null;
+    razorpayKeyId?: string;
+    userEmail?: string;
+    userName?: string;
+    userPhone?: string;
+    orderId?: string;
+    onPaymentSuccess: (response: {
+        razorpay_payment_id: string;
+        razorpay_order_id: string;
+        razorpay_signature: string;
+    }) => Promise<void>;
+    onPaymentError?: (error: any) => void;
+    onCODPayment?: () => Promise<void>;
 }
 
-export default function PaymentMethod({ totalAmount, onPayment }: PaymentMethodProps) {
+export default function PaymentMethod({
+    totalAmount,
+    razorpayOrderId,
+    razorpayKeyId,
+    userEmail,
+    userName,
+    userPhone,
+    orderId,
+    onPaymentSuccess,
+    onPaymentError,
+    onCODPayment,
+}: PaymentMethodProps) {
     const [selectedMethod, setSelectedMethod] = useState<string>("razorpay");
     const [processing, setProcessing] = useState(false);
+    const [scriptLoaded, setScriptLoaded] = useState(false);
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
 
     const paymentMethods = [
         {
@@ -24,71 +56,121 @@ export default function PaymentMethod({ totalAmount, onPayment }: PaymentMethodP
             description: "Pay when you receive",
             icon: "💵",
         },
-        {
-            id: "upi",
-            name: "UPI",
-            description: "PhonePe, Google Pay, Paytm",
-            icon: "📱",
-        },
     ];
 
     const handleRazorpayPayment = async () => {
+        if (!razorpayKeyId || !razorpayOrderId) {
+            console.error("Razorpay not configured properly");
+            onPaymentError?.({ message: "Payment gateway not configured" });
+            return;
+        }
+
+        if (!window.Razorpay) {
+            console.error("Razorpay script not loaded");
+            onPaymentError?.({ message: "Payment gateway failed to load. Please refresh the page." });
+            return;
+        }
+
         setProcessing(true);
 
+        const options = {
+            key: razorpayKeyId,
+            amount: Math.round(totalAmount * 100), // Amount in paise
+            currency: "INR",
+            name: "Flash Store",
+            description: "Order Payment",
+            image: "/logo.png",
+            order_id: razorpayOrderId,
+            prefill: {
+                name: userName || "",
+                email: userEmail || "",
+                contact: userPhone || "",
+            },
+            notes: {
+                order_id: orderId,
+            },
+            theme: {
+                color: "#1a1a1a",
+            },
+            handler: async function (response: {
+                razorpay_payment_id: string;
+                razorpay_order_id: string;
+                razorpay_signature: string;
+            }) {
+                console.log("Payment successful:", response);
+                try {
+                    await onPaymentSuccess(response);
+                } catch (error) {
+                    console.error("Error processing payment success:", error);
+                    onPaymentError?.(error);
+                } finally {
+                    setProcessing(false);
+                }
+            },
+            modal: {
+                ondismiss: function () {
+                    console.log("Payment modal closed");
+                    setProcessing(false);
+                },
+                escape: true,
+                confirm_close: true,
+            },
+        };
+
         try {
-            // In production, this would:
-            // 1. Create order on backend
-            // 2. Get Razorpay order ID
-            // 3. Initialize Razorpay SDK
-            // 4. Handle payment flow
+            const razorpay = new window.Razorpay(options);
 
-            // Placeholder for Razorpay integration
-            const options = {
-                key: "rzp_test_XXXXXXXXXXXX", // Replace with actual Razorpay key
-                amount: totalAmount * 100, // Amount in paise
-                currency: "INR",
-                name: "Flash Store",
-                description: "Order Payment",
-                image: "/logo.png",
-                handler: function (response: any) {
-                    console.log("Payment successful:", response);
-                    onPayment("razorpay");
-                },
-                prefill: {
-                    name: "Customer Name",
-                    email: "customer@example.com",
-                    contact: "9999999999",
-                },
-                theme: {
-                    color: "#C1FF72",
-                },
-            };
+            razorpay.on("payment.failed", function (response: any) {
+                console.error("Payment failed:", response.error);
+                setProcessing(false);
+                onPaymentError?.({
+                    code: response.error.code,
+                    description: response.error.description,
+                    reason: response.error.reason,
+                });
+            });
 
-            // In production: const razorpay = new window.Razorpay(options);
-            // razorpay.open();
-
-            // Simulating payment for demo
-            setTimeout(() => {
-                alert("Razorpay integration placeholder - In production, this will open Razorpay payment gateway");
-                onPayment(selectedMethod);
-            }, 1500);
+            razorpay.open();
         } catch (error) {
-            console.error("Payment error:", error);
+            console.error("Error opening Razorpay:", error);
+            setProcessing(false);
+            onPaymentError?.(error);
+        }
+    };
+
+    const handleCODPayment = async () => {
+        setProcessing(true);
+        try {
+            await onCODPayment?.();
+        } catch (error) {
+            console.error("COD error:", error);
+            onPaymentError?.(error);
+        } finally {
             setProcessing(false);
         }
     };
 
     const handlePayment = async () => {
+        if (!agreedToTerms) {
+            alert("Please accept the Terms & Conditions to proceed");
+            return;
+        }
+
         if (selectedMethod === "razorpay") {
             await handleRazorpayPayment();
-        } else {
-            setProcessing(true);
-            await onPayment(selectedMethod);
+        } else if (selectedMethod === "cod") {
+            await handleCODPayment();
         }
     };
 
+    const isButtonDisabled = processing || !agreedToTerms ||
+        (selectedMethod === "razorpay" && (!razorpayKeyId || !razorpayOrderId));
+
     return (
         <div className="bg-white rounded-2xl p-8 shadow-sm">
+            {/* Load Razorpay Script */}
+            <RazorpayScript onLoad={() => setScriptLoaded(true)} />
+
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Payment Method</h2>
 
             {/* Payment Methods */}
@@ -97,8 +179,8 @@ export default function PaymentMethod({ totalAmount, onPayment }: PaymentMethodP
                     <label
                         key={method.id}
                         className={`flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedMethod === method.id
-                                ? "border-[#C1FF72] bg-green-50"
-                                : "border-gray-200 hover:border-gray-300"
+                            ? "border-[#C1FF72] bg-green-50"
+                            : "border-gray-200 hover:border-gray-300"
                             }`}
                     >
                         <input
@@ -108,6 +190,7 @@ export default function PaymentMethod({ totalAmount, onPayment }: PaymentMethodP
                             checked={selectedMethod === method.id}
                             onChange={(e) => setSelectedMethod(e.target.value)}
                             className="mt-1"
+                            disabled={processing}
                         />
                         <div className="flex-1">
                             <div className="flex items-center gap-3 mb-1">
@@ -130,8 +213,13 @@ export default function PaymentMethod({ totalAmount, onPayment }: PaymentMethodP
                         🔒 Secure Payment via Razorpay
                     </p>
                     <p className="text-xs text-blue-700">
-                        You will be redirected to Razorpay's secure payment gateway to complete the transaction.
+                        Pay securely using Credit/Debit Card, UPI, Netbanking, or Wallet. Your payment is protected by Razorpay's secure payment gateway.
                     </p>
+                    {(!razorpayKeyId || !razorpayOrderId) && (
+                        <p className="text-xs text-orange-600 mt-2">
+                            ⚠️ Payment gateway is being configured...
+                        </p>
+                    )}
                 </div>
             )}
 
@@ -147,29 +235,23 @@ export default function PaymentMethod({ totalAmount, onPayment }: PaymentMethodP
                 </div>
             )}
 
-            {/* UPI Info */}
-            {selectedMethod === "upi" && (
-                <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <p className="text-sm text-purple-900 mb-2 font-medium">
-                        📱 UPI Payment
-                    </p>
-                    <p className="text-xs text-purple-700">
-                        Scan QR code or enter UPI ID to complete payment.
-                    </p>
-                </div>
-            )}
-
             {/* Terms & Conditions */}
             <div className="mb-6">
                 <label className="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" className="mt-1" required />
+                    <input
+                        type="checkbox"
+                        className="mt-1"
+                        checked={agreedToTerms}
+                        onChange={(e) => setAgreedToTerms(e.target.checked)}
+                        disabled={processing}
+                    />
                     <span className="text-sm text-gray-700">
                         I agree to the{" "}
-                        <a href="#" className="text-blue-600 hover:underline">
+                        <a href="/terms" className="text-blue-600 hover:underline">
                             Terms & Conditions
                         </a>{" "}
                         and{" "}
-                        <a href="#" className="text-blue-600 hover:underline">
+                        <a href="/privacy" className="text-blue-600 hover:underline">
                             Privacy Policy
                         </a>
                     </span>
@@ -179,19 +261,21 @@ export default function PaymentMethod({ totalAmount, onPayment }: PaymentMethodP
             {/* Place Order Button */}
             <button
                 onClick={handlePayment}
-                disabled={processing}
+                disabled={isButtonDisabled}
                 className="w-full py-4 bg-black text-white rounded-xl font-semibold text-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
                 {processing ? (
                     <>
-                        <span className="animate-spin">⏳</span>
+                        <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
                         Processing...
                     </>
                 ) : (
                     <>
                         {selectedMethod === "razorpay" && "Pay"}
                         {selectedMethod === "cod" && "Place Order"}
-                        {selectedMethod === "upi" && "Pay via UPI"}
                         {" "}₹{totalAmount.toFixed(2)}
                     </>
                 )}

@@ -72,6 +72,25 @@ const createApp = () => {
         allowedHeaders: ['Content-Type', 'Authorization']
     }));
 
+    // ============================================
+    // WEBHOOK ROUTES (must be before body parsers for signature verification)
+    // ============================================
+    const webhookRoutes = require('./routes/webhookRoutes');
+
+    // Webhook needs raw body for signature verification
+    app.use('/api/webhooks', express.raw({ type: 'application/json' }), (req, res, next) => {
+        // Store raw body for signature verification, then parse JSON
+        if (req.body && Buffer.isBuffer(req.body)) {
+            req.rawBody = req.body.toString();
+            try {
+                req.body = JSON.parse(req.rawBody);
+            } catch (e) {
+                req.body = {};
+            }
+        }
+        next();
+    }, webhookRoutes);
+
     // Body Parser Middleware
     app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
     app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies

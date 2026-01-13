@@ -8,6 +8,7 @@ import { getAuthToken } from "@/lib/api/auth";
 import AddressForm from "@/components/checkout/AddressForm";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import PaymentMethod from "@/components/checkout/PaymentMethod";
+import { useToast } from "@/components/ui/Toast";
 
 interface Address {
     fullName: string;
@@ -20,13 +21,30 @@ interface Address {
     country: string;
 }
 
+interface OrderData {
+    order: {
+        _id: string;
+        orderItems: any[];
+        totalPrice: number;
+        paymentInfo: {
+            razorpayOrderId: string;
+        };
+    };
+    razorpayOrderId: string;
+    razorpayKeyId: string;
+}
+
 export default function CheckoutPage() {
     const router = useRouter();
     const { items, getTotalPrice, clearCart } = useCart();
     const { user, loading: authLoading } = useAuth();
+    const toast = useToast();
+
     const [step, setStep] = useState<"address" | "payment">("address");
     const [shippingAddress, setShippingAddress] = useState<Address | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [orderData, setOrderData] = useState<OrderData | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     // Calculate totals
     const subtotal = getTotalPrice();
@@ -60,41 +78,28 @@ export default function CheckoutPage() {
     }
 
     // Redirect if cart is empty
-    if (items.length === 0 && !isProcessing) {
+    if (items.length === 0 && !isProcessing && !orderData) {
         router.push("/cart");
         return null;
     }
 
-    const handleAddressSubmit = (address: Address) => {
+    const handleAddressSubmit = async (address: Address) => {
         setShippingAddress(address);
-        setStep("payment");
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    const handlePayment = async (method: string) => {
-        if (!shippingAddress) {
-            alert("Please provide shipping address");
-            return;
-        }
-
+        setError(null);
         setIsProcessing(true);
 
         try {
             const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-            // Get auth token using the helper
             const token = getAuthToken();
 
             if (!token) {
-                alert("Please log in to complete your order");
+                toast.error("Please log in to complete your order");
                 router.push('/login?redirect=/checkout');
-                setIsProcessing(false);
                 return;
             }
 
-            // Prepare order data
-            const orderData = {
+            // Create order and get Razorpay order ID
+            const orderPayload = {
                 orderItems: items.map(item => ({
                     product: item.product._id || item.product.id,
                     title: item.product.title || item.product.name,
@@ -103,23 +108,22 @@ export default function CheckoutPage() {
                     image: item.product.images?.[0]?.url || item.product.image
                 })),
                 shippingAddress: {
-                    fullName: shippingAddress.fullName,
-                    address: shippingAddress.streetAddress + (shippingAddress.apartment ? `, ${shippingAddress.apartment}` : ''),
-                    city: shippingAddress.city,
-                    state: shippingAddress.state,
-                    postalCode: shippingAddress.zipCode,
-                    country: shippingAddress.country,
-                    phone: shippingAddress.phone
+                    fullName: address.fullName,
+                    address: address.streetAddress + (address.apartment ? `, ${address.apartment}` : ''),
+                    city: address.city,
+                    state: address.state,
+                    postalCode: address.zipCode,
+                    country: address.country,
+                    phone: address.phone
                 },
-                // Backend expects paymentMethod at top level
-                paymentMethod: method,
+                paymentMethod: 'razorpay',
                 itemsPrice: subtotal,
                 taxPrice: tax,
                 shippingPrice: shipping,
                 totalPrice: total
             };
 
-            console.log("Creating order:", orderData);
+            console.log("Creating order:", orderPayload);
 
             const response = await fetch(`${API_URL}/orders`, {
                 method: 'POST',
@@ -127,7 +131,7 @@ export default function CheckoutPage() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(orderData)
+                body: JSON.stringify(orderPayload)
             });
 
             const result = await response.json();
@@ -138,19 +142,98 @@ export default function CheckoutPage() {
 
             console.log("Order created:", result);
 
-            // Store order in sessionStorage for the success page (result.data.order)
-            const storedOrderData = result.data.order || result.data;
-            sessionStorage.setItem('lastOrder', JSON.stringify(storedOrderData));
+            // Store order data for payment
+            setOrderData({
+                order: result.data.order,
+                razorpayOrderId: result.data.razorpayOrderId,
+                razorpayKeyId: result.data.razorpayKeyId,
+            });
 
-            // Clear cart and redirect to success page
-            clearCart();
-            router.push('/order-success');
+            setStep("payment");
+            window.scrollTo({ top: 0, behavior: "smooth" });
 
         } catch (error: any) {
             console.error("Order creation error:", error);
-            alert(error.message || "Failed to place order. Please try again.");
+            setError(error.message || "Failed to create order. Please try again.");
+            toast.error(error.message || "Failed to create order");
+        } finally {
             setIsProcessing(false);
         }
+    };
+
+    const handlePaymentSuccess = async (response: {
+        razorpay_payment_id: string;
+        razorpay_order_id: string;
+        razorpay_signature: string;
+    }) => {
+        if (!orderData) {
+            toast.error("Order data not found");
+            return;
+        }
+
+        setIsProcessing(true);
+
+        try {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+            const token = getAuthToken();
+
+            // Verify payment on backend
+            const verifyResponse = await fetch(`${API_URL}/orders/${orderData.order._id}/verify`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    razorpayOrderId: response.razorpay_order_id,
+                    razorpayPaymentId: response.razorpay_payment_id,
+                    razorpaySignature: response.razorpay_signature,
+                })
+            });
+
+            const verifyResult = await verifyResponse.json();
+
+            if (!verifyResponse.ok || !verifyResult.success) {
+                throw new Error(verifyResult.message || 'Payment verification failed');
+            }
+
+            console.log("Payment verified:", verifyResult);
+
+            // Store order for success page
+            sessionStorage.setItem('lastOrder', JSON.stringify(verifyResult.data || orderData.order));
+
+            // Clear cart and redirect
+            clearCart();
+            toast.success("Payment successful! Your order has been placed.");
+            router.push('/order-success');
+
+        } catch (error: any) {
+            console.error("Payment verification error:", error);
+            setError(error.message || "Payment verification failed");
+            toast.error(error.message || "Payment verification failed. Please contact support.");
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handlePaymentError = (error: any) => {
+        console.error("Payment error:", error);
+        const errorMessage = error.description || error.message || "Payment failed";
+        setError(errorMessage);
+        toast.error(errorMessage);
+    };
+
+    const handleCODPayment = async () => {
+        if (!orderData) {
+            toast.error("Order data not found");
+            return;
+        }
+
+        // For COD, the order is already created, just redirect to success
+        sessionStorage.setItem('lastOrder', JSON.stringify(orderData.order));
+        clearCart();
+        toast.success("Order placed successfully! Pay on delivery.");
+        router.push('/order-success');
     };
 
     return (
@@ -202,6 +285,18 @@ export default function CheckoutPage() {
             </div>
 
             <div className="container mx-auto px-4 py-8">
+                {/* Error Alert */}
+                {error && (
+                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                        <p className="text-red-800 flex items-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {error}
+                        </p>
+                    </div>
+                )}
+
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Main Content */}
                     <div className="lg:col-span-2">
@@ -253,6 +348,14 @@ export default function CheckoutPage() {
                                         </label>
                                     </div>
                                 </div>
+
+                                {/* Loading indicator */}
+                                {isProcessing && (
+                                    <div className="mt-6 p-4 bg-blue-50 rounded-xl flex items-center gap-3">
+                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                                        <span className="text-blue-800">Creating your order...</span>
+                                    </div>
+                                )}
                             </>
                         )}
 
@@ -266,8 +369,12 @@ export default function CheckoutPage() {
                                                 Shipping Address
                                             </h3>
                                             <button
-                                                onClick={() => setStep("address")}
+                                                onClick={() => {
+                                                    setStep("address");
+                                                    setOrderData(null);
+                                                }}
                                                 className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                                                disabled={isProcessing}
                                             >
                                                 Edit
                                             </button>
@@ -296,7 +403,26 @@ export default function CheckoutPage() {
                                 )}
 
                                 {/* Payment Method */}
-                                <PaymentMethod totalAmount={total} onPayment={handlePayment} />
+                                <PaymentMethod
+                                    totalAmount={total}
+                                    razorpayOrderId={orderData?.razorpayOrderId}
+                                    razorpayKeyId={orderData?.razorpayKeyId}
+                                    userEmail={user?.email}
+                                    userName={user?.name}
+                                    userPhone={shippingAddress?.phone}
+                                    orderId={orderData?.order._id}
+                                    onPaymentSuccess={handlePaymentSuccess}
+                                    onPaymentError={handlePaymentError}
+                                    onCODPayment={handleCODPayment}
+                                />
+
+                                {/* Loading indicator */}
+                                {isProcessing && (
+                                    <div className="mt-6 p-4 bg-blue-50 rounded-xl flex items-center gap-3">
+                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                                        <span className="text-blue-800">Verifying payment...</span>
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>

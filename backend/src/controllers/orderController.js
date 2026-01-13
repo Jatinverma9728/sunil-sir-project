@@ -4,6 +4,7 @@ const {
     createRazorpayOrder,
     verifyRazorpaySignature,
     mockPaymentSuccess,
+    getRazorpayKeyId,
 } = require('../utils/payment');
 
 /**
@@ -119,7 +120,7 @@ const createOrder = async (req, res) => {
             data: {
                 order,
                 razorpayOrderId: razorpayOrder ? razorpayOrder.id : null,
-                razorpayKeyId: process.env.RAZORPAY_KEY_ID || 'mock_key_id',
+                razorpayKeyId: getRazorpayKeyId(),
             },
         });
     } catch (error) {

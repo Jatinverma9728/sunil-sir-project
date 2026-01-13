@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const { generateToken } = require('../utils/token');
+const crypto = require('crypto');
+const { sendOTPEmail } = require('../utils/email');
 
 // Input sanitization helper
 const sanitizeInput = (str) => {
@@ -52,12 +54,35 @@ const register = async (req, res) => {
             password,
         });
 
+        // Generate verification OTP and send email
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+
+        user.otp = hashedOtp;
+        user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+        user.otpPurpose = 'email-verification';
+        user.otpAttempts = 0;
+        user.lastOTPSent = Date.now();
+        await user.save({ validateBeforeSave: false });
+
+        // Send verification email (async, don't block response)
+        sendOTPEmail(email, otp, name).then(() => {
+            console.log(`✅ Verification email sent to ${email}`);
+        }).catch((err) => {
+            console.error('❌ Failed to send verification email:', err.message);
+            console.log('='.repeat(50));
+            console.log('EMAIL VERIFICATION OTP (Email failed)');
+            console.log('Email:', email);
+            console.log('OTP:', otp);
+            console.log('='.repeat(50));
+        });
+
         // Generate token
         const token = generateToken(user._id);
 
         res.status(201).json({
             success: true,
-            message: 'User registered successfully',
+            message: 'User registered successfully. Please check your email to verify your account',
             data: {
                 user: {
                     id: user._id,
@@ -66,8 +91,11 @@ const register = async (req, res) => {
                     phone: user.phone,
                     address: user.address,
                     role: user.role,
+                    isEmailVerified: user.isEmailVerified,
                 },
                 token,
+                // In development, include OTP for testing
+                ...(process.env.NODE_ENV === 'development' && { verificationOtp: otp }),
             },
         });
     } catch (error) {
@@ -152,39 +180,6 @@ const login = async (req, res) => {
         // Reset login attempts on successful login
         if (user.loginAttempts > 0 || user.lockUntil) {
             await user.resetLoginAttempts();
-        }
-
-        // Check if 2FA is enabled
-        if (user.twoFactorEnabled) {
-            // Generate OTP for 2FA
-            const crypto = require('crypto');
-            const otp = Math.floor(100000 + Math.random() * 900000).toString();
-            const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
-
-            // Save OTP
-            user.otp = hashedOtp;
-            user.otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
-            user.otpPurpose = '2fa-login';
-            user.otpAttempts = 0;
-            await user.save({ validateBeforeSave: false });
-
-            // Send OTP
-            const { sendOTPEmail } = require('../utils/email');
-            try {
-                await sendOTPEmail(user.email, otp, user.name);
-                console.log(`✅ 2FA login OTP sent to ${user.email}`);
-            } catch (emailError) {
-                console.error('❌ Failed to send 2FA OTP:', emailError);
-                console.log('2FA Login OTP:', otp);
-            }
-
-            return res.status(200).json({
-                success: true,
-                requires2FA: true,
-                message: 'Please enter the verification code sent to your email',
-                email: user.email,
-                ...(process.env.NODE_ENV === 'development' && { otp }),
-            });
         }
 
         // Generate token with dynamic expiry based on remember me

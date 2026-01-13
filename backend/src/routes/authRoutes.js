@@ -4,7 +4,7 @@ const passport = require('passport');
 
 const { register, login, getProfile, updateProfile, googleCallback } = require('../controllers/authController');
 const { forgotPassword, verifyResetOTP, resetPassword } = require('../controllers/passwordController');
-const { enable2FA, verify2FASetup, disable2FA, verify2FALogin, get2FAStatus } = require('../controllers/twoFactorController');
+const { sendVerificationEmail, verifyEmail, resendVerificationEmail } = require('../controllers/emailVerificationController');
 const { protect } = require('../middlewares/authMiddleware');
 
 // Initialize Passport configuration
@@ -21,6 +21,14 @@ router.post('/login', login);
 // Protected routes
 router.get('/profile', protect, getProfile);
 router.put('/profile', protect, updateProfile);
+
+// ============================================
+// EMAIL VERIFICATION ROUTES
+// ============================================
+
+router.post('/send-verification-email', protect, sendVerificationEmail);
+router.post('/verify-email', protect, verifyEmail);
+router.post('/resend-verification-email', protect, resendVerificationEmail);
 
 // ============================================
 // PASSWORD RESET ROUTES
@@ -56,15 +64,5 @@ router.get(
     }),
     googleCallback
 );
-
-// ============================================
-// TWO-FACTOR AUTHENTICATION ROUTES
-// ============================================
-
-router.post('/2fa/enable', protect, enable2FA);
-router.post('/2fa/verify-setup', protect, verify2FASetup);
-router.post('/2fa/disable', protect, disable2FA);
-router.post('/2fa/verify-login', verify2FALogin);
-router.get('/2fa/status', protect, get2FAStatus);
 
 module.exports = router;

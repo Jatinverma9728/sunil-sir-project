@@ -6,8 +6,6 @@ import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useToast } from "@/components/ui/Toast";
 import GoogleButton from "@/components/auth/GoogleButton";
-import TwoFactorVerify from "@/components/auth/TwoFactorVerify";
-import { verify2FALogin } from "@/lib/api/password";
 
 // Inner component that uses useSearchParams
 function LoginContent() {
@@ -24,11 +22,6 @@ function LoginContent() {
     const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-
-    // 2FA state
-    const [show2FAModal, setShow2FAModal] = useState(false);
-    const [twoFactorEmail, setTwoFactorEmail] = useState("");
-    const [verifying2FA, setVerifying2FA] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -70,16 +63,7 @@ function LoginContent() {
         setErrors({});
 
         try {
-            const response = await login(formData.email, formData.password);
-
-            // Check if 2FA is required
-            if (response && (response as any).requires2FA) {
-                // Show 2FA modal
-                setShow2FAModal(true);
-                setTwoFactorEmail(formData.email);
-                toast.info("Please enter the verification code sent to your email");
-                return;
-            }
+            await login(formData.email, formData.password, formData.rememberMe);
 
             toast.success(formData.rememberMe ? "Login successful! You'll stay signed in for 30 days" : "Login successful! Welcome back");
 
@@ -102,40 +86,6 @@ function LoginContent() {
         } finally {
             setLoading(false);
         }
-    };
-
-    // Handle 2FA verification
-    const handle2FAVerify = async (otp: string) => {
-        setVerifying2FA(true);
-        try {
-            const result = await verify2FALogin(twoFactorEmail, otp);
-
-            if (result.success && result.data?.token) {
-                // Store token
-                const { setAuthToken } = await import("@/lib/api/auth");
-                setAuthToken(result.data.token);
-
-                // Load user
-                const { loadUser } = useAuth();
-                await loadUser();
-
-                toast.success("Login successful! Welcome back");
-                setShow2FAModal(false);
-
-                const redirectTo = searchParams.get("redirect") || "/";
-                setTimeout(() => router.push(redirectTo), 500);
-            }
-        } catch (error: any) {
-            throw new Error(error.message || "Invalid verification code");
-        } finally {
-            setVerifying2FA(false);
-        }
-    };
-
-    // Resend 2FA code
-    const handleResend2FA = async () => {
-        await login(formData.email, formData.password);
-        toast.success("Verification code resent");
     };
 
     return (

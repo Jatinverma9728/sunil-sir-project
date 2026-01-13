@@ -90,3 +90,5 @@ add session validations on password change, add logout all device feature.
 complete all core featureslike product search , complete review system, shopping cart must be persistent , checkout flow payment integrantion must be complete (for payment we use razorpay payment gateway it prove a screen in that screen we have all payment options), so complete it fully, for course video playback we use telegram or oher things we just showcashe and information demo things on main website.
 improve inventory management, improve user expperience gaps, profile management complete wishlist peristence, add email notificaitions,, add advance admin analitics, performance and scalibility must be complpete and well organised,.
 ok these are the tasks we want to complete so divide them into phases and complete them pahse by phase   make sure you follow this project audit report, 
+
+
