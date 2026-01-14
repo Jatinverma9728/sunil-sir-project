@@ -94,6 +94,12 @@ export default function AdminDashboard() {
         totalUsers: 0,
         totalCourses: 0,
         pendingOrders: 0,
+        todayOrders: 0,
+        todayRevenue: 0,
+        averageOrderValue: 0,
+        revenueGrowth: 0,
+        weekRevenue: 0,
+        monthRevenue: 0,
     });
     const [recentOrders, setRecentOrders] = useState<Order[]>([]);
 
@@ -136,6 +142,7 @@ export default function AdminDashboard() {
 
     // Chart data
     const [chartData, setChartData] = useState<any[]>([]);
+    const [statusDistribution, setStatusDistribution] = useState<any[]>([]);
 
     useEffect(() => {
         // Wait for auth to finish loading
@@ -170,17 +177,53 @@ export default function AdminDashboard() {
                     totalUsers: result.data.totalUsers,
                     totalCourses: result.data.totalCourses,
                     pendingOrders: result.data.pendingOrders,
+                    todayOrders: result.data.todayOrders || 0,
+                    todayRevenue: result.data.todayRevenue || 0,
+                    averageOrderValue: result.data.averageOrderValue || 0,
+                    revenueGrowth: result.data.revenueGrowth || 0,
+                    weekRevenue: result.data.weekRevenue || 0,
+                    monthRevenue: result.data.monthRevenue || 0,
                 });
                 setRecentOrders(result.data.recentOrders);
 
-                // Generate chart data based on real stats
-                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-                const chartData = months.map((month, i) => ({
-                    month,
-                    revenue: Math.round((result.data!.totalRevenue / 6) * (0.5 + Math.random())),
-                    orders: Math.round((result.data!.totalOrders / 6) * (0.5 + Math.random())),
-                }));
-                setChartData(chartData);
+                // Use real chart data from API or generate sample data
+                if (result.data.chartData && result.data.chartData.length > 0) {
+                    const formattedChartData = result.data.chartData.map((d: any) => ({
+                        date: new Date(d.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+                        revenue: d.revenue,
+                        orders: d.orders,
+                    }));
+                    setChartData(formattedChartData);
+                } else {
+                    // Generate sample data for last 30 days based on total stats
+                    const sampleData = [];
+                    for (let i = 29; i >= 0; i--) {
+                        const date = new Date();
+                        date.setDate(date.getDate() - i);
+                        const baseRevenue = result.data.totalRevenue / 30;
+                        const baseOrders = result.data.totalOrders / 30;
+                        sampleData.push({
+                            date: date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+                            revenue: Math.round(baseRevenue * (0.5 + Math.random())),
+                            orders: Math.max(0, Math.round(baseOrders * (0.5 + Math.random()))),
+                        });
+                    }
+                    setChartData(sampleData);
+                }
+
+                // Set status distribution
+                if (result.data.statusDistribution && result.data.statusDistribution.length > 0) {
+                    setStatusDistribution(result.data.statusDistribution);
+                } else {
+                    // Generate from stats
+                    const statusData = [
+                        { name: 'Pending', value: result.data.pendingOrders || 0, color: '#fbbf24' },
+                        { name: 'Delivered', value: Math.floor((result.data.totalOrders || 0) * 0.6), color: '#22c55e' },
+                        { name: 'Processing', value: Math.floor((result.data.totalOrders || 0) * 0.2), color: '#3b82f6' },
+                        { name: 'Shipped', value: Math.floor((result.data.totalOrders || 0) * 0.1), color: '#8b5cf6' },
+                    ].filter(s => s.value > 0);
+                    setStatusDistribution(statusData);
+                }
             }
         } catch (error) {
             console.error("Error fetching dashboard:", error);
@@ -377,18 +420,18 @@ export default function AdminDashboard() {
                 {/* Overview Tab */}
                 {activeTab === "overview" && (
                     <div>
-                        {/* Stats Grid */}
+                        {/* Main Stats Grid */}
                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                             {[
-                                { label: "Total Revenue", value: `₹${stats.totalRevenue.toLocaleString()}`, icon: "💰", change: "+12%" },
-                                { label: "Total Orders", value: stats.totalOrders.toLocaleString(), icon: "📦", change: `${stats.pendingOrders} pending` },
-                                { label: "Total Products", value: stats.totalProducts.toLocaleString(), icon: "📱", change: "Active" },
-                                { label: "Total Users", value: stats.totalUsers.toLocaleString(), icon: "👥", change: "Registered" },
+                                { label: "Total Revenue", value: `₹${stats.totalRevenue.toLocaleString()}`, icon: "💰", change: stats.revenueGrowth > 0 ? `+${stats.revenueGrowth}%` : `${stats.revenueGrowth}%`, positive: stats.revenueGrowth >= 0 },
+                                { label: "Total Orders", value: stats.totalOrders.toLocaleString(), icon: "📦", change: `${stats.pendingOrders} pending`, positive: true },
+                                { label: "Total Products", value: stats.totalProducts.toLocaleString(), icon: "📱", change: "Active", positive: true },
+                                { label: "Total Users", value: stats.totalUsers.toLocaleString(), icon: "👥", change: "Registered", positive: true },
                             ].map((stat, index) => (
                                 <div key={index} className="bg-white rounded-xl p-6 shadow-sm">
                                     <div className="flex items-center justify-between mb-4">
                                         <span className="text-3xl">{stat.icon}</span>
-                                        <span className="text-green-600 text-sm font-medium">{stat.change}</span>
+                                        <span className={`text-sm font-medium ${stat.positive ? 'text-green-600' : 'text-red-600'}`}>{stat.change}</span>
                                     </div>
                                     <p className="text-gray-600 text-sm mb-1">{stat.label}</p>
                                     <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
@@ -396,26 +439,46 @@ export default function AdminDashboard() {
                             ))}
                         </div>
 
+                        {/* Secondary Stats - Today, Week, Month */}
+                        <div className="grid md:grid-cols-4 gap-4 mb-8">
+                            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-5 text-white">
+                                <p className="text-blue-100 text-sm mb-1">Today's Orders</p>
+                                <p className="text-2xl font-bold">{stats.todayOrders}</p>
+                            </div>
+                            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-5 text-white">
+                                <p className="text-green-100 text-sm mb-1">Today's Revenue</p>
+                                <p className="text-2xl font-bold">₹{stats.todayRevenue.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-5 text-white">
+                                <p className="text-purple-100 text-sm mb-1">This Month</p>
+                                <p className="text-2xl font-bold">₹{stats.monthRevenue.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-5 text-white">
+                                <p className="text-orange-100 text-sm mb-1">Avg Order Value</p>
+                                <p className="text-2xl font-bold">₹{stats.averageOrderValue.toLocaleString()}</p>
+                            </div>
+                        </div>
+
                         {/* Charts */}
                         <div className="grid lg:grid-cols-2 gap-6 mb-8">
                             <div className="bg-white rounded-xl p-6 shadow-sm">
-                                <h2 className="text-lg font-bold text-gray-900 mb-4">Revenue Trend</h2>
+                                <h2 className="text-lg font-bold text-gray-900 mb-4">Revenue Trend (Last 30 Days)</h2>
                                 <ResponsiveContainer width="100%" height={300}>
                                     <AreaChart data={chartData}>
                                         <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="month" />
+                                        <XAxis dataKey="date" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
                                         <YAxis />
-                                        <Tooltip />
+                                        <Tooltip formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Revenue']} />
                                         <Area type="monotone" dataKey="revenue" stroke="#2D5A27" fill="#C1FF72" />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
                             <div className="bg-white rounded-xl p-6 shadow-sm">
-                                <h2 className="text-lg font-bold text-gray-900 mb-4">Orders Overview</h2>
+                                <h2 className="text-lg font-bold text-gray-900 mb-4">Orders Overview (Last 30 Days)</h2>
                                 <ResponsiveContainer width="100%" height={300}>
                                     <BarChart data={chartData}>
                                         <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="month" />
+                                        <XAxis dataKey="date" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
                                         <YAxis />
                                         <Tooltip />
                                         <Bar dataKey="orders" fill="#2D5A27" radius={[4, 4, 0, 0]} />
@@ -424,6 +487,94 @@ export default function AdminDashboard() {
                             </div>
                         </div>
 
+                        {/* Additional Charts Row */}
+                        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+                            {/* Order Status Pie Chart */}
+                            <div className="bg-white rounded-xl p-6 shadow-sm">
+                                <h2 className="text-lg font-bold text-gray-900 mb-4">Order Status Distribution</h2>
+                                {statusDistribution.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height={250}>
+                                        <PieChart>
+                                            <Pie
+                                                data={statusDistribution}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={60}
+                                                outerRadius={80}
+                                                paddingAngle={5}
+                                                dataKey="value"
+                                                label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                                                labelLine={false}
+                                            >
+                                                {statusDistribution.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="h-[250px] flex items-center justify-center text-gray-400">
+                                        No order data available
+                                    </div>
+                                )}
+                                <div className="flex flex-wrap gap-2 mt-4 justify-center">
+                                    {statusDistribution.map((status, i) => (
+                                        <div key={i} className="flex items-center gap-1 text-xs">
+                                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: status.color }}></div>
+                                            <span>{status.name}: {status.value}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Revenue vs Orders Combined Chart */}
+                            <div className="bg-white rounded-xl p-6 shadow-sm lg:col-span-2">
+                                <h2 className="text-lg font-bold text-gray-900 mb-4">Revenue vs Orders Trend</h2>
+                                <ResponsiveContainer width="100%" height={250}>
+                                    <LineChart data={chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="date" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+                                        <YAxis yAxisId="left" orientation="left" stroke="#2D5A27" />
+                                        <YAxis yAxisId="right" orientation="right" stroke="#3b82f6" />
+                                        <Tooltip />
+                                        <Legend />
+                                        <Line yAxisId="left" type="monotone" dataKey="revenue" stroke="#2D5A27" strokeWidth={2} name="Revenue (₹)" dot={false} />
+                                        <Line yAxisId="right" type="monotone" dataKey="orders" stroke="#3b82f6" strokeWidth={2} name="Orders" dot={false} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
+                        {/* Quick Stats Summary */}
+                        <div className="grid md:grid-cols-5 gap-4 mb-8">
+                            <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-yellow-400">
+                                <p className="text-xs text-gray-500 mb-1">Pending</p>
+                                <p className="text-xl font-bold">{stats.pendingOrders}</p>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-blue-400">
+                                <p className="text-xs text-gray-500 mb-1">This Week</p>
+                                <p className="text-xl font-bold">₹{stats.weekRevenue.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-green-400">
+                                <p className="text-xs text-gray-500 mb-1">Total Courses</p>
+                                <p className="text-xl font-bold">{stats.totalCourses}</p>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-purple-400">
+                                <p className="text-xs text-gray-500 mb-1">Growth</p>
+                                <p className={`text-xl font-bold ${stats.revenueGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {stats.revenueGrowth > 0 ? '+' : ''}{stats.revenueGrowth}%
+                                </p>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 shadow-sm border-l-4 border-indigo-400">
+                                <p className="text-xs text-gray-500 mb-1">Conversion</p>
+                                <p className="text-xl font-bold">
+                                    {stats.totalOrders > 0 && stats.totalUsers > 0
+                                        ? ((stats.totalOrders / stats.totalUsers) * 100).toFixed(1) + '%'
+                                        : '0%'}
+                                </p>
+                            </div>
+                        </div>
                         {/* Recent Orders */}
                         <div className="bg-white rounded-xl p-6 shadow-sm">
                             <div className="flex items-center justify-between mb-6">

@@ -1,11 +1,13 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const User = require('../models/User');
 const {
     createRazorpayOrder,
     verifyRazorpaySignature,
     mockPaymentSuccess,
     getRazorpayKeyId,
 } = require('../utils/payment');
+const { sendOrderConfirmationEmail } = require('../utils/email');
 
 /**
  * @desc    Create new order
@@ -192,6 +194,19 @@ const verifyPayment = async (req, res) => {
         }
 
         await order.save();
+
+        // Send order confirmation email
+        try {
+            const user = await User.findById(req.user._id);
+            if (user && user.email) {
+                console.log('📧 Sending order confirmation email to:', user.email);
+                await sendOrderConfirmationEmail(user.email, order, user.name);
+                console.log('✅ Order confirmation email sent successfully');
+            }
+        } catch (emailError) {
+            console.error('❌ Failed to send order confirmation email:', emailError.message);
+            // Don't throw - email failure shouldn't affect order processing
+        }
 
         res.status(200).json({
             success: true,

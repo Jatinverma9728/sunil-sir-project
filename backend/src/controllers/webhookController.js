@@ -1,5 +1,7 @@
 const Order = require('../models/Order');
+const User = require('../models/User');
 const { verifyWebhookSignature } = require('../utils/payment');
+const { sendOrderConfirmationEmail } = require('../utils/email');
 
 /**
  * Razorpay Webhook Controller
@@ -127,6 +129,18 @@ const handlePaymentCaptured = async (payload) => {
         await order.save();
 
         console.log(`✅ Order ${order._id} payment captured and order status updated to processing`);
+
+        // Send order confirmation email
+        try {
+            const user = await User.findById(order.user);
+            if (user && user.email) {
+                await sendOrderConfirmationEmail(user.email, order, user.name);
+                console.log(`📧 Order confirmation email sent for order ${order._id}`);
+            }
+        } catch (emailError) {
+            console.error('❌ Failed to send order confirmation email:', emailError);
+            // Don't throw - email failure shouldn't affect order processing
+        }
     } catch (error) {
         console.error('❌ Error handling payment.captured:', error);
     }

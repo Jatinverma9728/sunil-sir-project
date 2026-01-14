@@ -1,5 +1,7 @@
 const Order = require('../../models/Order');
 const Product = require('../../models/Product');
+const User = require('../../models/User');
+const { sendShippingUpdateEmail } = require('../../utils/email');
 
 /**
  * @desc    Get all orders with filters (Admin)
@@ -114,6 +116,20 @@ const updateOrderStatus = async (req, res) => {
             order.deliveredAt = Date.now();
         }
 
+        // Send shipping email when status changes to shipped
+        if (status === 'shipped') {
+            order.shippedAt = Date.now();
+            try {
+                const user = await User.findById(order.user);
+                if (user && user.email) {
+                    await sendShippingUpdateEmail(user.email, order, user.name);
+                    console.log(`📧 Shipping update email sent for order ${order._id}`);
+                }
+            } catch (emailError) {
+                console.error('❌ Failed to send shipping email:', emailError);
+            }
+        }
+
         if (status === 'cancelled') {
             order.cancelledAt = Date.now();
             order.cancellationReason = reason || 'Cancelled by admin';
@@ -152,6 +168,7 @@ const updateOrderStatus = async (req, res) => {
  */
 const getOrderStats = async (req, res) => {
     try {
+        // Basic counts
         const totalOrders = await Order.countDocuments();
         const pendingOrders = await Order.countDocuments({ orderStatus: 'pending' });
         const processingOrders = await Order.countDocuments({ orderStatus: 'processing' });
@@ -159,24 +176,127 @@ const getOrderStats = async (req, res) => {
         const deliveredOrders = await Order.countDocuments({ orderStatus: 'delivered' });
         const cancelledOrders = await Order.countDocuments({ orderStatus: 'cancelled' });
 
-        // Calculate total revenue
-        const completedOrders = await Order.find({
-            orderStatus: { $in: ['delivered'] },
+        // Calculate total revenue from all completed payments
+        const paidOrders = await Order.find({
             'paymentInfo.status': 'completed',
         });
+        const totalRevenue = paidOrders.reduce((sum, order) => sum + order.totalPrice, 0);
+        const averageOrderValue = paidOrders.length > 0 ? totalRevenue / paidOrders.length : 0;
 
-        const totalRevenue = completedOrders.reduce((sum, order) => sum + order.totalPrice, 0);
+        // Today's stats
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayOrders = await Order.countDocuments({ createdAt: { $gte: today } });
+        const todayPaidOrders = await Order.find({
+            createdAt: { $gte: today },
+            'paymentInfo.status': 'completed',
+        });
+        const todayRevenue = todayPaidOrders.reduce((sum, order) => sum + order.totalPrice, 0);
+
+        // This week's stats
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - 7);
+        const weekOrders = await Order.find({
+            createdAt: { $gte: weekStart },
+            'paymentInfo.status': 'completed',
+        });
+        const weekRevenue = weekOrders.reduce((sum, order) => sum + order.totalPrice, 0);
+
+        // This month's stats
+        const monthStart = new Date();
+        monthStart.setDate(1);
+        monthStart.setHours(0, 0, 0, 0);
+        const monthOrders = await Order.find({
+            createdAt: { $gte: monthStart },
+            'paymentInfo.status': 'completed',
+        });
+        const monthRevenue = monthOrders.reduce((sum, order) => sum + order.totalPrice, 0);
+
+        // Get daily revenue/orders for last 30 days (for charts)
+        const last30Days = new Date();
+        last30Days.setDate(last30Days.getDate() - 30);
+        const recentOrders = await Order.find({
+            createdAt: { $gte: last30Days },
+        }).sort({ createdAt: 1 });
+
+        // Group by date
+        const dailyStats = {};
+        for (let i = 0; i < 30; i++) {
+            const date = new Date();
+            date.setDate(date.getDate() - (29 - i));
+            const dateStr = date.toISOString().split('T')[0];
+            dailyStats[dateStr] = { date: dateStr, revenue: 0, orders: 0 };
+        }
+
+        recentOrders.forEach(order => {
+            const dateStr = order.createdAt.toISOString().split('T')[0];
+            if (dailyStats[dateStr]) {
+                dailyStats[dateStr].orders += 1;
+                if (order.paymentInfo?.status === 'completed') {
+                    dailyStats[dateStr].revenue += order.totalPrice;
+                }
+            }
+        });
+
+        const chartData = Object.values(dailyStats).map(d => ({
+            ...d,
+            revenue: parseFloat(d.revenue.toFixed(2)),
+        }));
+
+        // Calculate growth (compare last 15 days with previous 15 days)
+        const mid = Math.floor(chartData.length / 2);
+        const firstHalfRevenue = chartData.slice(0, mid).reduce((sum, d) => sum + d.revenue, 0);
+        const secondHalfRevenue = chartData.slice(mid).reduce((sum, d) => sum + d.revenue, 0);
+        const revenueGrowth = firstHalfRevenue > 0
+            ? ((secondHalfRevenue - firstHalfRevenue) / firstHalfRevenue * 100).toFixed(1)
+            : secondHalfRevenue > 0 ? 100 : 0;
+
+        // Order status distribution (for pie chart)
+        const statusDistribution = [
+            { name: 'Pending', value: pendingOrders, color: '#fbbf24' },
+            { name: 'Processing', value: processingOrders, color: '#3b82f6' },
+            { name: 'Shipped', value: shippedOrders, color: '#8b5cf6' },
+            { name: 'Delivered', value: deliveredOrders, color: '#22c55e' },
+            { name: 'Cancelled', value: cancelledOrders, color: '#ef4444' },
+        ].filter(s => s.value > 0);
+
+        // Payment method distribution
+        const paymentMethodStats = await Order.aggregate([
+            { $match: { 'paymentInfo.status': 'completed' } },
+            { $group: { _id: '$paymentInfo.method', count: { $sum: 1 }, revenue: { $sum: '$totalPrice' } } },
+        ]);
 
         res.status(200).json({
             success: true,
             data: {
+                // Basic counts
                 totalOrders,
                 pendingOrders,
                 processingOrders,
                 shippedOrders,
                 deliveredOrders,
                 cancelledOrders,
-                totalRevenue,
+                // Revenue stats
+                totalRevenue: parseFloat(totalRevenue.toFixed(2)),
+                averageOrderValue: parseFloat(averageOrderValue.toFixed(2)),
+                // Time-based stats
+                todayOrders,
+                todayRevenue: parseFloat(todayRevenue.toFixed(2)),
+                weekRevenue: parseFloat(weekRevenue.toFixed(2)),
+                weekOrders: weekOrders.length,
+                monthRevenue: parseFloat(monthRevenue.toFixed(2)),
+                monthOrders: monthOrders.length,
+                // Growth
+                revenueGrowth: parseFloat(revenueGrowth),
+                // Chart data (daily for last 30 days)
+                chartData,
+                // Distributions
+                statusDistribution,
+                paymentMethodStats: paymentMethodStats.map(p => ({
+                    method: p._id || 'unknown',
+                    count: p.count,
+                    revenue: parseFloat(p.revenue.toFixed(2)),
+                })),
             },
         });
     } catch (error) {

@@ -449,8 +449,517 @@ const sendPasswordResetConfirmation = async (to, name = 'User') => {
     }
 };
 
+/**
+ * Send order confirmation email
+ */
+const sendOrderConfirmationEmail = async (to, order, name = 'Customer') => {
+    try {
+        const transporter = createTransporter();
+
+        // Format order items HTML
+        const itemsHtml = order.orderItems.map(item => `
+            <tr>
+                <td style="padding: 16px; border-bottom: 1px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center;">
+                        <span style="font-weight: 600; color: #1e293b;">${item.title}</span>
+                    </div>
+                    <p style="margin: 4px 0 0 0; color: #64748b; font-size: 13px;">Qty: ${item.quantity}</p>
+                </td>
+                <td style="padding: 16px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #1e293b;">
+                    ₹${(item.price * item.quantity).toFixed(2)}
+                </td>
+            </tr>
+        `).join('');
+
+        const mailOptions = {
+            from: `"Flash" <${process.env.EMAIL_USER}>`,
+            to,
+            subject: `Order Confirmed - #${order._id.toString().slice(-8).toUpperCase()}`,
+            html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
+    
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #047857 0%, #059669 100%); padding: 48px; text-align: center; border-bottom: 4px solid #10b981;">
+                            <div style="font-size: 64px; margin-bottom: 16px;">✓</div>
+                            <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">Order Confirmed!</h1>
+                            <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Thank you for your purchase</p>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 48px;">
+                            
+                            <h2 style="margin: 0 0 8px 0; color: #0f172a; font-size: 24px; font-weight: 700;">
+                                Hello, ${name}!
+                            </h2>
+                            
+                            <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
+                                We've received your order and it's being processed. Here are your order details:
+                            </p>
+
+                            <!-- Order ID -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 24px 0;">
+                                <tr>
+                                    <td style="background: #f1f5f9; border-radius: 8px; padding: 16px;">
+                                        <p style="margin: 0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Order ID</p>
+                                        <p style="margin: 8px 0 0 0; color: #1e293b; font-size: 18px; font-weight: 700; font-family: monospace;">#${order._id.toString().slice(-8).toUpperCase()}</p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Order Items -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 24px 0; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                                <tr>
+                                    <td style="background: #f8fafc; padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">
+                                        <strong style="color: #475569; font-size: 14px;">Items</strong>
+                                    </td>
+                                    <td style="background: #f8fafc; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; text-align: right;">
+                                        <strong style="color: #475569; font-size: 14px;">Price</strong>
+                                    </td>
+                                </tr>
+                                ${itemsHtml}
+                            </table>
+
+                            <!-- Order Summary -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
+                                <tr>
+                                    <td style="padding: 8px 0; color: #64748b;">Subtotal</td>
+                                    <td style="padding: 8px 0; text-align: right; color: #1e293b;">₹${order.itemsPrice.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #64748b;">Shipping</td>
+                                    <td style="padding: 8px 0; text-align: right; color: #1e293b;">${order.shippingPrice === 0 ? 'FREE' : '₹' + order.shippingPrice.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #64748b;">Tax</td>
+                                    <td style="padding: 8px 0; text-align: right; color: #1e293b;">₹${order.taxPrice.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 16px 0 0 0; border-top: 2px solid #e2e8f0; font-weight: 700; color: #0f172a; font-size: 18px;">Total</td>
+                                    <td style="padding: 16px 0 0 0; border-top: 2px solid #e2e8f0; text-align: right; font-weight: 700; color: #047857; font-size: 18px;">₹${order.totalPrice.toFixed(2)}</td>
+                                </tr>
+                            </table>
+
+                            <!-- Shipping Address -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
+                                <tr>
+                                    <td style="background: linear-gradient(to bottom, #f0f9ff 0%, #e0f2fe 100%); border-radius: 8px; padding: 20px;">
+                                        <h3 style="margin: 0 0 12px 0; color: #0c4a6e; font-size: 14px; font-weight: 700;">📦 Shipping Address</h3>
+                                        <p style="margin: 0; color: #0369a1; font-size: 14px; line-height: 1.6;">
+                                            ${order.shippingAddress.fullName || name}<br>
+                                            ${order.shippingAddress.address}<br>
+                                            ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}<br>
+                                            ${order.shippingAddress.country}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- CTA Button -->
+                            <div style="text-align: center; margin: 32px 0;">
+                                <a href="${process.env.FRONTEND_URL || '#'}/orders" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
+                                    Track Your Order →
+                                </a>
+                            </div>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
+                                © ${new Date().getFullYear()} Flash. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+                
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
+            `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Order confirmation email sent:', info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error('❌ Error sending order confirmation email:', error);
+        return { success: false };
+    }
+};
+
+/**
+ * Send shipping update email
+ */
+const sendShippingUpdateEmail = async (to, order, name = 'Customer', trackingInfo = null) => {
+    try {
+        const transporter = createTransporter();
+
+        const mailOptions = {
+            from: `"Flash" <${process.env.EMAIL_USER}>`,
+            to,
+            subject: `Your Order Has Been Shipped! - #${order._id.toString().slice(-8).toUpperCase()}`,
+            html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
+    
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 48px; text-align: center; border-bottom: 4px solid #1d4ed8;">
+                            <div style="font-size: 64px; margin-bottom: 16px;">🚚</div>
+                            <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">Your Order is On Its Way!</h1>
+                            <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Estimated delivery in 3-5 business days</p>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 48px;">
+                            
+                            <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 24px; font-weight: 700;">
+                                Great news, ${name}!
+                            </h2>
+                            
+                            <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
+                                Your order <strong>#${order._id.toString().slice(-8).toUpperCase()}</strong> has been shipped and is on its way to you.
+                            </p>
+
+                            ${trackingInfo ? `
+                            <!-- Tracking Info -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 24px 0;">
+                                <tr>
+                                    <td style="background: linear-gradient(to bottom, #fef3c7 0%, #fde68a 100%); border-radius: 8px; padding: 20px; border-left: 4px solid #f59e0b;">
+                                        <h3 style="margin: 0 0 12px 0; color: #92400e; font-size: 14px; font-weight: 700;">📍 Tracking Information</h3>
+                                        <p style="margin: 0 0 8px 0; color: #a16207; font-size: 14px;">
+                                            <strong>Carrier:</strong> ${trackingInfo.carrier || 'Standard Shipping'}
+                                        </p>
+                                        <p style="margin: 0; color: #a16207; font-size: 14px;">
+                                            <strong>Tracking Number:</strong> ${trackingInfo.trackingNumber || 'Will be updated soon'}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            ` : ''}
+
+                            <!-- Shipping Address -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
+                                <tr>
+                                    <td style="background: #f1f5f9; border-radius: 8px; padding: 20px;">
+                                        <h3 style="margin: 0 0 12px 0; color: #475569; font-size: 14px; font-weight: 700;">📦 Delivering To</h3>
+                                        <p style="margin: 0; color: #1e293b; font-size: 14px; line-height: 1.6;">
+                                            ${order.shippingAddress.fullName || name}<br>
+                                            ${order.shippingAddress.address}<br>
+                                            ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- CTA Button -->
+                            <div style="text-align: center; margin: 32px 0;">
+                                <a href="${process.env.FRONTEND_URL || '#'}/orders" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
+                                    Track Your Order →
+                                </a>
+                            </div>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
+                                © ${new Date().getFullYear()} Flash. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+                
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
+            `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Shipping update email sent:', info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error('❌ Error sending shipping update email:', error);
+        return { success: false };
+    }
+};
+
+/**
+ * Send course enrollment confirmation email
+ */
+const sendCourseEnrollmentEmail = async (to, course, name = 'Student') => {
+    try {
+        const transporter = createTransporter();
+
+        const mailOptions = {
+            from: `"Flash" <${process.env.EMAIL_USER}>`,
+            to,
+            subject: `🎉 You're Enrolled! - ${course.title}`,
+            html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
+    
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); padding: 48px; text-align: center; border-bottom: 4px solid #6d28d9;">
+                            <div style="font-size: 64px; margin-bottom: 16px;">🎓</div>
+                            <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">Welcome to Your Course!</h1>
+                            <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">You're all set to start learning</p>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 48px;">
+                            
+                            <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 24px; font-weight: 700;">
+                                Congratulations, ${name}!
+                            </h2>
+                            
+                            <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
+                                You've successfully enrolled in <strong>${course.title}</strong>. Your learning journey begins now!
+                            </p>
+
+                            <!-- Course Info -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 24px 0;">
+                                <tr>
+                                    <td style="background: linear-gradient(to bottom, #faf5ff 0%, #f3e8ff 100%); border-radius: 8px; padding: 24px; border-left: 4px solid #7c3aed;">
+                                        <h3 style="margin: 0 0 16px 0; color: #6b21a8; font-size: 18px; font-weight: 700;">${course.title}</h3>
+                                        <p style="margin: 0 0 12px 0; color: #7e22ce; font-size: 14px; line-height: 1.6;">
+                                            ${course.description?.substring(0, 150) || 'Start your learning journey today!'}...
+                                        </p>
+                                        <p style="margin: 0; color: #9333ea; font-size: 13px;">
+                                            <strong>Instructor:</strong> ${course.instructor || 'Expert Instructor'}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- What's Next -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
+                                <tr>
+                                    <td style="background: #f1f5f9; border-radius: 8px; padding: 20px;">
+                                        <h3 style="margin: 0 0 16px 0; color: #475569; font-size: 14px; font-weight: 700;">📚 What's Next?</h3>
+                                        <ul style="margin: 0; padding-left: 20px; color: #1e293b; font-size: 14px; line-height: 2;">
+                                            <li>Access your course from My Courses dashboard</li>
+                                            <li>Complete lessons at your own pace</li>
+                                            <li>Track your progress and earn certificates</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- CTA Button -->
+                            <div style="text-align: center; margin: 32px 0;">
+                                <a href="${process.env.FRONTEND_URL || '#'}/my-courses" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);">
+                                    Start Learning →
+                                </a>
+                            </div>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
+                                © ${new Date().getFullYear()} Flash. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+                
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
+            `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Course enrollment email sent:', info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error('❌ Error sending course enrollment email:', error);
+        return { success: false };
+    }
+};
+
+/**
+ * Send password change notification email
+ */
+const sendPasswordChangeNotification = async (to, name = 'User') => {
+    try {
+        const transporter = createTransporter();
+
+        const mailOptions = {
+            from: `"Flash Security" <${process.env.EMAIL_USER}>`,
+            to,
+            subject: '⚠️ Password Changed - Flash Account',
+            html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
+    
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 48px; text-align: center; border-bottom: 4px solid #b45309;">
+                            <div style="font-size: 64px; margin-bottom: 16px;">🔐</div>
+                            <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">Password Changed</h1>
+                            <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Security notification</p>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 48px;">
+                            
+                            <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 24px; font-weight: 700;">
+                                Hello, ${name}
+                            </h2>
+                            
+                            <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
+                                Your Flash account password was recently changed. If you made this change, you can safely ignore this email.
+                            </p>
+
+                            <!-- Change Details -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 24px 0;">
+                                <tr>
+                                    <td style="background: #f1f5f9; border-radius: 8px; padding: 20px;">
+                                        <p style="margin: 0 0 8px 0; color: #64748b; font-size: 13px;">Change Details</p>
+                                        <p style="margin: 0 0 4px 0; color: #1e293b; font-size: 14px;"><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+                                        <p style="margin: 0; color: #1e293b; font-size: 14px;"><strong>Action:</strong> Password Changed</p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Warning -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
+                                <tr>
+                                    <td style="background: linear-gradient(to bottom, #fef2f2 0%, #fee2e2 100%); border-left: 4px solid #dc2626; border-radius: 8px; padding: 20px;">
+                                        <p style="margin: 0 0 8px 0; color: #7f1d1d; font-size: 14px; font-weight: 700;">
+                                            ⚠️ Didn't make this change?
+                                        </p>
+                                        <p style="margin: 0; color: #991b1b; font-size: 13px; line-height: 1.6;">
+                                            If you did not change your password, your account may have been compromised. Please reset your password immediately and contact our support team.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- CTA Button -->
+                            <div style="text-align: center; margin: 32px 0;">
+                                <a href="${process.env.FRONTEND_URL || '#'}/forgot-password" style="display: inline-block; background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3);">
+                                    Secure My Account →
+                                </a>
+                            </div>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0 0 12px 0; color: #64748b; font-size: 12px;">
+                                Need help? Contact us at <a href="mailto:support@flash.com" style="color: #3b82f6;">support@flash.com</a>
+                            </p>
+                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
+                                © ${new Date().getFullYear()} Flash. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+                
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
+            `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Password change notification sent:', info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error('❌ Error sending password change notification:', error);
+        return { success: false };
+    }
+};
+
 module.exports = {
     sendOTPEmail,
     sendWelcomeEmail,
     sendPasswordResetConfirmation,
+    sendOrderConfirmationEmail,
+    sendShippingUpdateEmail,
+    sendCourseEnrollmentEmail,
+    sendPasswordChangeNotification,
 };

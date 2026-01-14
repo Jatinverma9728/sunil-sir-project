@@ -36,6 +36,15 @@ export interface DashboardStats {
     totalCourses: number;
     pendingOrders: number;
     recentOrders: Order[];
+    // Additional stats from enhanced backend
+    todayOrders?: number;
+    todayRevenue?: number;
+    averageOrderValue?: number;
+    revenueGrowth?: number;
+    weekRevenue?: number;
+    monthRevenue?: number;
+    chartData?: Array<{ date: string; revenue: number; orders: number }>;
+    statusDistribution?: Array<{ name: string; value: number; color: string }>;
 }
 
 export const getAdminDashboardStats = async (): Promise<{ success: boolean; data?: DashboardStats; message?: string }> => {
@@ -80,6 +89,15 @@ export const getAdminDashboardStats = async (): Promise<{ success: boolean; data
                 totalCourses: coursesData.total || 0,
                 pendingOrders: orderStats.data?.pendingOrders || 0,
                 recentOrders: recentOrdersData.data || [],
+                // Enhanced stats from backend
+                todayOrders: orderStats.data?.todayOrders || 0,
+                todayRevenue: orderStats.data?.todayRevenue || 0,
+                averageOrderValue: orderStats.data?.averageOrderValue || 0,
+                revenueGrowth: orderStats.data?.revenueGrowth || 0,
+                weekRevenue: orderStats.data?.weekRevenue || 0,
+                monthRevenue: orderStats.data?.monthRevenue || 0,
+                chartData: orderStats.data?.chartData || [],
+                statusDistribution: orderStats.data?.statusDistribution || [],
             },
         };
     } catch (error) {

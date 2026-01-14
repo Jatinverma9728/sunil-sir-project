@@ -42,9 +42,34 @@ const {
     getCategoryById,
 } = require('../controllers/admin/categoryAdminController');
 
+const {
+    getRevenueAnalytics,
+    getUserAnalytics,
+    getProductAnalytics,
+    getCourseAnalytics,
+    getDashboardOverview,
+    exportOrdersCSV,
+    exportUsersCSV,
+    exportOrdersPDF,
+    exportAnalyticsReportPDF,
+} = require('../controllers/admin/analyticsController');
+
 // All admin routes require authentication and admin role
 router.use(protect);
 router.use(authorize('admin'));
+
+// ============================================
+// ANALYTICS ROUTES
+// ============================================
+router.get('/analytics/overview', getDashboardOverview);
+router.get('/analytics/revenue', getRevenueAnalytics);
+router.get('/analytics/users', getUserAnalytics);
+router.get('/analytics/products', getProductAnalytics);
+router.get('/analytics/courses', getCourseAnalytics);
+router.get('/analytics/export/orders', exportOrdersCSV);
+router.get('/analytics/export/users', exportUsersCSV);
+router.get('/analytics/export/orders-pdf', exportOrdersPDF);
+router.get('/analytics/export/report-pdf', exportAnalyticsReportPDF);
 
 // ============================================
 // PRODUCT MANAGEMENT ROUTES
@@ -91,4 +116,3 @@ router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 
 module.exports = router;
-
