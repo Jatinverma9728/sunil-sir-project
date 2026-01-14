@@ -67,7 +67,30 @@ const authorize = (...roles) => {
     };
 };
 
+/**
+ * Optional Auth - Attaches user if token exists but doesn't require it
+ */
+const optionalAuth = async (req, res, next) => {
+    try {
+        const token = extractToken(req.headers.authorization);
+
+        if (token) {
+            const decoded = verifyToken(token);
+            const user = await User.findById(decoded.id).select('-password');
+            if (user) {
+                req.user = user;
+            }
+        }
+
+        next();
+    } catch (error) {
+        // Token invalid or expired - just continue without user
+        next();
+    }
+};
+
 module.exports = {
     protect,
     authorize,
+    optionalAuth,
 };

@@ -5,17 +5,17 @@
   --background: #E8F5E9;
   --background-gradient: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 50%, #A5D6A7 100%);
   --foreground: #1A1A1A;
-  
+
   /* Accent Colors */
   --accent-lime: #C1FF72;
   --accent-lime-dark: #A8E85A;
   --accent-dark: #1A1A1A;
-  
+
   /* Card Colors */
   --card-bg: rgba(255, 255, 255, 0.85);
   --card-bg-solid: #FFFFFF;
   --card-border: rgba(255, 255, 255, 0.5);
-  
+
   /* Text Colors */
   --text-primary: #1A1A1A;
   --text-secondary: #666666;
@@ -140,6 +140,7 @@ body {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -150,6 +151,7 @@ body {
   from {
     width: 100%;
   }
+
   to {
     width: 0%;
   }

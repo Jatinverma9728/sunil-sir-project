@@ -9,6 +9,7 @@ import Modal from "@/components/admin/Modal";
 import ProductForm from "@/components/admin/ProductForm";
 import CourseForm from "@/components/admin/CourseForm";
 import UserForm from "@/components/admin/UserForm";
+import PromotionsTab from "@/components/admin/PromotionsTab";
 import {
     getAdminDashboardStats,
     getAdminProducts,
@@ -54,7 +55,7 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-type TabType = "overview" | "products" | "categories" | "orders" | "courses" | "users";
+type TabType = "overview" | "products" | "categories" | "orders" | "courses" | "users" | "promotions";
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -374,9 +375,10 @@ export default function AdminDashboard() {
                             { id: "overview" as TabType, label: "Overview", icon: "📊" },
                             { id: "products" as TabType, label: "Products", icon: "📱" },
                             { id: "categories" as TabType, label: "Categories", icon: "📦" },
-                            { id: "orders" as TabType, label: "Orders", icon: "�" },
+                            { id: "orders" as TabType, label: "Orders", icon: "🛒" },
                             { id: "courses" as TabType, label: "Courses", icon: "📚" },
                             { id: "users" as TabType, label: "Users", icon: "👥" },
+                            { id: "promotions" as TabType, label: "Promotions", icon: "🎁" },
                         ].map((tab) => (
                             <button
                                 key={tab.id}
@@ -1104,6 +1106,9 @@ export default function AdminDashboard() {
                         )}
                     </div>
                 )}
+
+                {/* Promotions Tab */}
+                {activeTab === "promotions" && <PromotionsTab />}
 
                 {/* Product Modal */}
                 <Modal

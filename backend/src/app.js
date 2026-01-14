@@ -187,6 +187,7 @@ const createApp = () => {
     const adminRoutes = require('./routes/adminRoutes');
     const uploadRoutes = require('./routes/uploadRoutes');
     const reviewRoutes = require('./routes/reviewRoutes');
+    const promotionsRoutes = require('./routes/promotionsRoutes');
     // const userRoutes = require('./routes/userRoutes');
 
     // Serve static files for uploads with CORS headers
@@ -205,6 +206,7 @@ const createApp = () => {
     app.use('/api/admin', adminLimiter, adminRoutes); // Admin limiter
     app.use('/api/upload', apiLimiter, uploadRoutes); // Upload routes
     app.use('/api/reviews', apiLimiter, reviewRoutes); // Review routes
+    app.use('/api', apiLimiter, promotionsRoutes); // Public promotions routes (banners, announcements, coupons)
     // app.use('/api/users', userRoutes);
 
 

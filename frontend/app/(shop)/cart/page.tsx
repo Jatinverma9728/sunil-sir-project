@@ -1,25 +1,63 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/context/CartContext";
 import CartItem from "@/components/cart/CartItem";
+import { validateCoupon } from "@/lib/api/promotions";
 
 export default function CartPage() {
     const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
 
+    // Coupon state
+    const [couponCode, setCouponCode] = useState("");
+    const [appliedCoupon, setAppliedCoupon] = useState<{
+        code: string;
+        discountType: string;
+        discountValue: number;
+        discount: number;
+    } | null>(null);
+    const [couponLoading, setCouponLoading] = useState(false);
+    const [couponError, setCouponError] = useState("");
+
     // Memoize calculations to prevent recalculation on every render
     const calculations = useMemo(() => {
         const subtotal = getTotalPrice();
-        const discount = 0;
-        const tax = subtotal * 0.1;
-        const shipping = subtotal > 50 ? 0 : 10;
-        const total = subtotal - discount + tax + shipping;
+        const couponDiscount = appliedCoupon?.discount || 0;
+        const tax = (subtotal - couponDiscount) * 0.1;
+        const shipping = subtotal > 999 ? 0 : 99;
+        const total = subtotal - couponDiscount + tax + shipping;
 
-        return { subtotal, discount, tax, shipping, total };
-    }, [getTotalPrice]);
+        return { subtotal, couponDiscount, tax, shipping, total };
+    }, [getTotalPrice, appliedCoupon]);
 
-    const { subtotal, discount, tax, shipping, total } = calculations;
+    const { subtotal, couponDiscount, tax, shipping, total } = calculations;
+
+    const handleApplyCoupon = async () => {
+        if (!couponCode.trim()) return;
+
+        setCouponLoading(true);
+        setCouponError("");
+
+        try {
+            const res = await validateCoupon(couponCode.toUpperCase(), subtotal);
+            if (res.success && res.data) {
+                setAppliedCoupon(res.data);
+                setCouponCode("");
+            } else {
+                setCouponError(res.message || "Invalid coupon code");
+            }
+        } catch (error) {
+            setCouponError("Failed to validate coupon");
+        } finally {
+            setCouponLoading(false);
+        }
+    };
+
+    const handleRemoveCoupon = () => {
+        setAppliedCoupon(null);
+        setCouponError("");
+    };
 
     if (items.length === 0) {
         return (
@@ -104,7 +142,7 @@ export default function CartPage() {
                                         {shipping === 0 ? (
                                             <span className="text-green-600">FREE</span>
                                         ) : (
-                                                <span className="text-gray-900">₹{shipping.toFixed(2)}</span>
+                                            <span className="text-gray-900">₹{shipping.toFixed(2)}</span>
                                         )}
                                     </span>
                                 </div>
@@ -112,7 +150,23 @@ export default function CartPage() {
                                 {shipping > 0 && (
                                     <div className="text-sm text-gray-500 bg-blue-50 p-4 rounded-2xl">
                                         <span className="font-medium text-blue-600">💡 Almost there!</span>
-                                        <br />Add ₹{(50 - subtotal).toFixed(2)} more for free shipping
+                                        <br />Add ₹{(999 - subtotal).toFixed(2)} more for free shipping
+                                    </div>
+                                )}
+
+                                {/* Coupon Discount */}
+                                {appliedCoupon && (
+                                    <div className="flex justify-between text-green-600">
+                                        <span className="flex items-center gap-2">
+                                            Coupon ({appliedCoupon.code})
+                                            <button
+                                                onClick={handleRemoveCoupon}
+                                                className="text-red-500 hover:text-red-600 text-xs"
+                                            >
+                                                ✕
+                                            </button>
+                                        </span>
+                                        <span className="font-medium">-₹{couponDiscount.toFixed(2)}</span>
                                     </div>
                                 )}
 
@@ -124,16 +178,45 @@ export default function CartPage() {
 
                             {/* Promo Code */}
                             <div className="mb-6 pb-6 border-b border-gray-200">
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        placeholder="Promo code"
-                                        className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all text-sm"
-                                    />
-                                    <button className="px-5 py-3 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors">
-                                        Apply
-                                    </button>
-                                </div>
+                                {!appliedCoupon ? (
+                                    <>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={couponCode}
+                                                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                                                placeholder="Enter coupon code"
+                                                className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all text-sm font-mono"
+                                            />
+                                            <button
+                                                onClick={handleApplyCoupon}
+                                                disabled={couponLoading || !couponCode.trim()}
+                                                className="px-5 py-3 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {couponLoading ? "..." : "Apply"}
+                                            </button>
+                                        </div>
+                                        {couponError && (
+                                            <p className="mt-2 text-sm text-red-500">{couponError}</p>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">
+                                        <div>
+                                            <p className="text-sm font-medium text-green-700">
+                                                🎉 Coupon Applied!
+                                            </p>
+                                            <p className="text-xs text-green-600">
+                                                {appliedCoupon.discountType === 'percentage'
+                                                    ? `${appliedCoupon.discountValue}% off`
+                                                    : `₹${appliedCoupon.discountValue} off`
+                                                }
+                                            </p>
+                                        </div>
+                                        <span className="font-mono font-bold text-green-700">{appliedCoupon.code}</span>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Total */}
@@ -165,7 +248,7 @@ export default function CartPage() {
                 <div className="mt-16 grid md:grid-cols-3 gap-8">
                     {[
                         { icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z", title: "Secure Payment", desc: "256-bit SSL encryption" },
-                        { icon: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", title: "Free Shipping", desc: "On orders over ₹50" },
+                        { icon: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", title: "Free Shipping", desc: "On orders over ₹999" },
                         { icon: "M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6", title: "Easy Returns", desc: "30-day return policy" },
                     ].map((badge, i) => (
                         <div key={i} className="flex items-start gap-4 p-6 bg-gray-50 rounded-2xl">

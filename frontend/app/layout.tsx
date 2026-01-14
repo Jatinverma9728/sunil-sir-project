@@ -5,6 +5,7 @@ import { ToastProvider } from "@/lib/context/ToastContext";
 import { WishlistProvider } from "@/lib/context/WishlistContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/home/Footer";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import "../src/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -24,7 +25,11 @@ export default function RootLayout({
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
-                <Navbar />
+                {/* Sticky Header Container */}
+                <header className="sticky top-0 z-50 flex flex-col">
+                  <AnnouncementBar />
+                  <Navbar />
+                </header>
                 <main className="flex-grow">
                   {children}
                 </main>
@@ -37,5 +42,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-

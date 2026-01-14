@@ -57,9 +57,9 @@ export default function Navbar() {
         <>
             {/* Main Navigation */}
             <nav
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-                    ? "bg-white/90 backdrop-blur-lg shadow-sm"
-                    : "bg-transparent"
+                className={`w-full transition-all duration-300 ${scrolled
+                    ? "bg-white/95 backdrop-blur-lg shadow-sm"
+                    : "bg-white"
                     }`}
             >
                 <div className="container mx-auto px-4 lg:px-6">
@@ -120,7 +120,7 @@ export default function Navbar() {
                             {/* Mobile Search */}
                             <button
                                 onClick={() => setSearchOpen(!searchOpen)}
-                                className="md:hidden p-2 hover:bg-white/50 rounded-full transition"
+                                className="md:hidden p-2 hover:bg-gray-100 rounded-full transition"
                                 aria-label="Search"
                             >
                                 <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,7 +129,7 @@ export default function Navbar() {
                             </button>
 
                             {/* Cart */}
-                            <Link href="/cart" className="p-2 hover:bg-white/50 rounded-full transition relative" aria-label="Cart">
+                            <Link href="/cart" className="p-2 hover:bg-gray-100 rounded-full transition relative" aria-label="Cart">
                                 <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                 </svg>
@@ -141,7 +141,7 @@ export default function Navbar() {
                             </Link>
 
                             {/* Wishlist */}
-                            <Link href="/account" className="hidden sm:flex p-2 hover:bg-white/50 rounded-full transition" aria-label="Wishlist">
+                            <Link href="/account" className="hidden sm:flex p-2 hover:bg-gray-100 rounded-full transition" aria-label="Wishlist">
                                 <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
@@ -155,7 +155,7 @@ export default function Navbar() {
                                             Admin
                                         </Link>
                                     )}
-                                    <Link href="/profile" className="flex items-center gap-2 px-1 py-1 rounded-full hover:bg-white/50 transition">
+                                    <Link href="/profile" className="flex items-center gap-2 px-1 py-1 rounded-full hover:bg-gray-100 transition">
                                         <span className="text-sm font-medium text-gray-700 hidden xl:inline">{user?.name || "Account"}</span>
                                         <div className="w-8 h-8 bg-[#C1FF72] rounded-full flex items-center justify-center text-sm font-bold text-gray-900 ring-2 ring-white">
                                             {user?.name?.charAt(0).toUpperCase() || "U"}
@@ -171,7 +171,7 @@ export default function Navbar() {
                             {/* Mobile Menu Button */}
                             <button
                                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="lg:hidden p-2 hover:bg-white/50 rounded-full transition"
+                                className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition"
                                 aria-label="Menu"
                             >
                                 <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,9 +186,6 @@ export default function Navbar() {
                     </div>
                 </div>
             </nav>
-
-            {/* Spacer */}
-            <div className="h-16" />
 
             {/* Mobile Menu */}
             <div className={`lg:hidden fixed inset-0 z-40 transition-all duration-300 ${mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
