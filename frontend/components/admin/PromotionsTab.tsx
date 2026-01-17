@@ -10,6 +10,7 @@ import {
     getAdminBanners, createAdminBanner, updateAdminBanner, deleteAdminBanner,
     getAdminAnnouncements, createAdminAnnouncement, updateAdminAnnouncement, deleteAdminAnnouncement,
 } from "@/lib/api/promotions";
+import { getProducts, getCategories } from "@/lib/api/products";
 
 type SubTab = "offers" | "coupons" | "banners" | "announcements";
 
@@ -464,6 +465,45 @@ function OfferForm({ offer, onSubmit, onCancel }: { offer: Offer | null; onSubmi
     });
     const [submitting, setSubmitting] = useState(false);
 
+    // Products and Categories state
+    const [allProducts, setAllProducts] = useState<Array<{ _id: string; title: string; category: string; price: number }>>([]);
+    const [allCategories, setAllCategories] = useState<string[]>([]);
+    const [productSearch, setProductSearch] = useState("");
+    const [excludedSearch, setExcludedSearch] = useState("");
+    const [showProductDropdown, setShowProductDropdown] = useState(false);
+    const [showExcludedDropdown, setShowExcludedDropdown] = useState(false);
+    const [loadingData, setLoadingData] = useState(true);
+
+    // Fetch products and categories on mount
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoadingData(true);
+            try {
+                // Fetch products using API client
+                const productsRes = await getProducts({ limit: 200 });
+                if (productsRes.success && productsRes.data) {
+                    setAllProducts(productsRes.data.map((p: any) => ({
+                        _id: p._id,
+                        title: p.title,
+                        category: p.category,
+                        price: p.price
+                    })));
+                }
+
+                // Fetch categories using API client
+                const categoriesRes = await getCategories();
+                if (categoriesRes.success && categoriesRes.data) {
+                    setAllCategories(categoriesRes.data);
+                }
+            } catch (error) {
+                console.error("Error fetching products/categories:", error);
+            } finally {
+                setLoadingData(false);
+            }
+        };
+        fetchData();
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
@@ -471,24 +511,89 @@ function OfferForm({ offer, onSubmit, onCancel }: { offer: Offer | null; onSubmi
         setSubmitting(false);
     };
 
+    // Filter products based on search
+    const filteredProducts = allProducts.filter(p =>
+        p.title.toLowerCase().includes(productSearch.toLowerCase()) &&
+        !formData.applicableProducts?.includes(p._id)
+    );
+
+    const filteredExcluded = allProducts.filter(p =>
+        p.title.toLowerCase().includes(excludedSearch.toLowerCase()) &&
+        !formData.excludedProducts?.includes(p._id)
+    );
+
+    // Get product details by ID
+    const getProductById = (id: string) => allProducts.find(p => p._id === id);
+
+    // Toggle category selection
+    const toggleCategory = (category: string) => {
+        const current = formData.applicableCategories || [];
+        if (current.includes(category)) {
+            setFormData({ ...formData, applicableCategories: current.filter(c => c !== category) });
+        } else {
+            setFormData({ ...formData, applicableCategories: [...current, category] });
+        }
+    };
+
+    // Add product to applicable list
+    const addProduct = (productId: string) => {
+        const current = formData.applicableProducts || [];
+        if (!current.includes(productId)) {
+            setFormData({ ...formData, applicableProducts: [...current, productId] });
+        }
+        setProductSearch("");
+        setShowProductDropdown(false);
+    };
+
+    // Remove product from applicable list
+    const removeProduct = (productId: string) => {
+        setFormData({
+            ...formData,
+            applicableProducts: (formData.applicableProducts || []).filter(id => id !== productId)
+        });
+    };
+
+    // Add product to excluded list
+    const addExcludedProduct = (productId: string) => {
+        const current = formData.excludedProducts || [];
+        if (!current.includes(productId)) {
+            setFormData({ ...formData, excludedProducts: [...current, productId] });
+        }
+        setExcludedSearch("");
+        setShowExcludedDropdown(false);
+    };
+
+    // Remove product from excluded list
+    const removeExcludedProduct = (productId: string) => {
+        setFormData({
+            ...formData,
+            excludedProducts: (formData.excludedProducts || []).filter(id => id !== productId)
+        });
+    };
+
+    // Check if offer type needs product selection
+    const needsProductSelection = ["product_offer", "bundle_deal"].includes(formData.type);
+    const needsCategorySelection = ["category_sale"].includes(formData.type);
+
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+            {/* Basic Info */}
             <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                     <label className="block text-sm font-medium mb-1">Offer Name *</label>
                     <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-3 py-2 border rounded-lg" required />
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent" required placeholder="Summer Flash Sale" />
                 </div>
                 <div className="col-span-2">
                     <label className="block text-sm font-medium mb-1">Description</label>
                     <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full px-3 py-2 border rounded-lg" rows={2} />
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black" rows={2} placeholder="Get amazing discounts on selected products!" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Offer Type *</label>
                     <select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value as OfferFormData['type'] })}
-                        className="w-full px-3 py-2 border rounded-lg">
-                        <option value="flash_sale">⚡ Flash Sale</option>
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black">
+                        <option value="flash_sale">⚡ Flash Sale (All Products)</option>
                         <option value="category_sale">📁 Category Sale</option>
                         <option value="product_offer">🎁 Product Offer</option>
                         <option value="bundle_deal">📦 Bundle Deal</option>
@@ -498,57 +603,205 @@ function OfferForm({ offer, onSubmit, onCancel }: { offer: Offer | null; onSubmi
                 <div>
                     <label className="block text-sm font-medium mb-1">Discount Type *</label>
                     <select value={formData.discountType} onChange={(e) => setFormData({ ...formData, discountType: e.target.value as 'percentage' | 'fixed' })}
-                        className="w-full px-3 py-2 border rounded-lg">
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black">
                         <option value="percentage">Percentage (%)</option>
                         <option value="fixed">Fixed Amount (₹)</option>
                     </select>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Discount Value *</label>
-                    <input type="number" value={formData.discountValue} onChange={(e) => setFormData({ ...formData, discountValue: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border rounded-lg" min={0} required />
+                    <div className="relative">
+                        <input type="number" value={formData.discountValue} onChange={(e) => setFormData({ ...formData, discountValue: Number(e.target.value) })}
+                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black" min={0} required />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            {formData.discountType === 'percentage' ? '%' : '₹'}
+                        </span>
+                    </div>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Max Discount (₹)</label>
                     <input type="number" value={formData.maxDiscount || ""} onChange={(e) => setFormData({ ...formData, maxDiscount: e.target.value ? Number(e.target.value) : undefined })}
-                        className="w-full px-3 py-2 border rounded-lg" min={0} />
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black" min={0} placeholder="No limit" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Min Purchase (₹)</label>
                     <input type="number" value={formData.minPurchase} onChange={(e) => setFormData({ ...formData, minPurchase: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border rounded-lg" min={0} />
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black" min={0} />
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Priority</label>
                     <input type="number" value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border rounded-lg" />
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black" placeholder="0 = lowest" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">Start Date *</label>
                     <input type="date" value={formData.startDate} onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                        className="w-full px-3 py-2 border rounded-lg" required />
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black" required />
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">End Date *</label>
                     <input type="date" value={formData.endDate} onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                        className="w-full px-3 py-2 border rounded-lg" required />
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black" required />
                 </div>
             </div>
-            <div className="flex gap-4">
-                <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={formData.isActive} onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })} />
+
+            {/* Category Selection */}
+            {(needsCategorySelection || formData.type === 'flash_sale') && (
+                <div className="border-t pt-4">
+                    <label className="block text-sm font-medium mb-2">
+                        {formData.type === 'flash_sale' ? '📁 Limit to Categories (optional)' : '📁 Select Categories *'}
+                    </label>
+                    {loadingData ? (
+                        <div className="text-gray-400 text-sm">Loading categories...</div>
+                    ) : (
+                        <div className="flex flex-wrap gap-2">
+                            {allCategories.map(cat => (
+                                <button
+                                    key={cat}
+                                    type="button"
+                                    onClick={() => toggleCategory(cat)}
+                                    className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${formData.applicableCategories?.includes(cat)
+                                        ? 'bg-black text-white border-black'
+                                        : 'bg-white text-gray-700 border-gray-300 hover:border-gray-500'
+                                        }`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    {formData.applicableCategories && formData.applicableCategories.length > 0 && (
+                        <p className="text-xs text-green-600 mt-2">✓ {formData.applicableCategories.length} category selected</p>
+                    )}
+                </div>
+            )}
+
+            {/* Product Selection */}
+            {needsProductSelection && (
+                <div className="border-t pt-4">
+                    <label className="block text-sm font-medium mb-2">🎁 Select Products *</label>
+                    {loadingData ? (
+                        <div className="text-gray-400 text-sm">Loading products...</div>
+                    ) : (
+                        <>
+                            {/* Search Input */}
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    value={productSearch}
+                                    onChange={(e) => { setProductSearch(e.target.value); setShowProductDropdown(true); }}
+                                    onFocus={() => setShowProductDropdown(true)}
+                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black"
+                                    placeholder="Search products to add..."
+                                />
+                                {showProductDropdown && productSearch && filteredProducts.length > 0 && (
+                                    <div className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                        {filteredProducts.slice(0, 10).map(product => (
+                                            <button
+                                                key={product._id}
+                                                type="button"
+                                                onClick={() => addProduct(product._id)}
+                                                className="w-full px-3 py-2 text-left hover:bg-gray-50 flex justify-between items-center"
+                                            >
+                                                <span className="text-sm truncate">{product.title}</span>
+                                                <span className="text-xs text-gray-400">₹{product.price}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Selected Products */}
+                            {formData.applicableProducts && formData.applicableProducts.length > 0 && (
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {formData.applicableProducts.map(productId => {
+                                        const product = getProductById(productId);
+                                        return product ? (
+                                            <div key={productId} className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-lg text-sm">
+                                                <span className="truncate max-w-[150px]">{product.title}</span>
+                                                <button type="button" onClick={() => removeProduct(productId)} className="text-green-500 hover:text-red-500">×</button>
+                                            </div>
+                                        ) : null;
+                                    })}
+                                </div>
+                            )}
+                            <p className="text-xs text-gray-500 mt-2">{formData.applicableProducts?.length || 0} products selected</p>
+                        </>
+                    )}
+                </div>
+            )}
+
+            {/* Excluded Products */}
+            <div className="border-t pt-4">
+                <label className="block text-sm font-medium mb-2">🚫 Excluded Products (optional)</label>
+                <p className="text-xs text-gray-500 mb-2">Products that should NOT receive this discount</p>
+                {loadingData ? (
+                    <div className="text-gray-400 text-sm">Loading products...</div>
+                ) : (
+                    <>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={excludedSearch}
+                                onChange={(e) => { setExcludedSearch(e.target.value); setShowExcludedDropdown(true); }}
+                                onFocus={() => setShowExcludedDropdown(true)}
+                                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-black"
+                                placeholder="Search products to exclude..."
+                            />
+                            {showExcludedDropdown && excludedSearch && filteredExcluded.length > 0 && (
+                                <div className="absolute z-10 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                    {filteredExcluded.slice(0, 10).map(product => (
+                                        <button
+                                            key={product._id}
+                                            type="button"
+                                            onClick={() => addExcludedProduct(product._id)}
+                                            className="w-full px-3 py-2 text-left hover:bg-gray-50 flex justify-between items-center"
+                                        >
+                                            <span className="text-sm truncate">{product.title}</span>
+                                            <span className="text-xs text-gray-400">₹{product.price}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {formData.excludedProducts && formData.excludedProducts.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {formData.excludedProducts.map(productId => {
+                                    const product = getProductById(productId);
+                                    return product ? (
+                                        <div key={productId} className="flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 rounded-lg text-sm">
+                                            <span className="truncate max-w-[150px]">{product.title}</span>
+                                            <button type="button" onClick={() => removeExcludedProduct(productId)} className="text-red-500 hover:text-red-700">×</button>
+                                        </div>
+                                    ) : null;
+                                })}
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+
+            {/* Options */}
+            <div className="flex gap-4 border-t pt-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={formData.isActive} onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                        className="w-4 h-4 rounded" />
                     <span className="text-sm">Active</span>
                 </label>
-                <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={formData.isStackable} onChange={(e) => setFormData({ ...formData, isStackable: e.target.checked })} />
+                <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={formData.isStackable} onChange={(e) => setFormData({ ...formData, isStackable: e.target.checked })}
+                        className="w-4 h-4 rounded" />
                     <span className="text-sm">Stackable with other offers</span>
                 </label>
             </div>
-            <div className="flex gap-3 pt-4 border-t">
-                <button type="submit" disabled={submitting} className="flex-1 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50">
+
+            {/* Submit Buttons */}
+            <div className="flex gap-3 pt-4 border-t sticky bottom-0 bg-white">
+                <button type="submit" disabled={submitting} className="flex-1 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 font-medium">
                     {submitting ? "Saving..." : offer ? "Update Offer" : "Create Offer"}
                 </button>
-                <button type="button" onClick={onCancel} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                <button type="button" onClick={onCancel} className="px-6 py-2.5 border rounded-lg hover:bg-gray-50 font-medium">Cancel</button>
             </div>
         </form>
     );

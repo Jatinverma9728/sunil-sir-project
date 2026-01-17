@@ -48,7 +48,8 @@ const createApp = () => {
         process.env.FRONTEND_URL,
         'https://northh.vercel.app',
         'http://localhost:3000',
-        'http://localhost:3001'
+        'http://localhost:3001',
+        'http://10.107.169.226:3000'
     ].filter(Boolean);
 
     app.use(cors({

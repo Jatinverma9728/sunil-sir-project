@@ -105,6 +105,7 @@ const updateProduct = async (req, res) => {
             'title',
             'description',
             'price',
+            'originalPrice',
             'category',
             'stock',
             'images',

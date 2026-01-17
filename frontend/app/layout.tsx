@@ -3,6 +3,7 @@ import { AuthProvider } from "@/lib/context/AuthContext";
 import { CartProvider } from "@/lib/context/CartContext";
 import { ToastProvider } from "@/lib/context/ToastContext";
 import { WishlistProvider } from "@/lib/context/WishlistContext";
+import { OffersProvider } from "@/lib/hooks/useOffers";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/home/Footer";
 import AnnouncementBar from "@/components/AnnouncementBar";
@@ -25,15 +26,17 @@ export default function RootLayout({
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
-                {/* Sticky Header Container */}
-                <header className="sticky top-0 z-50 flex flex-col">
-                  <AnnouncementBar />
-                  <Navbar />
-                </header>
-                <main className="flex-grow">
-                  {children}
-                </main>
-                <Footer />
+                <OffersProvider>
+                  {/* Sticky Header Container */}
+                  <header className="sticky top-0 z-50 flex flex-col">
+                    <AnnouncementBar />
+                    <Navbar />
+                  </header>
+                  <main className="flex-grow">
+                    {children}
+                  </main>
+                  <Footer />
+                </OffersProvider>
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>

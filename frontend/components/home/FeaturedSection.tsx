@@ -43,20 +43,6 @@ export default function FeaturedSection() {
         }
     };
 
-    const handleAddToWishlist = (e: React.MouseEvent, product: Product) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleWishlist({
-            _id: product._id,
-            title: product.title,
-            price: product.price,
-            originalPrice: product.originalPrice,
-            category: product.category,
-            images: product.images,
-            inStock: product.stock > 0,
-        });
-    };
-
     const handleNext = () => {
         if (currentIndex < products.length - 4) {
             setCurrentIndex(prev => prev + 1);
@@ -71,15 +57,15 @@ export default function FeaturedSection() {
 
     if (loading) {
         return (
-            <section className="bg-white py-8">
-                <div className="max-w-[1600px] mx-auto px-4">
-                    <div className="grid lg:grid-cols-2 gap-6 animate-pulse">
-                        <div className="h-96 bg-gray-100 rounded-3xl" />
+            <section className="bg-white py-6 md:py-8 lg:py-12">
+                <div className="w-full max-w-[1600px] mx-auto px-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 animate-pulse">
+                        <div className="h-80 md:h-96 bg-gray-50 rounded-2xl" />
                         <div>
-                            <div className="h-8 bg-gray-100 rounded mb-6 w-48" />
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="h-6 bg-gray-50 rounded mb-4 w-32" />
+                            <div className="space-y-3">
                                 {[1, 2, 3].map(i => (
-                                    <div key={i} className="h-72 bg-gray-100 rounded-2xl" />
+                                    <div key={i} className="h-24 bg-gray-50 rounded-xl" />
                                 ))}
                             </div>
                         </div>
@@ -96,230 +82,137 @@ export default function FeaturedSection() {
     const visibleProducts = otherProducts.slice(currentIndex, currentIndex + 3);
 
     return (
-        <section className="bg-gray-50 py-8">
-            <div className="max-w-[1600px] mx-auto px-4">
-                <div className="grid lg:grid-cols-2 gap-6">
-                    {/* Left: Large Featured Product with Image Background */}
+        <section className="bg-white py-6 md:py-8 lg:py-12">
+            <div className="w-full max-w-[1600px] mx-auto px-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
+                    {/* Left: Large Featured Product */}
                     <Link
                         href={`/products/${featuredProduct._id}`}
-                        className="group relative rounded-3xl overflow-hidden bg-white border border-gray-100 hover:border-gray-200 hover:shadow-2xl transition-all duration-500 h-[500px]"
+                        className="group relative rounded-2xl overflow-hidden bg-[#F8FAFC] border border-gray-100 hover:shadow-xl transition-all duration-500 flex flex-col min-h-[400px] md:min-h-[450px] lg:min-h-[550px]"
                     >
-                        {/* Full Background Image */}
-                        <div className="absolute inset-0">
+                        <div className="relative flex-1 p-4 md:p-6 lg:p-8 flex items-center justify-center">
+                            {/* Background Decoration */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
                             {featuredProduct.images?.[0]?.url && (
-                                <Image
-                                    src={featuredProduct.images[0].url}
-                                    alt={featuredProduct.title}
-                                    fill
-                                    className="object-cover group-hover:scale-105 transition-transform duration-700"
-                                />
+                                <div className="relative w-full h-full max-h-[200px] md:max-h-[250px] lg:max-h-[300px]">
+                                    <Image
+                                        src={featuredProduct.images[0].url}
+                                        alt={featuredProduct.title}
+                                        fill
+                                        className="object-contain group-hover:scale-105 transition-transform duration-700"
+                                    />
+                                </div>
                             )}
-                            {/* Gradient Overlay for text readability */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                         </div>
 
                         {/* Content Overlay */}
-                        <div className="relative z-10 h-full flex flex-col justify-end p-8 lg:p-10">
-                            {/* Badge */}
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full mb-4 w-fit">
-                                <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
-                                <span className="text-xs font-semibold text-white uppercase tracking-wider">
-                                    {featuredProduct.brand || "Editor's Choice"}
-                                </span>
-                            </div>
+                        <div className="relative z-10 p-4 md:p-6 lg:p-8 bg-white/70 backdrop-blur-sm border-t border-gray-100">
+                            <div className="space-y-2 md:space-y-3">
+                                <div>
+                                    <h3 className="text-lg md:text-xl lg:text-3xl font-bold text-gray-900 mb-1 md:mb-2 leading-tight line-clamp-2">
+                                        {featuredProduct.title}
+                                    </h3>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <span className="inline-block px-2 py-0.5 md:px-3 md:py-1 bg-indigo-100 text-indigo-700 text-[9px] md:text-[10px] lg:text-xs font-bold rounded-full uppercase tracking-wider">
+                                            {featuredProduct.brand || "Editor's Choice"}
+                                        </span>
+                                        <span className="text-gray-500 text-[10px] md:text-xs">Official Store</span>
+                                    </div>
+                                </div>
 
-                            {/* Title */}
-                            <h3 className="text-3xl lg:text-4xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
-                                {featuredProduct.title}
-                            </h3>
-
-                            {/* Price */}
-                            <div className="flex items-center gap-3 mb-6">
-                                <span className="text-sm text-white/80 uppercase tracking-wider">Starting at</span>
-                                <span className="text-3xl font-bold text-[#C1FF72] drop-shadow-lg">
-                                    ₹{featuredProduct.price.toFixed(2)}
-                                </span>
-                                {featuredProduct.originalPrice && featuredProduct.originalPrice > featuredProduct.price && (
-                                    <span className="text-lg text-white/60 line-through">
-                                        ₹{featuredProduct.originalPrice.toFixed(2)}
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-baseline gap-1.5 md:gap-2 min-w-0">
+                                        <span className="text-lg md:text-xl lg:text-2xl font-bold text-indigo-600 truncate">
+                                            ₹{featuredProduct.price.toFixed(0)}
+                                        </span>
+                                        {featuredProduct.originalPrice && featuredProduct.originalPrice > featuredProduct.price && (
+                                            <span className="text-xs md:text-sm lg:text-base text-gray-400 line-through truncate">
+                                                ₹{featuredProduct.originalPrice.toFixed(0)}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <span className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full bg-gray-900 text-white flex items-center justify-center group-hover:bg-indigo-600 transition-colors flex-shrink-0 ml-2">
+                                        <svg className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                     </span>
-                                )}
+                                </div>
                             </div>
-
-                            {/* CTA Button */}
-                            <button className="inline-flex items-center gap-2 px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl hover:bg-[#C1FF72] transition-all duration-300 group-hover:shadow-xl w-fit">
-                                <span>View Details</span>
-                                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                            </button>
                         </div>
                     </Link>
 
                     {/* Right: Best Selling Products */}
-                    <div className="space-y-6">
+                    <div className="flex flex-col min-w-0">
                         {/* Header */}
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-bold text-gray-900">Best Selling Products</h2>
-                            <div className="flex gap-2">
+                        <div className="flex items-center justify-between mb-4 md:mb-6">
+                            <h2 className="text-base md:text-lg lg:text-xl font-bold text-gray-900">Best Sellers</h2>
+                            <div className="flex gap-1.5 md:gap-2 flex-shrink-0">
                                 <button
                                     onClick={handlePrev}
                                     disabled={currentIndex === 0}
-                                    className="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center hover:bg-gray-900 hover:border-gray-900 hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-gray-200 disabled:hover:text-gray-900"
+                                    className="w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-100 hover:text-indigo-600 transition-all disabled:opacity-30"
                                 >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                    </svg>
+                                    <svg className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                                 </button>
                                 <button
                                     onClick={handleNext}
                                     disabled={currentIndex >= otherProducts.length - 3}
-                                    className="w-10 h-10 rounded-full border-2 border-gray-200 flex items-center justify-center hover:bg-gray-900 hover:border-gray-900 hover:text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-gray-200 disabled:hover:text-gray-900"
+                                    className="w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-100 hover:text-indigo-600 transition-all disabled:opacity-30"
                                 >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
+                                    <svg className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                                 </button>
                             </div>
                         </div>
 
-                        {/* Products Grid with Slide Animation */}
-                        <div className="overflow-hidden">
-                            <div
-                                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 transition-all duration-500"
-                            >
-                                {visibleProducts.map((product, index) => {
-                                    const isWishlisted = isInWishlist(product._id);
-                                    const discount = product.originalPrice && product.originalPrice > product.price
-                                        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-                                        : 0;
-
-                                    return (
-                                        <Link
-                                            key={product._id}
-                                            href={`/products/${product._id}`}
-                                            className="group bg-white rounded-2xl p-4 border-2 border-gray-100 hover:border-blue-200 hover:shadow-xl transition-all duration-300 relative"
-                                        >
-                                            {/* Discount Badge */}
-                                            {discount > 0 && (
-                                                <span className="absolute top-3 left-3 px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full z-10">
-                                                    -{discount}%
-                                                </span>
+                        {/* Products List */}
+                        <div className="flex flex-col gap-2.5 md:gap-3 lg:gap-4">
+                            {visibleProducts.map((product) => {
+                                const isWishlisted = isInWishlist(product._id);
+                                return (
+                                    <Link
+                                        key={product._id}
+                                        href={`/products/${product._id}`}
+                                        className="group flex items-center gap-2 md:gap-3 lg:gap-4 p-2 md:p-3 lg:p-4 bg-white rounded-xl md:rounded-2xl border border-gray-100 hover:border-indigo-100 hover:shadow-md transition-all duration-300 relative min-w-0"
+                                    >
+                                        {/* Image */}
+                                        <div className="relative w-14 h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 flex-shrink-0 bg-gray-50 rounded-lg md:rounded-xl overflow-hidden p-1.5 md:p-2">
+                                            {product.images?.[0]?.url && (
+                                                <Image
+                                                    src={product.images[0].url}
+                                                    alt={product.title}
+                                                    fill
+                                                    className="object-contain group-hover:scale-110 transition-transform duration-500"
+                                                />
                                             )}
+                                        </div>
 
-                                            {/* Best Choice Badge for middle item */}
-                                            {index === 1 && (
-                                                <span className="absolute top-3 left-3 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold rounded-full shadow-lg z-10">
-                                                    ⭐ Best Choice
-                                                </span>
-                                            )}
-
-                                            {/* Wishlist Button */}
-                                            <button
-                                                onClick={(e) => handleAddToWishlist(e, product)}
-                                                className="absolute top-3 right-3 w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 hover:scale-110 transition-all duration-300 z-10 border border-gray-100"
-                                            >
-                                                <svg
-                                                    className={`w-4 h-4 transition-colors ${isWishlisted ? "text-red-500" : "text-gray-400"}`}
-                                                    fill={isWishlisted ? "currentColor" : "none"}
-                                                    stroke="currentColor"
-                                                    strokeWidth={isWishlisted ? 0 : 2}
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                                </svg>
-                                            </button>
-
-                                            {/* Product Image */}
-                                            <div className="relative h-40 mb-4 bg-gray-50 rounded-xl overflow-hidden">
-                                                {product.images?.[0]?.url ? (
-                                                    <Image
-                                                        src={product.images[0].url}
-                                                        alt={product.title}
-                                                        fill
-                                                        className="object-contain p-2 group-hover:scale-110 transition-transform duration-500"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                                        <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                        </svg>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Product Info */}
-                                            <h4 className="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[40px] group-hover:text-blue-600 transition-colors">
+                                        {/* Info */}
+                                        <div className="flex-1 min-w-0 pr-7 md:pr-10">
+                                            <p className="text-[9px] md:text-[10px] lg:text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
+                                                {product.category}
+                                            </p>
+                                            <h4 className="text-xs md:text-sm lg:text-base font-bold text-gray-900 mb-0.5 md:mb-1 truncate group-hover:text-indigo-600 transition-colors">
                                                 {product.title}
                                             </h4>
-
-                                            {/* Rating */}
-                                            <div className="flex items-center gap-1.5 mb-3">
-                                                <div className="flex">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <svg
-                                                            key={i}
-                                                            className={`w-3.5 h-3.5 ${i < Math.floor(product.rating?.average || 4.5)
-                                                                ? "text-amber-400"
-                                                                : "text-gray-200"
-                                                                }`}
-                                                            fill="currentColor"
-                                                            viewBox="0 0 20 20"
-                                                        >
-                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                        </svg>
-                                                    ))}
-                                                </div>
-                                                <span className="text-xs text-gray-500 font-medium">
-                                                    ({product.rating?.count || 0})
-                                                </span>
-                                            </div>
-
-                                            {/* Price */}
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-lg font-bold text-gray-900">
-                                                    ₹{product.price.toFixed(2)}
+                                            <div className="flex items-center gap-1.5 md:gap-2">
+                                                <span className="text-sm md:text-base lg:text-lg font-bold text-gray-900">
+                                                    ₹{product.price.toFixed(0)}
                                                 </span>
                                                 {product.originalPrice && product.originalPrice > product.price && (
-                                                    <span className="text-sm text-gray-400 line-through">
-                                                        ₹{product.originalPrice.toFixed(2)}
+                                                    <span className="text-[10px] md:text-xs lg:text-sm text-gray-400 line-through">
+                                                        ₹{product.originalPrice.toFixed(0)}
                                                     </span>
                                                 )}
                                             </div>
+                                        </div>
 
-                                            {/* Stock Status */}
-                                            {product.stock > 0 ? (
-                                                <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
-                                                    <span className="w-2 h-2 bg-green-500 rounded-full" />
-                                                    <span className="font-medium">In Stock</span>
-                                                </div>
-                                            ) : (
-                                                <div className="mt-2 flex items-center gap-1 text-xs text-red-600">
-                                                    <span className="w-2 h-2 bg-red-500 rounded-full" />
-                                                    <span className="font-medium">Out of Stock</span>
-                                                </div>
-                                            )}
-                                        </Link>
-                                    );
-                                })}
-                            </div>
+                                        {/* Action Button */}
+                                        <div className="absolute right-2 md:right-3 lg:right-4 top-1/2 -translate-y-1/2 w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 flex-shrink-0">
+                                            <svg className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
                         </div>
-
-                        {/* Pagination Dots */}
-                        {otherProducts.length > 3 && (
-                            <div className="flex justify-center gap-2 pt-2">
-                                {Array.from({ length: Math.ceil(otherProducts.length / 3) }).map((_, i) => (
-                                    <button
-                                        key={i}
-                                        onClick={() => setCurrentIndex(i * 3)}
-                                        className={`h-2 rounded-full transition-all duration-300 ${Math.floor(currentIndex / 3) === i
-                                            ? "w-8 bg-gray-900"
-                                            : "w-2 bg-gray-300 hover:bg-gray-400"
-                                            }`}
-                                    />
-                                ))}
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

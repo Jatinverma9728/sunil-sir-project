@@ -20,6 +20,7 @@ export default function ProductForm({
         title: product?.title || "",
         description: product?.description || "",
         price: product?.price || 0,
+        originalPrice: product?.originalPrice || undefined,
         category: product?.category || "electronics",
         stock: product?.stock || 0,
         brand: product?.brand || "",
@@ -202,9 +203,9 @@ export default function ProductForm({
             {/* Pricing & Inventory */}
             <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Pricing & Inventory</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Price (₹) *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Sale Price (₹) *</label>
                         <input
                             type="number"
                             value={formData.price}
@@ -214,7 +215,23 @@ export default function ProductForm({
                             step={0.01}
                             required
                         />
+                        <p className="text-xs text-gray-500 mt-1">Current selling price</p>
                     </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Original Price (₹)</label>
+                        <input
+                            type="number"
+                            value={formData.originalPrice || ""}
+                            onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value ? Number(e.target.value) : undefined })}
+                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black"
+                            min={0}
+                            step={0.01}
+                            placeholder="Optional"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">If set, shows discount badge</p>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Stock *</label>
                         <input

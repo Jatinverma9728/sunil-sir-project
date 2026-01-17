@@ -115,6 +115,7 @@ export interface Product {
     title: string;
     description: string;
     price: number;
+    originalPrice?: number;
     category: string;
     stock: number;
     images: Array<{ url: string; alt?: string }>;
@@ -132,6 +133,7 @@ export interface ProductFormData {
     title: string;
     description: string;
     price: number;
+    originalPrice?: number;
     category: string;
     stock: number;
     images?: Array<{ url: string; alt?: string }>;

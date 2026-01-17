@@ -7,6 +7,7 @@ interface Product {
     category: string;
     brand?: string;
     price: number;
+    originalPrice?: number;
     stock: number;
     images: Array<{ url: string; alt?: string }>;
     specs?: Record<string, string>;
