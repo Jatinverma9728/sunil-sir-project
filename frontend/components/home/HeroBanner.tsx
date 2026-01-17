@@ -3,158 +3,295 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { getProducts } from "@/lib/api/products";
+
+interface Product {
+    _id: string;
+    title: string;
+    price: number;
+    originalPrice?: number;
+    category: string;
+    images: Array<{ url: string; alt?: string }>;
+    rating?: { average: number; count: number };
+    createdAt?: string;
+    updatedAt?: string;
+}
 
 export default function HeroBanner() {
     const [currentSlide, setCurrentSlide] = useState(0);
-
-    const mainSlides = [
-        {
-            title: "EKO 40\"",
-            subtitle: "Android TV",
-            description: "Smart Full HD Android TV\nwith Google Assistant",
-            image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&q=80",
-            // Soft gradient
-            bgColor: "from-blue-50 to-indigo-50",
-            accentColor: "text-indigo-600",
-        },
-        {
-            title: "Smart Watch",
-            subtitle: "Series 7",
-            description: "Advanced Health Features\nwith Stylish Design",
-            image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80",
-            // Soft gradient
-            bgColor: "from-purple-50 to-pink-50",
-            accentColor: "text-purple-600",
-        },
-    ];
+    const [newArrivals, setNewArrivals] = useState<Product[]>([]);
+    const [trendingProduct, setTrendingProduct] = useState<Product | null>(null);
+    const [bestSeller, setBestSeller] = useState<Product | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        fetchHeroProducts();
+    }, []);
+
+    const fetchHeroProducts = async () => {
+        try {
+            // Fetch a larger set of products to have enough data for filtering
+            const response = await getProducts({ limit: 50 });
+
+            if (!response.success || !response.data || response.data.length === 0) {
+                setLoading(false);
+                return;
+            }
+
+            const allProducts = response.data;
+
+            // 1. NEW ARRIVALS - Sort by creation date (newest first)
+            const sortedByDate = [...allProducts].sort((a: any, b: any) => {
+                const dateA = new Date(a.createdAt || 0).getTime();
+                const dateB = new Date(b.createdAt || 0).getTime();
+                return dateB - dateA;
+            });
+            setNewArrivals(sortedByDate.slice(0, 3));
+
+            // 2. TRENDING (Most Bought) - Product with HIGHEST review count
+            // More reviews typically means more sales
+            const productsWithReviews = allProducts.filter(p => p.rating && p.rating.count > 0);
+
+            const sortedByReviewCount = [...productsWithReviews].sort((a, b) => {
+                return (b.rating?.count || 0) - (a.rating?.count || 0);
+            });
+
+            const mostReviewed = sortedByReviewCount[0] || null;
+            setTrendingProduct(mostReviewed);
+
+            // 3. BEST SELLER - Product with HIGHEST rating average (must be different from trending)
+            const sortedByRating = [...productsWithReviews]
+                .filter(p => {
+                    // Must be different from trending product
+                    if (mostReviewed && p._id === mostReviewed._id) return false;
+                    // Must have good rating
+                    return p.rating && p.rating.average >= 3.5 && p.rating.count > 0;
+                })
+                .sort((a, b) => {
+                    // Primary: Sort by rating average
+                    const ratingDiff = (b.rating?.average || 0) - (a.rating?.average || 0);
+                    if (Math.abs(ratingDiff) > 0.1) return ratingDiff;
+                    // Tiebreaker: More reviews wins
+                    return (b.rating?.count || 0) - (a.rating?.count || 0);
+                });
+
+            const highestRated = sortedByRating[0] || null;
+            setBestSeller(highestRated);
+
+            console.log('Hero Products Selection:', {
+                trending: {
+                    id: mostReviewed?._id,
+                    title: mostReviewed?.title,
+                    reviewCount: mostReviewed?.rating?.count,
+                    rating: mostReviewed?.rating?.average
+                },
+                bestSeller: {
+                    id: highestRated?._id,
+                    title: highestRated?.title,
+                    reviewCount: highestRated?.rating?.count,
+                    rating: highestRated?.rating?.average
+                }
+            });
+
+        } catch (error) {
+            console.error("Error fetching hero products:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Auto-rotate slides
+    useEffect(() => {
+        if (newArrivals.length === 0) return;
         const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % mainSlides.length);
+            setCurrentSlide((prev) => (prev + 1) % newArrivals.length);
         }, 5000);
         return () => clearInterval(timer);
-    }, []);
+    }, [newArrivals.length]);
+
+    if (loading) {
+        return (
+            <section className="py-6 md:py-8">
+                <div className="max-w-[1600px] mx-auto px-4">
+                    <div className="grid lg:grid-cols-3 gap-6 h-auto md:h-[600px] animate-pulse">
+                        <div className="lg:col-span-2 bg-gray-100 rounded-[2rem] h-[500px] md:h-full" />
+                        <div className="hidden lg:flex flex-col gap-6">
+                            <div className="flex-1 bg-gray-100 rounded-[2rem]" />
+                            <div className="flex-1 bg-gray-100 rounded-[2rem]" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    if (newArrivals.length === 0) {
+        return null;
+    }
 
     return (
         <section className="py-6 md:py-8">
             <div className="max-w-[1600px] mx-auto px-4">
                 <div className="grid lg:grid-cols-3 gap-6 h-auto md:h-[600px]">
-                    {/* Main Slideshow - 2 columns */}
+                    {/* Main Slideshow - New Arrivals */}
                     <div className="lg:col-span-2 relative rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 bg-white h-[500px] md:h-full">
-                        {mainSlides.map((slide, index) => (
+                        {newArrivals.map((product, index) => (
                             <div
-                                key={index}
+                                key={product._id}
                                 className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
                                     }`}
                             >
-                                <div className={`h-full w-full bg-gradient-to-br ${slide.bgColor} flex flex-col md:flex-row items-center`}>
-                                    {/* Left Content */}
-                                    <div className="flex-1 p-8 md:p-16 flex flex-col justify-center items-start z-10">
-                                        <span className={`inline-block px-4 py-1 rounded-full bg-white/60 backdrop-blur-sm text-sm font-semibold tracking-wide mb-6 ${slide.accentColor}`}>
+                                {/* Background Image with Overlay */}
+                                <div className="absolute inset-0">
+                                    {product.images?.[0]?.url && (
+                                        <Image
+                                            src={product.images[0].url}
+                                            alt={product.title}
+                                            fill
+                                            className="object-cover"
+                                            priority={index === 0}
+                                        />
+                                    )}
+                                    {/* Gradient Overlay for Text Readability */}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+                                </div>
+
+                                {/* Content */}
+                                <div className="relative h-full flex flex-col md:flex-row items-center">
+                                    <div className="flex-1 p-8 md:p-16 flex flex-col justify-center z-10">
+                                        <span className="inline-block px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-sm text-sm font-bold text-indigo-600 mb-6 w-fit">
                                             New Arrival
                                         </span>
-                                        <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-2 leading-tight tracking-tight">
-                                            {slide.title}
+                                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3 leading-tight tracking-tight line-clamp-2">
+                                            {product.title}
                                         </h2>
-                                        <h3 className="text-3xl md:text-5xl font-medium text-gray-500 mb-6">
-                                            {slide.subtitle}
-                                        </h3>
-                                        <p className="text-gray-600 text-lg mb-8 max-w-md leading-relaxed">
-                                            {slide.description}
+                                        <p className="text-white/90 text-base md:text-lg mb-2">
+                                            {product.category}
                                         </p>
+                                        <div className="flex items-baseline gap-3 mb-8">
+                                            <span className="text-3xl md:text-4xl font-bold text-white">
+                                                ₹{product.price.toFixed(0)}
+                                            </span>
+                                            {product.originalPrice && product.originalPrice > product.price && (
+                                                <span className="text-lg md:text-xl text-white/60 line-through">
+                                                    ₹{product.originalPrice.toFixed(0)}
+                                                </span>
+                                            )}
+                                        </div>
                                         <Link
-                                            href="/products"
-                                            className="inline-flex items-center justify-center px-8 py-3.5 bg-gray-900 text-white font-medium rounded-full hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                                            href={`/products/${product._id}`}
+                                            className="inline-flex items-center justify-center px-8 py-3.5 bg-white text-gray-900 font-semibold rounded-full hover:bg-gray-100 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 w-fit"
                                         >
                                             Shop Now
                                         </Link>
-                                    </div>
-
-                                    {/* Right Image */}
-                                    <div className="flex-1 relative h-64 md:h-full w-full md:w-auto flex items-center justify-center p-8 md:p-12">
-                                        <div className="relative w-full h-full">
-                                            <Image
-                                                src={slide.image}
-                                                alt={slide.title}
-                                                fill
-                                                className="object-contain drop-shadow-2xl"
-                                                priority={index === 0}
-                                            />
-                                        </div>
                                     </div>
                                 </div>
                             </div>
                         ))}
 
                         {/* Slide Indicators */}
-                        <div className="absolute bottom-8 left-8 md:left-16 flex gap-2 z-20">
-                            {mainSlides.map((_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentSlide(index)}
-                                    className={`h-2 rounded-full transition-all duration-300 ${index === currentSlide
-                                        ? "w-8 bg-gray-900"
-                                        : "w-2 bg-gray-300 hover:bg-gray-400"
-                                        }`}
-                                    aria-label={`Go to slide ${index + 1}`}
-                                />
-                            ))}
-                        </div>
+                        {newArrivals.length > 1 && (
+                            <div className="absolute bottom-8 left-8 md:left-16 flex gap-2 z-20">
+                                {newArrivals.map((_, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => setCurrentSlide(index)}
+                                        className={`h-2 rounded-full transition-all duration-300 ${index === currentSlide
+                                            ? "w-8 bg-white"
+                                            : "w-2 bg-white/40 hover:bg-white/60"
+                                            }`}
+                                        aria-label={`Go to slide ${index + 1}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Right Side Column - Stacked Banners */}
                     <div className="hidden lg:flex flex-col gap-6 h-full">
-                        {/* Top Card */}
-                        <div className="flex-1 relative rounded-[2rem] overflow-hidden bg-[#F8F9FA] border border-gray-100 p-8 group hover:shadow-md transition-all duration-300">
-                            <div className="flex flex-col h-full justify-between relative z-10">
-                                <div>
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-1">Comfort Air</h3>
-                                    <p className="text-gray-500 font-medium">From ₹299</p>
+                        {/* Top Card - Trending Product (Most Reviews = Most Bought) */}
+                        {trendingProduct && (
+                            <Link
+                                href={`/products/${trendingProduct._id}`}
+                                className="flex-1 relative rounded-[2rem] overflow-hidden border border-gray-100 group hover:shadow-lg transition-all duration-300"
+                            >
+                                {/* Background Image */}
+                                <div className="absolute inset-0">
+                                    {trendingProduct.images?.[0]?.url && (
+                                        <Image
+                                            src={trendingProduct.images[0].url}
+                                            alt={trendingProduct.title}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                    )}
+                                    {/* Gradient Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                                 </div>
-                                <div className="mt-4">
-                                    <Link
-                                        href="/products"
-                                        className="inline-flex items-center text-sm font-semibold text-gray-900 hover:text-indigo-600 transition-colors"
-                                    >
-                                        Discover <span className="ml-2">→</span>
-                                    </Link>
-                                </div>
-                            </div>
-                            <div className="absolute bottom-0 right-0 w-48 h-48 translate-x-4 translate-y-4 group-hover:scale-105 transition-transform duration-500">
-                                <Image
-                                    src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80"
-                                    alt="Humidifying Fan"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </div>
-                        </div>
 
-                        {/* Bottom Card */}
-                        <div className="flex-1 relative rounded-[2rem] overflow-hidden bg-[#FFF8F1] border border-orange-50 p-8 group hover:shadow-md transition-all duration-300">
-                            <div className="flex flex-col h-full justify-between relative z-10">
-                                <div>
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-1">iPad Mini</h3>
-                                    <p className="text-orange-600/80 font-medium">New Arrival</p>
+                                {/* Content */}
+                                <div className="relative h-full flex flex-col justify-end p-6 z-10">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <span className="inline-block px-3 py-1 rounded-full bg-orange-500/90 text-white text-xs font-bold">
+                                            🔥 Trending
+                                        </span>
+                                        {trendingProduct.rating && (
+                                            <span className="text-white/90 text-sm font-medium">
+                                                {trendingProduct.rating.count} reviews
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-1 line-clamp-2">
+                                        {trendingProduct.title}
+                                    </h3>
+                                    <p className="text-white/90 font-semibold text-lg">
+                                        From ₹{trendingProduct.price.toFixed(0)}
+                                    </p>
                                 </div>
-                                <div className="mt-4">
-                                    <Link
-                                        href="/products"
-                                        className="inline-flex items-center text-sm font-semibold text-gray-900 hover:text-orange-600 transition-colors"
-                                    >
-                                        Shop Now <span className="ml-2">→</span>
-                                    </Link>
+                            </Link>
+                        )}
+
+                        {/* Bottom Card - Best Seller (Highest Rated) */}
+                        {bestSeller && (
+                            <Link
+                                href={`/products/${bestSeller._id}`}
+                                className="flex-1 relative rounded-[2rem] overflow-hidden border border-gray-100 group hover:shadow-lg transition-all duration-300"
+                            >
+                                {/* Background Image */}
+                                <div className="absolute inset-0">
+                                    {bestSeller.images?.[0]?.url && (
+                                        <Image
+                                            src={bestSeller.images[0].url}
+                                            alt={bestSeller.title}
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                    )}
+                                    {/* Gradient Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                                 </div>
-                            </div>
-                            <div className="absolute bottom-0 right-0 w-40 h-40 translate-x-2 translate-y-2 group-hover:scale-105 transition-transform duration-500">
-                                <Image
-                                    src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&q=80"
-                                    alt="iPad mini"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </div>
-                        </div>
+
+                                {/* Content */}
+                                <div className="relative h-full flex flex-col justify-end p-6 z-10">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <span className="inline-block px-3 py-1 rounded-full bg-green-500/90 text-white text-xs font-bold">
+                                            ⭐ Best Seller
+                                        </span>
+                                        {bestSeller.rating && (
+                                            <span className="text-white/90 text-sm font-medium">
+                                                {bestSeller.rating.average.toFixed(1)} ★
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-1 line-clamp-2">
+                                        {bestSeller.title}
+                                    </h3>
+                                    <p className="text-white/90 font-semibold text-lg">
+                                        ₹{bestSeller.price.toFixed(0)}
+                                    </p>
+                                </div>
+                            </Link>
+                        )}
                     </div>
                 </div>
             </div>
