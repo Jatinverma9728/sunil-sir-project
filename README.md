@@ -6,7 +6,7 @@ Modern scalable MERN stack monorepo for e-commerce and course platform.
 
 
 ### Frontend
-- **Framework**: Next.js 14+ (App Router)
+- **Framework**: Next.js 14+ 
 - **Language**: TypeScript
 - **Styling**: CSS Modules / Tailwind CSS
 - **State Management**: React Context / Redux Toolkit
@@ -47,6 +47,7 @@ npm run dev:frontend
 # Run backend only
 npm run dev:backend
 ```
+
 
 ### Build for Production
 
