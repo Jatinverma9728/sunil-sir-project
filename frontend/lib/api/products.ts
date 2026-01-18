@@ -22,11 +22,15 @@ interface ProductsResponse {
     success: boolean;
     data: Product[];
     count: number;
+    total?: number; // Backward compatibility
+    pages?: number; // Backward compatibility
     pagination?: {
-        page: number;
-        limit: number;
+        currentPage: number;
         totalPages: number;
+        limit: number;
         total: number;
+        hasNextPage: boolean;
+        hasPrevPage: boolean;
     };
 }
 
@@ -35,9 +39,19 @@ interface SingleProductResponse {
     data: Product;
 }
 
+interface Category {
+    name: string;
+    slug: string;
+    icon: string;
+    description?: string;
+    productCount?: number;
+}
+
 interface CategoriesResponse {
     success: boolean;
-    data: string[];
+    count: number;
+    data: Category[];
+    slugs: string[];
 }
 
 // Get all products with optional filters
@@ -76,7 +90,7 @@ export const getProduct = async (id: string): Promise<SingleProductResponse> => 
 
 // Get all categories
 export const getCategories = async (): Promise<CategoriesResponse> => {
-    const response = await apiClient.get<string[]>('/products/categories');
+    const response = await apiClient.get('/products/categories');
     return response as CategoriesResponse;
 };
 
@@ -92,4 +106,4 @@ export const getProductsByCategory = async (
     return getProducts({ category, ...params });
 };
 
-export type { Product, ProductsResponse, SingleProductResponse, CategoriesResponse };
+export type { Product, ProductsResponse, SingleProductResponse, CategoriesResponse, Category };

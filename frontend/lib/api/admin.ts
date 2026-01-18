@@ -126,6 +126,29 @@ export interface Product {
     tags?: string[];
     brand?: string;
     sku?: string;
+    // Enhanced fields
+    specifications?: Record<string, string>;
+    policies?: {
+        returnPolicy?: string;
+        shippingPolicy?: string;
+        cancellationPolicy?: string;
+    };
+    warranty?: {
+        duration?: string;
+        type?: 'manufacturer' | 'seller' | 'extended' | 'none' | '';
+        details?: string;
+    };
+    externalLinks?: {
+        userManual?: string;
+        supportUrl?: string;
+        videoUrl?: string;
+        manufacturerWebsite?: string;
+    };
+    additionalResources?: Array<{
+        title: string;
+        url: string;
+        type: 'pdf' | 'video' | 'article' | 'download' | 'other';
+    }>;
     createdAt: string;
 }
 
@@ -143,6 +166,29 @@ export interface ProductFormData {
     sku?: string;
     isActive?: boolean;
     isFeatured?: boolean;
+    // Enhanced fields
+    specifications?: Record<string, string>;
+    policies?: {
+        returnPolicy?: string;
+        shippingPolicy?: string;
+        cancellationPolicy?: string;
+    };
+    warranty?: {
+        duration?: string;
+        type?: 'manufacturer' | 'seller' | 'extended' | 'none' | '';
+        details?: string;
+    };
+    externalLinks?: {
+        userManual?: string;
+        supportUrl?: string;
+        videoUrl?: string;
+        manufacturerWebsite?: string;
+    };
+    additionalResources?: Array<{
+        title: string;
+        url: string;
+        type: 'pdf' | 'video' | 'article' | 'download' | 'other';
+    }>;
 }
 
 export const getAdminProducts = async (page = 1, limit = 20, filters?: { category?: string; isActive?: boolean }) => {

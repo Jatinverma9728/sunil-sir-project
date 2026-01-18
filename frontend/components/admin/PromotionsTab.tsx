@@ -493,7 +493,8 @@ function OfferForm({ offer, onSubmit, onCancel }: { offer: Offer | null; onSubmi
                 // Fetch categories using API client
                 const categoriesRes = await getCategories();
                 if (categoriesRes.success && categoriesRes.data) {
-                    setAllCategories(categoriesRes.data);
+                    // Map category objects to slugs for backward compatibility
+                    setAllCategories(categoriesRes.data.map(cat => cat.slug));
                 }
             } catch (error) {
                 console.error("Error fetching products/categories:", error);

@@ -102,7 +102,7 @@ export default function Navbar() {
                             <span className="w-8 h-8 lg:w-9 lg:h-9 bg-gray-900 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-gray-200">
                                 N
                             </span>
-                            <span className="hidden sm:inline">flash<span className="text-[#C1FF72]">.</span></span>
+                            <span className="hidden sm:inline">North Tech Hub<span className="text-[#C1FF72]">.</span></span>
                         </Link>
 
                         {/* Desktop Search Bar - Pill Style */}
@@ -353,9 +353,6 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
-
-            {/* Spacer for Fixed Navbar */}
-            <div className="h-16 lg:h-20" />
         </>
     );
 }

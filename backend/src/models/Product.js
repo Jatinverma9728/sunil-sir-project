@@ -82,6 +82,91 @@ const productSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        // Enhanced Specifications
+        specifications: {
+            type: Map,
+            of: String,
+            default: {},
+        },
+        // Policies
+        policies: {
+            returnPolicy: {
+                type: String,
+                default: '',
+                maxlength: [1000, 'Return policy cannot exceed 1000 characters'],
+            },
+            shippingPolicy: {
+                type: String,
+                default: '',
+                maxlength: [1000, 'Shipping policy cannot exceed 1000 characters'],
+            },
+            cancellationPolicy: {
+                type: String,
+                default: '',
+                maxlength: [1000, 'Cancellation policy cannot exceed 1000 characters'],
+            },
+        },
+        // Warranty Information
+        warranty: {
+            duration: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            type: {
+                type: String,
+                enum: ['', 'manufacturer', 'seller', 'extended', 'none'],
+                default: '',
+            },
+            details: {
+                type: String,
+                default: '',
+                maxlength: [500, 'Warranty details cannot exceed 500 characters'],
+            },
+        },
+        // External Links
+        externalLinks: {
+            userManual: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            supportUrl: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            videoUrl: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+            manufacturerWebsite: {
+                type: String,
+                default: '',
+                trim: true,
+            },
+        },
+        // Additional Resources
+        additionalResources: [
+            {
+                title: {
+                    type: String,
+                    required: true,
+                    trim: true,
+                },
+                url: {
+                    type: String,
+                    required: true,
+                    trim: true,
+                },
+                type: {
+                    type: String,
+                    enum: ['pdf', 'video', 'article', 'download', 'other'],
+                    default: 'other',
+                },
+            },
+        ],
     },
     {
         timestamps: true,

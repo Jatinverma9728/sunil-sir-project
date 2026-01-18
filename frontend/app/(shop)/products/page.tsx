@@ -69,7 +69,8 @@ function ProductsContent() {
             const { getCategories } = await import('@/lib/api/products');
             const response = await getCategories();
             if (response.success && response.data) {
-                setCategories(response.data);
+                // Map category objects to slugs for backward compatibility with filters
+                setCategories(response.data.map(cat => cat.slug));
             }
         } catch (error) {
             console.error("Error fetching categories:", error);
@@ -101,10 +102,15 @@ function ProductsContent() {
 
             if (response.success && response.data) {
                 setProducts(response.data);
-                setTotalProducts(response.count || 0);
 
+                // Use pagination.total for the total count, not count (which is the current page count)
                 if (response.pagination) {
-                    setTotalPages(response.pagination.totalPages);
+                    setTotalProducts(response.pagination.total || 0);
+                    setTotalPages(response.pagination.totalPages || 1);
+                } else {
+                    // Fallback for backward compatibility
+                    setTotalProducts(response.total || response.count || 0);
+                    setTotalPages(response.pages || 1);
                 }
 
                 const uniqueBrands = Array.from(new Set(response.data.map(p => p.brand).filter(Boolean))) as string[];

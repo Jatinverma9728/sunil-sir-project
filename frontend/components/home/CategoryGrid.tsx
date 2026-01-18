@@ -1,72 +1,62 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { getCategories } from "@/lib/api/products";
+import type { Category } from "@/lib/api/products";
 
-const categories = [
-    {
-        name: "Gaming",
-        icon: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=200&q=80",
-        href: "/products?category=gaming",
-        color: "bg-purple-50",
-    },
-    {
-        name: "Sports",
-        icon: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=200&q=80",
-        href: "/products?category=sports",
-        color: "bg-blue-50",
-    },
-    {
-        name: "Kitchen",
-        icon: "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=200&q=80",
-        href: "/products?category=kitchen",
-        color: "bg-orange-50",
-    },
-    {
-        name: "Home",
-        icon: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&q=80",
-        href: "/products?category=home",
-        color: "bg-teal-50",
-    },
-    {
-        name: "Mobiles",
-        icon: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&q=80",
-        href: "/products?category=electronics",
-        color: "bg-indigo-50",
-    },
-    {
-        name: "Office",
-        icon: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=200&q=80",
-        href: "/products?category=office",
-        color: "bg-gray-50",
-    },
-    {
-        name: "Cameras",
-        icon: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&q=80",
-        href: "/products?category=cameras",
-        color: "bg-pink-50",
-    },
-    {
-        name: "Computers",
-        icon: "https://images.unsplash.com/photo-1547082299-de196ea013d6?w=200&q=80",
-        href: "/products?category=computers",
-        color: "bg-cyan-50",
-    },
-    {
-        name: "TV & Audio",
-        icon: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=200&q=80",
-        href: "/products?category=televisions",
-        color: "bg-yellow-50",
-    },
-    {
-        name: "More",
-        icon: "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=200&q=80",
-        href: "/products",
-        color: "bg-green-50",
-    },
+// Color options for categories
+const colorOptions = [
+    "bg-purple-50", "bg-blue-50", "bg-orange-50", "bg-teal-50",
+    "bg-indigo-50", "bg-gray-50", "bg-pink-50", "bg-cyan-50",
+    "bg-yellow-50", "bg-green-50"
 ];
 
 export default function CategoryGrid() {
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await getCategories();
+                if (response.success && response.data) {
+                    setCategories(response.data);
+                }
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+    if (loading) {
+        return (
+            <section className="py-8 md:py-12">
+                <div className="max-w-[1600px] mx-auto px-4">
+                    <div className="animate-pulse">
+                        <div className="h-8 bg-gray-200 rounded w-48 mb-8"></div>
+                        <div className="grid grid-cols-5 lg:grid-cols-10 gap-6">
+                            {[...Array(10)].map((_, i) => (
+                                <div key={i} className="flex flex-col items-center">
+                                    <div className="w-24 h-24 rounded-full bg-gray-200 mb-4"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    if (categories.length === 0) {
+        return null;
+    }
+
     return (
         <section className="py-8 md:py-12">
             <div className="max-w-[1600px] mx-auto px-4">
@@ -86,26 +76,28 @@ export default function CategoryGrid() {
                 <div className="flex overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide md:grid md:grid-cols-5 lg:grid-cols-10 md:gap-6 md:mx-0 md:px-0 md:pb-0">
                     {categories.map((category, index) => (
                         <Link
-                            key={index}
-                            href={category.href}
+                            key={category.slug}
+                            href={`/products?category=${category.slug}`}
                             className="flex-shrink-0 flex flex-col items-center group mr-6 md:mr-0"
                         >
                             {/* Circle Icon */}
-                            <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full ${category.color} flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden border border-white`}>
+                            <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full ${colorOptions[index % colorOptions.length]} flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden border border-white`}>
                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity bg-black" />
-                                <Image
-                                    src={category.icon}
-                                    alt={category.name}
-                                    width={48}
-                                    height={48}
-                                    className="object-cover w-12 h-12 md:w-14 md:h-14 mix-blend-multiply opacity-80 group-hover:opacity-100 transition-opacity"
-                                />
+                                {/* Display emoji icon from database */}
+                                <span className="text-4xl">{category.icon}</span>
                             </div>
 
                             {/* Category Name */}
                             <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-600 transition-colors text-center whitespace-nowrap">
                                 {category.name}
                             </span>
+
+                            {/* Product Count (optional) */}
+                            {category.productCount !== undefined && category.productCount > 0 && (
+                                <span className="text-xs text-gray-400 mt-1">
+                                    {category.productCount} {category.productCount === 1 ? 'item' : 'items'}
+                                </span>
+                            )}
                         </Link>
                     ))}
                 </div>

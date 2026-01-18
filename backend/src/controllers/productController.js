@@ -67,14 +67,20 @@ const getProducts = async (req, res) => {
 
         // Get total count for pagination
         const total = await Product.countDocuments(query);
+        const totalPages = Math.ceil(total / limit);
 
         res.status(200).json({
             success: true,
-            count: products.length,
-            total,
-            page,
-            pages: Math.ceil(total / limit),
+            count: products.length, // This is the count of products on the current page
             data: products,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                limit: limit,
+                total: total, // This is the total count of all products matching the query
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1
+            }
         });
     } catch (error) {
         console.error('Get products error:', error);
@@ -268,21 +274,28 @@ const deleteProduct = async (req, res) => {
  */
 const getCategories = async (req, res) => {
     try {
-        const categories = [
-            'electronics',
-            'clothing',
-            'books',
-            'home',
-            'sports',
-            'toys',
-            'beauty',
-            'food',
-            'other',
-        ];
+        const Category = require('../models/Category');
+
+        // Fetch all active categories from database, sorted by name
+        const categories = await Category.find({ isActive: true })
+            .sort({ name: 1 })
+            .select('name slug icon description productCount');
+
+        // Return category data with slugs for backward compatibility
+        const categoryData = categories.map(cat => ({
+            name: cat.name,
+            slug: cat.slug,
+            icon: cat.icon,
+            description: cat.description,
+            productCount: cat.productCount
+        }));
 
         res.status(200).json({
             success: true,
-            data: categories,
+            count: categories.length,
+            data: categoryData,
+            // Also provide just slugs array for simple filtering
+            slugs: categories.map(c => c.slug),
         });
     } catch (error) {
         console.error('Get categories error:', error);
