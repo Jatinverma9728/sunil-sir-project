@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'www.northtechhub.in',
+      },
+      {
+        protocol: 'https',
         hostname: '**.vercel.app',
       },
       {
