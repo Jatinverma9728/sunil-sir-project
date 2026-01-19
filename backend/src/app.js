@@ -46,7 +46,7 @@ const createApp = () => {
     // CORS Configuration - Support multiple origins for production
     const allowedOrigins = [
         process.env.FRONTEND_URL,
-        'https://northh.vercel.app',
+        'https://www.northtechhub.in',
         'http://localhost:3000',
         'http://localhost:3001',
         'http://10.107.169.226:3000'

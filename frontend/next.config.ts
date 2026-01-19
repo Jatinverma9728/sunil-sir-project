@@ -15,10 +15,6 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**.vercel.app',
-      },
-      {
-        protocol: 'https',
         hostname: '**.onrender.com', // Backend on Render
       },
       {

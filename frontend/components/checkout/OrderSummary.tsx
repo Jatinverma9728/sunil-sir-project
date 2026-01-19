@@ -18,6 +18,12 @@ interface OrderSummaryProps {
     tax: number;
     discount?: number;
     total: number;
+    appliedCoupon?: {
+        code: string;
+        discountType: string;
+        discountValue: number;
+        discount: number;
+    } | null;
 }
 
 export default function OrderSummary({
@@ -27,6 +33,7 @@ export default function OrderSummary({
     tax,
     discount = 0,
     total,
+    appliedCoupon,
 }: OrderSummaryProps) {
     return (
         <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-20">
@@ -87,6 +94,22 @@ export default function OrderSummary({
                     <div className="flex justify-between text-green-600">
                         <span>Discount</span>
                         <span className="font-medium">₹{discount.toFixed(2)}</span>
+                    </div>
+                )}
+
+                {appliedCoupon && (
+                    <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className="text-green-600">🎫</span>
+                                <span className="text-sm font-medium text-green-900">
+                                    {appliedCoupon.code}
+                                </span>
+                            </div>
+                            <span className="text-sm font-bold text-green-600">
+                                -₹{appliedCoupon.discount.toFixed(2)}
+                            </span>
+                        </div>
                     </div>
                 )}
             </div>

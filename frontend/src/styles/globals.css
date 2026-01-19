@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 :root {
   /* Soft Light Theme - Pastel & Premium */
   --bg-primary: #FAFAFA;
@@ -42,6 +47,8 @@ body {
   color: var(--foreground);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 /* Glassmorphic Card Styles */
