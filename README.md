@@ -18,6 +18,7 @@ Modern scalable MERN stack monorepo for e-commerce and course platform.
 - **Authentication**: JWT
 - **Language**: TypeScript
 
+
 ## Project Structure
 
 ```
