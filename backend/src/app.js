@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const compression = require('compression');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
 const { apiLimiter, authLimiter, paymentLimiter, adminLimiter } = require('./middlewares/rateLimiter');
 
 /**
@@ -43,6 +45,9 @@ const createApp = () => {
     // Data Sanitization against XSS
     app.use(xss());
 
+    // Cookie Parser (Required for CSRF)
+    app.use(cookieParser());
+
     // CORS Configuration - Support multiple origins for production
     const allowedOrigins = [
         process.env.FRONTEND_URL,
@@ -70,7 +75,7 @@ const createApp = () => {
         },
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-        allowedHeaders: ['Content-Type', 'Authorization']
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
     }));
 
     // ============================================
@@ -98,6 +103,20 @@ const createApp = () => {
 
     // Compression Middleware
     app.use(compression());
+
+    // CSRF Protection
+    // Must be added AFTER body parser (if using body for token) and AFTER webhooks (to exclude them)
+    // We use cookie: true so the secret is stored in a cookie.
+    // The client needs to read the token from the /api/csrf-token endpoint and send it in headers.
+    const csrfProtection = csrf({ cookie: true });
+
+    // Apply CSRF protection globally (webhooks are already handled above before this)
+    app.use(csrfProtection);
+
+    // Expose CSRF Token Endpoint
+    app.get('/api/csrf-token', (req, res) => {
+        res.json({ csrfToken: req.csrfToken() });
+    });
 
     // Passport Middleware (for OAuth)
     const passport = require('passport');
@@ -182,6 +201,7 @@ const createApp = () => {
 
     // Import route modules
     const authRoutes = require('./routes/authRoutes');
+    const verificationRoutes = require('./routes/verificationRoutes');
     const productRoutes = require('./routes/productRoutes');
     const orderRoutes = require('./routes/orderRoutes');
     const courseRoutes = require('./routes/courseRoutes');
@@ -201,6 +221,7 @@ const createApp = () => {
 
     // Mount routes with rate limiting
     app.use('/api/auth', authLimiter, authRoutes); // Strict limiter for auth
+    app.use('/api/verification', apiLimiter, verificationRoutes); // Email verification routes
     app.use('/api/products', apiLimiter, productRoutes);
     app.use('/api/orders', paymentLimiter, orderRoutes); // Payment limiter for orders
     app.use('/api/courses', apiLimiter, courseRoutes);
@@ -227,6 +248,14 @@ const createApp = () => {
     // Global Error Handler
     app.use((err, req, res, next) => {
         console.error('Error:', err);
+
+        // Handle CSRF Validation Errors
+        if (err.code === 'EBADCSRFTOKEN') {
+            return res.status(403).json({
+                success: false,
+                message: 'Invalid or missing CSRF token. Please refresh the page and try again.'
+            });
+        }
 
         const statusCode = err.statusCode || 500;
         const message = err.message || 'Internal Server Error';

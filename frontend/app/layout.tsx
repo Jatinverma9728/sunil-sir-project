@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter, Outfit } from "next/font/google";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { CartProvider } from "@/lib/context/CartContext";
 import { ToastProvider } from "@/lib/context/ToastContext";
@@ -8,6 +9,21 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/home/Footer";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import "../src/styles/globals.css";
+
+// Playful Tech Fonts
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["600", "700", "800", "900"],
+  variable: "--font-outfit",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Flash - Premium E-Commerce & Courses",
@@ -20,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
       <body className="antialiased min-h-screen flex flex-col">
         <ToastProvider>
           <AuthProvider>

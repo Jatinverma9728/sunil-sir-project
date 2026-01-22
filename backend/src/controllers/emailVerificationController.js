@@ -1,189 +1,282 @@
 const User = require('../models/User');
+const EmailVerification = require('../models/EmailVerification');
+const { sendVerificationEmail: sendVerificationEmailUtil, sendResendVerificationEmail } = require('../utils/email');
 const crypto = require('crypto');
-const { sendOTPEmail } = require('../utils/email');
 
 /**
- * @desc    Send email verification OTP
- * @route   POST /api/auth/send-verification-email
- * @access  Private
+ * @desc    Send verification email to user
+ * @route   POST /api/verification/send-verification-email
+ * @access  Protected
  */
 const sendVerificationEmail = async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
+  try {
+    const user = await User.findById(req.user.id);
 
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found',
-            });
-        }
-
-        // Check if already verified
-        if (user.isEmailVerified) {
-            return res.status(400).json({
-                success: false,
-                message: 'Email is already verified',
-            });
-        }
-
-        // Rate limiting: Allow new OTP every 2 minutes
-        if (user.lastOTPSent && Date.now() - user.lastOTPSent < 2 * 60 * 1000) {
-            const waitTime = Math.ceil((2 * 60 * 1000 - (Date.now() - user.lastOTPSent)) / 1000);
-            return res.status(429).json({
-                success: false,
-                message: `Please wait ${waitTime} seconds before requesting another verification code`,
-            });
-        }
-
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // Hash OTP for security
-        const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
-
-        // Save OTP data
-        user.otp = hashedOtp;
-        user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-        user.otpPurpose = 'email-verification';
-        user.otpAttempts = 0;
-        user.lastOTPSent = Date.now();
-        await user.save({ validateBeforeSave: false });
-
-        // Send OTP via email
-        try {
-            await sendOTPEmail(user.email, otp, user.name);
-            console.log(`✅ Email verification OTP sent to ${user.email}`);
-        } catch (emailError) {
-            console.error('❌ Failed to send verification email:', emailError.message);
-            // Log OTP to console as fallback
-            console.log('='.repeat(50));
-            console.log('EMAIL VERIFICATION OTP (Email failed - fallback)');
-            console.log('='.repeat(50));
-            console.log('Email:', user.email);
-            console.log('OTP:', otp);
-            console.log('Expires in: 10 minutes');
-            console.log('='.repeat(50));
-        }
-
-        res.status(200).json({
-            success: true,
-            message: 'Verification code has been sent to your email. Valid for 10 minutes',
-            // In development, include OTP for testing
-            ...(process.env.NODE_ENV === 'development' && { otp }),
-        });
-    } catch (error) {
-        console.error('Send verification email error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error sending verification email',
-        });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
     }
+
+    // Check if already verified
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already verified',
+      });
+    }
+
+    // Delete any existing unverified tokens
+    await EmailVerification.deleteMany({
+      user: user._id,
+      isUsed: false,
+    });
+
+    // Generate verification token
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    // Create verification record
+    const verification = await EmailVerification.create({
+      user: user._id,
+      email: user.email,
+      token,
+      tokenHash,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+    });
+
+    // Send verification email
+    const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${token}`;
+    await sendVerificationEmailUtil(user.email, verificationLink, user.name);
+
+    res.status(200).json({
+      success: true,
+      message: 'Verification email sent successfully',
+      data: {
+        email: user.email,
+        expiresIn: '24 hours',
+      },
+    });
+  } catch (error) {
+    console.error('Send verification email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error sending verification email',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
 };
 
 /**
- * @desc    Verify email with OTP
- * @route   POST /api/auth/verify-email
- * @access  Private
+ * @desc    Verify email with token
+ * @route   GET /api/verification/verify/:token
+ * @access  Public
  */
 const verifyEmail = async (req, res) => {
-    try {
-        const { otp } = req.body;
+  try {
+    const { token } = req.params;
 
-        if (!otp) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please provide the verification code',
-            });
-        }
-
-        const user = await User.findById(req.user.id);
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found',
-            });
-        }
-
-        // Check if already verified
-        if (user.isEmailVerified) {
-            return res.status(400).json({
-                success: false,
-                message: 'Email is already verified',
-            });
-        }
-
-        // Check OTP attempts (max 5)
-        if (user.otpAttempts >= 5) {
-            return res.status(429).json({
-                success: false,
-                message: 'Too many failed attempts. Please request a new verification code',
-            });
-        }
-
-        // Check OTP expiry
-        if (!user.otpExpires || Date.now() > user.otpExpires) {
-            return res.status(400).json({
-                success: false,
-                message: 'Verification code has expired. Please request a new one',
-            });
-        }
-
-        // Check OTP purpose
-        if (user.otpPurpose !== 'email-verification') {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid verification code. Please request a new one',
-            });
-        }
-
-        // Verify OTP
-        const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
-
-        if (user.otp !== hashedOtp) {
-            // Increment attempts
-            user.otpAttempts += 1;
-            await user.save({ validateBeforeSave: false });
-
-            return res.status(400).json({
-                success: false,
-                message: `Invalid verification code. ${5 - user.otpAttempts} attempts remaining`,
-            });
-        }
-
-        // OTP verified! Mark email as verified
-        user.isEmailVerified = true;
-        user.otp = undefined;
-        user.otpExpires = undefined;
-        user.otpPurpose = null;
-        user.otpAttempts = 0;
-        await user.save({ validateBeforeSave: false });
-
-        res.status(200).json({
-            success: true,
-            message: 'Email verified successfully! Your account is now fully activated',
-        });
-    } catch (error) {
-        console.error('Verify email error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error verifying email',
-        });
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification token is required',
+      });
     }
+
+    // Find verification record
+    const verification = await EmailVerification.findOne({
+      token,
+      isUsed: false,
+    }).select('+tokenHash');
+
+    if (!verification) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid verification token',
+      });
+    }
+
+    // Check if token is expired
+    if (verification.isTokenExpired()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification token has expired',
+        expiredAt: verification.expiresAt,
+      });
+    }
+
+    // Verify token hash
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+    if (hashedToken !== verification.tokenHash) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid verification token',
+      });
+    }
+
+    // Find user and update verification status
+    const user = await User.findById(verification.user);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // Check if already verified
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already verified',
+      });
+    }
+
+    // Update user verification status
+    user.isEmailVerified = true;
+    await user.save();
+
+    // Mark verification token as used
+    await verification.markAsUsed();
+
+    res.status(200).json({
+      success: true,
+      message: 'Email verified successfully',
+      data: {
+        email: user.email,
+        verified: true,
+      },
+    });
+  } catch (error) {
+    console.error('Verify email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error verifying email',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
 };
 
 /**
- * @desc    Resend email verification OTP
- * @route   POST /api/auth/resend-verification-email
- * @access  Private
+ * @desc    Resend verification email
+ * @route   POST /api/verification/resend-verification-email
+ * @access  Protected
  */
 const resendVerificationEmail = async (req, res) => {
-    // Reuse same logic as sendVerificationEmail
-    return sendVerificationEmail(req, res);
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // Check if already verified
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already verified',
+      });
+    }
+
+    // Check rate limiting (max 3 resends per hour)
+    const recentVerifications = await EmailVerification.countDocuments({
+      user: user._id,
+      isUsed: false,
+      createdAt: {
+        $gt: new Date(Date.now() - 60 * 60 * 1000), // Last hour
+      },
+    });
+
+    if (recentVerifications >= 3) {
+      return res.status(429).json({
+        success: false,
+        message: 'Too many verification email requests. Please try again later.',
+      });
+    }
+
+    // Generate new verification token
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    // Create new verification record
+    await EmailVerification.create({
+      user: user._id,
+      email: user.email,
+      token,
+      tokenHash,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+    });
+
+    // Send verification email
+    const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${token}`;
+    await sendResendVerificationEmail(user.email, verificationLink, user.name);
+
+    res.status(200).json({
+      success: true,
+      message: 'Verification email resent successfully',
+      data: {
+        email: user.email,
+        expiresIn: '24 hours',
+      },
+    });
+  } catch (error) {
+    console.error('Resend verification email error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error resending verification email',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * @desc    Get verification status
+ * @route   GET /api/verification/status
+ * @access  Protected
+ */
+const getVerificationStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('isEmailVerified email');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        isEmailVerified: user.isEmailVerified,
+        email: user.email,
+        lastVerificationEmail: null, // Could track this if needed
+      },
+    });
+  } catch (error) {
+    console.error('Get verification status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error getting verification status',
+    });
+  }
 };
 
 module.exports = {
-    sendVerificationEmail,
-    verifyEmail,
-    resendVerificationEmail,
+  sendVerificationEmail,
+  verifyEmail,
+  resendVerificationEmail,
+  getVerificationStatus,
 };

@@ -123,7 +123,6 @@ const getUserAnalytics = async (req, res) => {
 
         // Total users
         const totalUsers = await User.countDocuments();
-        const verifiedUsers = await User.countDocuments({ isEmailVerified: true });
 
         // New users in period
         const newUsers = await User.find({
@@ -502,7 +501,7 @@ const exportOrdersCSV = async (req, res) => {
 const exportUsersCSV = async (req, res) => {
     try {
         const users = await User.find()
-            .select('name email role isEmailVerified createdAt')
+            .select('name email role createdAt')
             .sort({ createdAt: -1 });
 
         // Generate CSV
@@ -511,7 +510,6 @@ const exportUsersCSV = async (req, res) => {
             'Name',
             'Email',
             'Role',
-            'Email Verified',
             'Registered Date',
         ].join(',');
 
@@ -520,7 +518,6 @@ const exportUsersCSV = async (req, res) => {
             `"${user.name}"`,
             user.email,
             user.role,
-            user.isEmailVerified ? 'Yes' : 'No',
             user.createdAt.toISOString(),
         ].join(','));
 
@@ -651,7 +648,6 @@ const exportAnalyticsReportPDF = async (req, res) => {
             publishedCourses,
         ] = await Promise.all([
             User.countDocuments(),
-            User.countDocuments({ isEmailVerified: true }),
             Product.countDocuments(),
             Product.countDocuments({ isActive: true }),
             Product.countDocuments({ stock: 0 }),

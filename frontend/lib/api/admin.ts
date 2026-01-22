@@ -1,28 +1,7 @@
 // Admin API helper functions
 // All endpoints require admin authentication
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-// Helper to get auth token from cookie
-const getAuthToken = (): string | null => {
-    if (typeof document === 'undefined') return null;
-
-    const cookies = document.cookie.split(';');
-    const tokenCookie = cookies.find((cookie) => cookie.trim().startsWith('auth_token='));
-
-    if (!tokenCookie) return null;
-
-    return tokenCookie.split('=')[1];
-};
-
-// Helper to get auth headers
-const getAuthHeaders = () => {
-    const token = getAuthToken();
-    return {
-        'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
-    };
-};
+import { apiClient, ApiResponse } from './client';
 
 // ============================================
 // DASHBOARD STATS
@@ -50,45 +29,35 @@ export interface DashboardStats {
 export const getAdminDashboardStats = async (): Promise<{ success: boolean; data?: DashboardStats; message?: string }> => {
     try {
         // Fetch order stats
-        const orderStatsRes = await fetch(`${API_URL}/admin/orders/stats`, {
-            headers: getAuthHeaders(),
-        });
-        const orderStats = await orderStatsRes.json();
+        const orderStatsRes = await apiClient.get<any>('/admin/orders/stats', true);
+        const orderStats = orderStatsRes;
 
         // Fetch products count
-        const productsRes = await fetch(`${API_URL}/admin/products?limit=1`, {
-            headers: getAuthHeaders(),
-        });
-        const productsData = await productsRes.json();
+        const productsRes = await apiClient.get<any>('/admin/products?limit=1', true);
+        const productsData = productsRes;
 
         // Fetch users count
-        const usersRes = await fetch(`${API_URL}/admin/users?limit=1`, {
-            headers: getAuthHeaders(),
-        });
-        const usersData = await usersRes.json();
+        const usersRes = await apiClient.get<any>('/admin/users?limit=1', true);
+        const usersData = usersRes;
 
         // Fetch courses count
-        const coursesRes = await fetch(`${API_URL}/admin/courses?limit=1`, {
-            headers: getAuthHeaders(),
-        });
-        const coursesData = await coursesRes.json();
+        const coursesRes = await apiClient.get<any>('/admin/courses?limit=1', true);
+        const coursesData = coursesRes;
 
         // Fetch recent orders
-        const recentOrdersRes = await fetch(`${API_URL}/admin/orders?limit=5`, {
-            headers: getAuthHeaders(),
-        });
-        const recentOrdersData = await recentOrdersRes.json();
+        const recentOrdersRes = await apiClient.get<{ data: Order[] }>('/admin/orders?limit=5', true);
+        const recentOrdersData = recentOrdersRes;
 
         return {
             success: true,
             data: {
                 totalRevenue: orderStats.data?.totalRevenue || 0,
                 totalOrders: orderStats.data?.totalOrders || 0,
-                totalProducts: productsData.total || 0,
-                totalUsers: usersData.total || 0,
-                totalCourses: coursesData.total || 0,
+                totalProducts: (productsData as any).total || (productsData as any).count || 0,
+                totalUsers: (usersData as any).total || (usersData as any).count || 0,
+                totalCourses: (coursesData as any).total || (coursesData as any).count || 0,
                 pendingOrders: orderStats.data?.pendingOrders || 0,
-                recentOrders: recentOrdersData.data || [],
+                recentOrders: recentOrdersData.data?.data || [],
                 // Enhanced stats from backend
                 todayOrders: orderStats.data?.todayOrders || 0,
                 todayRevenue: orderStats.data?.todayRevenue || 0,
@@ -197,10 +166,8 @@ export const getAdminProducts = async (page = 1, limit = 20, filters?: { categor
         if (filters?.category) params.append('category', filters.category);
         if (filters?.isActive !== undefined) params.append('isActive', String(filters.isActive));
 
-        const response = await fetch(`${API_URL}/admin/products?${params}`, {
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.get<any>(`/admin/products?${params}`, true);
+        return response;
     } catch (error) {
         console.error('Error fetching products:', error);
         return { success: false, message: 'Failed to fetch products' };
@@ -209,42 +176,31 @@ export const getAdminProducts = async (page = 1, limit = 20, filters?: { categor
 
 export const createAdminProduct = async (data: ProductFormData) => {
     try {
-        const response = await fetch(`${API_URL}/admin/products`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(data),
-        });
-        return await response.json();
-    } catch (error) {
+        const response = await apiClient.post<any>('/admin/products', data, true);
+        return response;
+    } catch (error: any) {
         console.error('Error creating product:', error);
-        return { success: false, message: 'Failed to create product' };
+        return { success: false, message: error.message || 'Failed to create product' };
     }
 };
 
 export const updateAdminProduct = async (id: string, data: Partial<ProductFormData>) => {
     try {
-        const response = await fetch(`${API_URL}/admin/products/${id}`, {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(data),
-        });
-        return await response.json();
-    } catch (error) {
+        const response = await apiClient.put<any>(`/admin/products/${id}`, data, true);
+        return response;
+    } catch (error: any) {
         console.error('Error updating product:', error);
-        return { success: false, message: 'Failed to update product' };
+        return { success: false, message: error.message || 'Failed to update product' };
     }
 };
 
 export const deleteAdminProduct = async (id: string) => {
     try {
-        const response = await fetch(`${API_URL}/admin/products/${id}`, {
-            method: 'DELETE',
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
-    } catch (error) {
+        const response = await apiClient.delete<any>(`/admin/products/${id}`, true);
+        return response;
+    } catch (error: any) {
         console.error('Error deleting product:', error);
-        return { success: false, message: 'Failed to delete product' };
+        return { success: false, message: error.message || 'Failed to delete product' };
     }
 };
 
@@ -293,10 +249,8 @@ export const getAdminOrders = async (page = 1, limit = 20, filters?: { status?: 
         if (filters?.status) params.append('status', filters.status);
         if (filters?.paymentStatus) params.append('paymentStatus', filters.paymentStatus);
 
-        const response = await fetch(`${API_URL}/admin/orders?${params}`, {
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.get<any>(`/admin/orders?${params}`, true);
+        return response;
     } catch (error) {
         console.error('Error fetching orders:', error);
         return { success: false, message: 'Failed to fetch orders' };
@@ -305,12 +259,8 @@ export const getAdminOrders = async (page = 1, limit = 20, filters?: { status?: 
 
 export const updateAdminOrderStatus = async (id: string, status: string, reason?: string) => {
     try {
-        const response = await fetch(`${API_URL}/admin/orders/${id}/status`, {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ status, reason }),
-        });
-        return await response.json();
+        const response = await apiClient.put<any>(`/admin/orders/${id}/status`, { status, reason }, true);
+        return response;
     } catch (error) {
         console.error('Error updating order status:', error);
         return { success: false, message: 'Failed to update order status' };
@@ -319,10 +269,8 @@ export const updateAdminOrderStatus = async (id: string, status: string, reason?
 
 export const getAdminOrderById = async (id: string) => {
     try {
-        const response = await fetch(`${API_URL}/admin/orders/${id}`, {
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.get<any>(`/admin/orders/${id}`, true);
+        return response;
     } catch (error) {
         console.error('Error fetching order details:', error);
         return { success: false, message: 'Failed to fetch order details' };
@@ -331,10 +279,8 @@ export const getAdminOrderById = async (id: string) => {
 
 export const getAdminOrderStats = async () => {
     try {
-        const response = await fetch(`${API_URL}/admin/orders/stats`, {
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.get<any>('/admin/orders/stats', true);
+        return response;
     } catch (error) {
         console.error('Error fetching order stats:', error);
         return { success: false, message: 'Failed to fetch order stats' };
@@ -388,10 +334,8 @@ export const getAdminCourses = async (page = 1, limit = 20, filters?: { category
         if (filters?.category) params.append('category', filters.category);
         if (filters?.isPublished !== undefined) params.append('isPublished', String(filters.isPublished));
 
-        const response = await fetch(`${API_URL}/admin/courses?${params}`, {
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.get<any>(`/admin/courses?${params}`, true);
+        return response;
     } catch (error) {
         console.error('Error fetching courses:', error);
         return { success: false, message: 'Failed to fetch courses' };
@@ -400,12 +344,8 @@ export const getAdminCourses = async (page = 1, limit = 20, filters?: { category
 
 export const createAdminCourse = async (data: CourseFormData) => {
     try {
-        const response = await fetch(`${API_URL}/admin/courses`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(data),
-        });
-        return await response.json();
+        const response = await apiClient.post<any>('/admin/courses', data, true);
+        return response;
     } catch (error) {
         console.error('Error creating course:', error);
         return { success: false, message: 'Failed to create course' };
@@ -414,12 +354,8 @@ export const createAdminCourse = async (data: CourseFormData) => {
 
 export const updateAdminCourse = async (id: string, data: Partial<CourseFormData>) => {
     try {
-        const response = await fetch(`${API_URL}/admin/courses/${id}`, {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(data),
-        });
-        return await response.json();
+        const response = await apiClient.put<any>(`/admin/courses/${id}`, data, true);
+        return response;
     } catch (error) {
         console.error('Error updating course:', error);
         return { success: false, message: 'Failed to update course' };
@@ -428,11 +364,8 @@ export const updateAdminCourse = async (id: string, data: Partial<CourseFormData
 
 export const deleteAdminCourse = async (id: string) => {
     try {
-        const response = await fetch(`${API_URL}/admin/courses/${id}`, {
-            method: 'DELETE',
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.delete<any>(`/admin/courses/${id}`, true);
+        return response;
     } catch (error) {
         console.error('Error deleting course:', error);
         return { success: false, message: 'Failed to delete course' };
@@ -441,10 +374,8 @@ export const deleteAdminCourse = async (id: string) => {
 
 export const getAdminCourseStats = async () => {
     try {
-        const response = await fetch(`${API_URL}/admin/courses/stats`, {
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.get<any>('/admin/courses/stats', true);
+        return response;
     } catch (error) {
         console.error('Error fetching course stats:', error);
         return { success: false, message: 'Failed to fetch course stats' };
@@ -461,7 +392,6 @@ export interface User {
     email: string;
     role: 'user' | 'admin';
     avatar?: string;
-    isEmailVerified: boolean;
     createdAt: string;
 }
 
@@ -478,10 +408,8 @@ export const getAdminUsers = async (page = 1, limit = 20, search?: string) => {
         const params = new URLSearchParams({ page: String(page), limit: String(limit) });
         if (search) params.append('search', search);
 
-        const response = await fetch(`${API_URL}/admin/users?${params}`, {
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.get<any>(`/admin/users?${params}`, true);
+        return response;
     } catch (error) {
         console.error('Error fetching users:', error);
         return { success: false, message: 'Failed to fetch users' };
@@ -490,12 +418,8 @@ export const getAdminUsers = async (page = 1, limit = 20, search?: string) => {
 
 export const createAdminUser = async (data: UserFormData) => {
     try {
-        const response = await fetch(`${API_URL}/admin/users`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(data),
-        });
-        return await response.json();
+        const response = await apiClient.post<any>('/admin/users', data, true);
+        return response;
     } catch (error) {
         console.error('Error creating user:', error);
         return { success: false, message: 'Failed to create user' };
@@ -504,12 +428,8 @@ export const createAdminUser = async (data: UserFormData) => {
 
 export const updateAdminUser = async (id: string, data: Partial<UserFormData>) => {
     try {
-        const response = await fetch(`${API_URL}/admin/users/${id}`, {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(data),
-        });
-        return await response.json();
+        const response = await apiClient.put<any>(`/admin/users/${id}`, data, true);
+        return response;
     } catch (error) {
         console.error('Error updating user:', error);
         return { success: false, message: 'Failed to update user' };
@@ -518,11 +438,8 @@ export const updateAdminUser = async (id: string, data: Partial<UserFormData>) =
 
 export const deleteAdminUser = async (id: string) => {
     try {
-        const response = await fetch(`${API_URL}/admin/users/${id}`, {
-            method: 'DELETE',
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.delete<any>(`/admin/users/${id}`, true);
+        return response;
     } catch (error) {
         console.error('Error deleting user:', error);
         return { success: false, message: 'Failed to delete user' };
@@ -540,18 +457,12 @@ export const uploadImages = async (files: File[]): Promise<{ success: boolean; u
             formData.append('images', file);
         });
 
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/upload/images`, {
-            method: 'POST',
-            headers: {
-                ...(token && { Authorization: `Bearer ${token}` }),
-            },
-            body: formData,
-        });
-        return await response.json();
-    } catch (error) {
+        // Use apiClient.upload for file uploads
+        const response = await apiClient.upload<{ success: boolean; urls?: string[]; message?: string }>('/upload/images', formData, true);
+        return response;
+    } catch (error: any) {
         console.error('Error uploading images:', error);
-        return { success: false, message: 'Failed to upload images' };
+        return { success: false, message: error.message || 'Failed to upload images' };
     }
 };
 
@@ -573,10 +484,8 @@ export interface Category {
 
 export const getAllCategories = async () => {
     try {
-        const response = await fetch(`${API_URL}/admin/categories`, {
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.get<any>('/admin/categories', true);
+        return response;
     } catch (error) {
         console.error('Error fetching categories:', error);
         return { success: false, message: 'Failed to fetch categories' };
@@ -585,10 +494,8 @@ export const getAllCategories = async () => {
 
 export const getCategoryById = async (id: string) => {
     try {
-        const response = await fetch(`${API_URL}/admin/categories/${id}`, {
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.get<any>(`/admin/categories/${id}`, true);
+        return response;
     } catch (error) {
         console.error('Error fetching category:', error);
         return { success: false, message: 'Failed to fetch category' };
@@ -597,12 +504,8 @@ export const getCategoryById = async (id: string) => {
 
 export const createCategory = async (categoryData: Partial<Category>) => {
     try {
-        const response = await fetch(`${API_URL}/admin/categories`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(categoryData),
-        });
-        return await response.json();
+        const response = await apiClient.post<any>('/admin/categories', categoryData, true);
+        return response;
     } catch (error) {
         console.error('Error creating category:', error);
         return { success: false, message: 'Failed to create category' };
@@ -611,12 +514,8 @@ export const createCategory = async (categoryData: Partial<Category>) => {
 
 export const updateCategory = async (id: string, categoryData: Partial<Category>) => {
     try {
-        const response = await fetch(`${API_URL}/admin/categories/${id}`, {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(categoryData),
-        });
-        return await response.json();
+        const response = await apiClient.put<any>(`/admin/categories/${id}`, categoryData, true);
+        return response;
     } catch (error) {
         console.error('Error updating category:', error);
         return { success: false, message: 'Failed to update category' };
@@ -625,11 +524,8 @@ export const updateCategory = async (id: string, categoryData: Partial<Category>
 
 export const deleteCategory = async (id: string) => {
     try {
-        const response = await fetch(`${API_URL}/admin/categories/${id}`, {
-            method: 'DELETE',
-            headers: getAuthHeaders(),
-        });
-        return await response.json();
+        const response = await apiClient.delete<any>(`/admin/categories/${id}`, true);
+        return response;
     } catch (error) {
         console.error('Error deleting category:', error);
         return { success: false, message: 'Failed to delete category' };

@@ -7,43 +7,40 @@ import CartItem from "@/components/cart/CartItem";
 import { validateCoupon } from "@/lib/api/promotions";
 
 export default function CartPage() {
-    const { items, removeFromCart, updateQuantity, getTotalPrice, clearCart } = useCart();
+    const {
+        items,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        appliedCoupon,
+        applyCoupon,
+        removeCoupon,
+        getCartTotal
+    } = useCart();
 
-    // Coupon state
-    const [couponCode, setCouponCode] = useState("");
-    const [appliedCoupon, setAppliedCoupon] = useState<{
-        code: string;
-        discountType: string;
-        discountValue: number;
-        discount: number;
-    } | null>(null);
+    // Local state for input field only
+    const [localCouponCode, setLocalCouponCode] = useState("");
     const [couponLoading, setCouponLoading] = useState(false);
     const [couponError, setCouponError] = useState("");
 
-    // Memoize calculations to prevent recalculation on every render
-    const calculations = useMemo(() => {
-        const subtotal = getTotalPrice();
-        const couponDiscount = appliedCoupon?.discount || 0;
-        const tax = (subtotal - couponDiscount) * 0.1;
-        const shipping = subtotal > 999 ? 0 : 99;
-        const total = subtotal - couponDiscount + tax + shipping;
-
-        return { subtotal, couponDiscount, tax, shipping, total };
-    }, [getTotalPrice, appliedCoupon]);
-
-    const { subtotal, couponDiscount, tax, shipping, total } = calculations;
+    // Get centralized calculations
+    const { subtotal, timezone_offset_discount, tax, shipping, total, discount } = getCartTotal() as any;
+    // Note: getCartTotal returns discount, mapped here for convenience if needed, 
+    // but we can just use the destructured values.
+    // Let's rely on the object returned by getCartTotal directly.
+    const cartTotals = getCartTotal();
 
     const handleApplyCoupon = async () => {
-        if (!couponCode.trim()) return;
+        if (!localCouponCode.trim()) return;
 
         setCouponLoading(true);
         setCouponError("");
 
         try {
-            const res = await validateCoupon(couponCode.toUpperCase(), subtotal);
+            const res = await validateCoupon(localCouponCode.toUpperCase(), cartTotals.subtotal);
             if (res.success && res.data) {
-                setAppliedCoupon(res.data);
-                setCouponCode("");
+                applyCoupon(res.data);
+                setLocalCouponCode("");
             } else {
                 setCouponError(res.message || "Invalid coupon code");
             }
@@ -55,7 +52,7 @@ export default function CartPage() {
     };
 
     const handleRemoveCoupon = () => {
-        setAppliedCoupon(null);
+        removeCoupon();
         setCouponError("");
     };
 
@@ -166,7 +163,7 @@ export default function CartPage() {
                                                 ✕
                                             </button>
                                         </span>
-                                        <span className="font-medium">-₹{couponDiscount.toFixed(2)}</span>
+                                        <span className="font-medium">-₹{cartTotals.discount.toFixed(2)}</span>
                                     </div>
                                 )}
 
@@ -183,15 +180,15 @@ export default function CartPage() {
                                         <div className="flex gap-2">
                                             <input
                                                 type="text"
-                                                value={couponCode}
-                                                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                                value={localCouponCode}
+                                                onChange={(e) => setLocalCouponCode(e.target.value.toUpperCase())}
                                                 onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
                                                 placeholder="Enter coupon code"
                                                 className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all text-sm font-mono"
                                             />
                                             <button
                                                 onClick={handleApplyCoupon}
-                                                disabled={couponLoading || !couponCode.trim()}
+                                                disabled={couponLoading || !localCouponCode.trim()}
                                                 className="px-5 py-3 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 {couponLoading ? "..." : "Apply"}

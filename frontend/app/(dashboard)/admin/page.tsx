@@ -1016,7 +1016,6 @@ export default function AdminDashboard() {
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">User</th>
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Email</th>
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Role</th>
-                                                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Verified</th>
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Joined</th>
                                                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Actions</th>
                                             </tr>
@@ -1042,13 +1041,6 @@ export default function AdminDashboard() {
                                                         >
                                                             {u.role}
                                                         </span>
-                                                    </td>
-                                                    <td className="py-3 px-4">
-                                                        {u.isEmailVerified ? (
-                                                            <span className="text-green-600">✓</span>
-                                                        ) : (
-                                                            <span className="text-gray-400">✗</span>
-                                                        )}
                                                     </td>
                                                     <td className="py-3 px-4 text-sm text-gray-600">
                                                         {new Date(u.createdAt).toLocaleDateString()}

@@ -4,7 +4,6 @@ const passport = require('passport');
 
 const { register, login, getProfile, updateProfile, googleCallback } = require('../controllers/authController');
 const { forgotPassword, verifyResetOTP, resetPassword } = require('../controllers/passwordController');
-const { sendVerificationEmail, verifyEmail, resendVerificationEmail } = require('../controllers/emailVerificationController');
 const { protect } = require('../middlewares/authMiddleware');
 
 // Initialize Passport configuration
@@ -21,14 +20,6 @@ router.post('/login', login);
 // Protected routes
 router.get('/profile', protect, getProfile);
 router.put('/profile', protect, updateProfile);
-
-// ============================================
-// EMAIL VERIFICATION ROUTES
-// ============================================
-
-router.post('/send-verification-email', protect, sendVerificationEmail);
-router.post('/verify-email', protect, verifyEmail);
-router.post('/resend-verification-email', protect, resendVerificationEmail);
 
 // ============================================
 // PASSWORD RESET ROUTES

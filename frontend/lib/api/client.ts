@@ -31,14 +31,42 @@ interface RequestConfig extends RequestInit {
 }
 
 class ApiClient {
-    private baseUrl: string;
+    private baseURL: string;
     private defaultHeaders: HeadersInit;
+    private csrfToken: string | null = null;
+    private csrfReady: Promise<void>;
 
-    constructor(baseUrl: string) {
-        this.baseUrl = baseUrl;
+    constructor(baseURL: string = API_URL) {
+        this.baseURL = baseURL;
         this.defaultHeaders = {
             'Content-Type': 'application/json',
         };
+        // Initialize CSRF and store the promise
+        this.csrfReady = this.initCsrf();
+    }
+
+    private async initCsrf(): Promise<void> {
+        if (typeof window !== 'undefined') {
+            try {
+                await this.fetchCsrfToken();
+            } catch (error) {
+                console.warn('Failed to initialize CSRF token:', error);
+            }
+        }
+    }
+
+    public async fetchCsrfToken() {
+        try {
+            const response = await fetch(`${this.baseURL}/csrf-token`, {
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const data = await response.json();
+                this.csrfToken = data.csrfToken;
+            }
+        } catch (error) {
+            console.error('Error fetching CSRF token:', error);
+        }
     }
 
     /**
@@ -66,7 +94,7 @@ class ApiClient {
         const expires = new Date();
         expires.setDate(expires.getDate() + 30);
 
-        document.cookie = `auth_token=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Strict`;
+        document.cookie = `auth_token=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
     }
 
     /**
@@ -81,8 +109,17 @@ class ApiClient {
     /**
      * Build headers for request
      */
-    private buildHeaders(requiresAuth: boolean = false): HeadersInit {
+    private buildHeaders(requiresAuth: boolean = false, method: string = 'GET', isMultipart: boolean = false): HeadersInit {
         const headers: Record<string, string> = { ...this.defaultHeaders as Record<string, string> };
+
+        // Add CSRF token if available and not a safe method (GET, HEAD, OPTIONS)
+        if (this.csrfToken && !['GET', 'HEAD', 'OPTIONS'].includes(method.toUpperCase())) {
+            headers['X-CSRF-Token'] = this.csrfToken;
+        }
+
+        if (isMultipart) {
+            delete headers['Content-Type']; // Content-Type will be set automatically by FormData
+        }
 
         if (requiresAuth) {
             const token = this.getAuthToken();
@@ -119,7 +156,7 @@ class ApiClient {
         }
 
         if (response.status === 403) {
-            throw new ApiError('Access forbidden', 403, errorData);
+            throw new ApiError(errorMessage || 'Access forbidden', 403, errorData);
         }
 
         if (response.status === 404) {
@@ -150,8 +187,14 @@ class ApiClient {
             ...fetchConfig
         } = config;
 
-        const url = `${this.baseUrl}${endpoint}`;
-        const headers = this.buildHeaders(requiresAuth);
+        const url = `${this.baseURL}${endpoint}`;
+
+        // Ensure CSRF token is fetched before making request (especially for mutations)
+        if (typeof window !== 'undefined') {
+            await this.csrfReady;
+        }
+
+        const headers = this.buildHeaders(requiresAuth, fetchConfig.method || 'GET');
 
         let lastError: Error | null = null;
 
@@ -160,6 +203,7 @@ class ApiClient {
             try {
                 const response = await fetch(url, {
                     ...fetchConfig,
+                    credentials: 'include', // Ensure cookies are sent (vital for CSRF)
                     headers: {
                         ...headers,
                         ...fetchConfig.headers,
@@ -271,21 +315,22 @@ class ApiClient {
         formData: FormData,
         requiresAuth: boolean = true
     ): Promise<ApiResponse<T>> {
-        const url = `${this.baseUrl}${endpoint}`;
-        const headers: HeadersInit = {};
+        const url = `${this.baseURL}${endpoint}`;
 
-        if (requiresAuth) {
-            const token = this.getAuthToken();
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
+        // Ensure CSRF token is fetched before making request (especially for mutations)
+        if (typeof window !== 'undefined') {
+            await this.csrfReady;
         }
+
+        // Use buildHeaders with isMultipart=true to handle logic correctly
+        const headers = this.buildHeaders(requiresAuth, 'POST', true) as HeadersInit;
 
         try {
             const response = await fetch(url, {
                 method: 'POST',
                 headers,
                 body: formData,
+                credentials: 'include',
             });
 
             if (!response.ok) {

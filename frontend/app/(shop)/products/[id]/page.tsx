@@ -177,7 +177,7 @@ export default function ProductDetailPage() {
                     {images.length > 1 && (
                         <aside className="hidden lg:block" aria-label="Product image thumbnails">
                             <div className="flex flex-col gap-3 sticky top-6">
-                                {images.slice(0, 6).map((img, i) => (
+                                {images.map((img, i) => (
                                     <button
                                         key={i}
                                         onClick={() => setSelectedImage(i)}
@@ -251,7 +251,7 @@ export default function ProductDetailPage() {
                             {/* Mobile Thumbnails */}
                             {images.length > 1 && (
                                 <div className="flex gap-2.5 mt-4 lg:hidden overflow-x-auto pb-2" role="list" aria-label="Product image thumbnails">
-                                    {images.slice(0, 5).map((img, i) => (
+                                    {images.map((img, i) => (
                                         <button
                                             key={i}
                                             onClick={() => setSelectedImage(i)}

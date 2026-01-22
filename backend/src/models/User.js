@@ -57,21 +57,19 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: null,
         },
+
+        // Email Verification
         isEmailVerified: {
             type: Boolean,
             default: false,
         },
+
         resetPasswordToken: String,
         resetPasswordExpire: Date,
 
-        // OTP (for password reset)
+        // OTP (for password reset only)
         otp: String, // Hashed OTP
         otpExpires: Date,
-        otpPurpose: {
-            type: String,
-            enum: ['password-reset', 'email-verification', null],
-            default: null,
-        },
         otpAttempts: {
             type: Number,
             default: 0,
@@ -129,7 +127,7 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
     }
 };
 
-// Method to get user without password
+// Method to get user without sensitive fields
 userSchema.methods.toJSON = function () {
     const user = this.toObject();
     delete user.password;
@@ -137,6 +135,10 @@ userSchema.methods.toJSON = function () {
     delete user.resetPasswordExpire;
     delete user.loginAttempts;
     delete user.lockUntil;
+    delete user.otp;
+    delete user.otpExpires;
+    delete user.otpAttempts;
+    delete user.lastOTPSent;
     return user;
 };
 

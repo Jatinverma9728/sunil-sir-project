@@ -6,33 +6,113 @@ html {
 }
 
 :root {
-  /* Soft Light Theme - Pastel & Premium */
-  --bg-primary: #FAFAFA;
-  /* Off-white background */
-  --bg-secondary: #FFFFFF;
-  /* Pure white for cards */
-  --bg-tertiary: #F3F4F6;
-  /* Soft gray for sections */
+  /* ========================================
+     PLAYFUL TECH COLOR PALETTE
+     Energetic, Modern, Mobile-First
+     ======================================== */
 
-  --text-primary: #2D3339;
-  /* Soft Charcoal */
-  --text-secondary: #64748B;
-  /* Muted Blue-Grey */
-  --text-accent: #6366F1;
-  /* Soft Indigo */
+  /* Primary Brand Colors - Electric Indigo  */
+  --primary-electric: #6366F1;
+  /* Main brand color - Used for primary CTAs, links */
+  --primary-deep: #4F46E5;
+  /* Hover states, active elements */
+  --primary-light: #A5B4FC;
+  /* Backgrounds, subtle accents */
+  --primary-glow: #818CF8;
+  /* Glow effects, highlights */
+  --primary-50: #EEF2FF;
+  /* Very light backgrounds */
 
-  /* Accent Colors */
-  --accent-soft: #EEF2FF;
-  /* Very light indigo */
-  --accent-main: #6366F1;
-  /* Indigo */
-  --accent-hover: #4F46E5;
-  /* Darker Indigo */
+  /* Secondary - Playful Amber (Energy & Warmth) */
+  --secondary-pop: #F59E0B;
+  /* Energetic accent - badges, highlights */
+  --secondary-warm: #FBBF24;
+  /* Warm variations */
+  --secondary-light: #FEF3C7;
+  /* Light backgrounds */
 
-  /* Borders & Shadows */
-  --border-light: #E2E8F0;
-  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
-  --shadow-hover: 0 10px 30px -4px rgba(99, 102, 241, 0.1);
+  /* Success & Action Colors */
+  --success: #10B981;
+  /* Success states, confirmations */
+  --success-light: #D1FAE5;
+  /* Success backgrounds */
+  --action: #EC4899;
+  /* Urgent CTAs, flash sales, hot deals */
+  --action-light: #FCE7F3;
+  /* Action backgrounds */
+  --warning: #F59E0B;
+  /* Warnings */
+  --error: #EF4444;
+  /* Errors */
+
+  /* Neutrals - Clean Foundation */
+  --neutral-950: #0A0A0B;
+  /* Almost black - primary text */
+  --neutral-900: #18181B;
+  /* Dark gray - headings */
+  --neutral-800: #27272A;
+  /* Medium dark */
+  --neutral-600: #52525B;
+  /* Medium gray */
+  --neutral-400: #A1A1AA;
+  /* Light gray - secondary text */
+  --neutral-200: #E4E4E7;
+  /* Very light gray - borders */
+  --neutral-100: #F4F4F5;
+  /* Off-white - backgrounds */
+  --neutral-50: #FAFAFA;
+  /* Almost white */
+  --neutral-white: #FFFFFF;
+  /* Pure white */
+
+  /* Background Gradients - Subtle Energy */
+  --bg-primary: #FFFFFF;
+  --bg-gradient-soft: linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%);
+  --bg-gradient-indigo: linear-gradient(135deg, #EEF2FF 0%, #FFFFFF 100%);
+  --bg-gradient-amber: linear-gradient(135deg, #FEF3C7 0%, #FFFFFF 100%);
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-glass: rgba(255, 255, 255, 0.7);
+
+  /* Special Effects - Glows & Shadows */
+  --glow-primary: 0 0 40px rgba(99, 102, 241, 0.3);
+  --glow-secondary: 0 0 30px rgba(245, 158, 11, 0.25);
+  --glow-action: 0 0 35px rgba(236, 72, 153, 0.3);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --shadow-elevated: 0 20px 40px -12px rgba(0, 0, 0, 0.08);
+  --shadow-glow-primary: 0 8px 32px rgba(99, 102, 241, 0.15);
+  --shadow-glow-secondary: 0 8px 32px rgba(245, 158, 11, 0.15);
+
+  /* Border Radius - Optimized from 2rem */
+  --radius-xs: 0.5rem;
+  /* 8px - Small elements, tags */
+  --radius-sm: 0.75rem;
+  /* 12px - Input fields */
+  --radius-md: 1rem;
+  /* 16px - Buttons */
+  --radius-lg: 1.25rem;
+  /* 20px - Cards (reduced from 2rem) */
+  --radius-xl: 1.5rem;
+  /* 24px - Modals, sections */
+  --radius-2xl: 2rem;
+  /* 32px - Hero sections only */
+  --radius-full: 9999px;
+  /* Pills, avatars, rounded buttons */
+
+  /* Legacy compatibility - map old variables to new */
+  --bg-secondary: var(--neutral-white);
+  --bg-tertiary: var(--neutral-100);
+  --text-primary: var(--neutral-950);
+  --text-secondary: var(--neutral-600);
+  --text-accent: var(--primary-electric);
+  --accent-soft: var(--primary-50);
+  --accent-main: var(--primary-electric);
+  --accent-hover: var(--primary-deep);
+  --border-light: var(--neutral-200);
+  --shadow-soft: var(--shadow-md);
+  --shadow-hover: var(--shadow-glow-primary);
 }
 
 @theme inline {
@@ -42,98 +122,500 @@ html {
   --font-mono: var(--font-geist-mono);
 }
 
+/* Body - Inter for readability */
 body {
-  background: #ffffff;
-  color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
   width: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings - Outfit for playful tech personality */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading,
+.font-heading {
+  font-family: var(--font-outfit), 'Outfit', 'Inter', sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--neutral-900);
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 3vw, 1.875rem);
+  font-weight: 700;
+}
+
+h4 {
+  font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+  font-weight: 600;
+}
+
+/* Utility classes for typography */
+.text-display {
+  font-family: var(--font-outfit), 'Outfit', 'Inter', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.text-section {
+  font-family: var(--font-outfit), 'Outfit', 'Inter', sans-serif;
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 /* Glassmorphic Card Styles */
 .glass-card {
-  background: var(--card-bg);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--card-border);
-  border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
   transition: all 0.3s ease;
 }
 
 .glass-card:hover {
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 
-/* Accent Button */
-.btn-accent {
-  background: var(--accent-lime);
-  color: var(--accent-dark);
-  font-weight: 600;
-  padding: 12px 24px;
-  border-radius: 100px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
-}
+/* ========================================
+   PLAYFUL TECH BUTTONS
+   Energetic, Modern, Mobile-Friendly
+   ======================================== */
 
-.btn-accent:hover {
-  background: var(--accent-lime-dark);
-  transform: scale(1.02);
-}
-
-/* Dark Button */
-.btn-dark {
-  background: var(--accent-dark);
+/* Primary Electric Button */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-electric) 0%, var(--primary-deep) 100%);
   color: white;
-  font-weight: 600;
-  padding: 12px 24px;
-  border-radius: 100px;
+  font-family: var(--font-outfit), sans-serif;
+  font-weight: 700;
+  padding: 0.875rem 2rem;
+  border-radius: var(--radius-full);
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow-primary);
+  min-height: 44px;
+  /* Mobile touch target */
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--glow-primary);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Secondary Amber Button */
+.btn-secondary {
+  background: linear-gradient(135deg, var(--secondary-pop) 0%, var(--secondary-warm) 100%);
+  color: var(--neutral-950);
+  font-family: var(--font-outfit), sans-serif;
+  font-weight: 700;
+  padding: 0.875rem 2rem;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow-secondary);
+  min-height: 44px;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--glow-secondary);
+}
+
+/* Action/CTA Button (Hot Pink - Urgent) */
+.btn-action {
+  background: linear-gradient(135deg, var(--action) 0%, #DB2777 100%);
+  color: white;
+  font-family: var(--font-outfit), sans-serif;
+  font-weight: 700;
+  padding: 0.875rem 2rem;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--glow-action);
+  min-height: 44px;
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px) scale(1.02);
+  animation: none;
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: var(--glow-action);
+  }
+
+  50% {
+    box-shadow: 0 0 50px rgba(236, 72, 153, 0.4);
+  }
+}
+
+/* Outline Button */
+.btn-outline {
+  background: transparent;
+  color: var(--primary-electric);
+  font-family: var(--font-outfit), sans-serif;
+  font-weight: 600;
+  padding: 0.875rem 2rem;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  border: 2px solid var(--primary-electric);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.btn-outline:hover {
+  background: var(--primary-electric);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow-primary);
+}
+
+/* Ghost Button */
+.btn-ghost {
+  background: transparent;
+  color: var(--neutral-600);
+  font-weight: 600;
+  padding: 0.875rem 2rem;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   transition: all 0.2s ease;
   border: none;
   cursor: pointer;
+  min-height: 44px;
 }
 
-.btn-dark:hover {
-  background: #333333;
+.btn-ghost:hover {
+  background: var(--neutral-100);
+  color: var(--neutral-900);
 }
+
+/* ========================================
+   BADGES & TAGS
+   ======================================== */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.badge-primary {
+  background: var(--primary-50);
+  color: var(--primary-electric);
+}
+
+.badge-secondary {
+  background: var(--secondary-light);
+  color: var(--secondary-pop);
+}
+
+.badge-success {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.badge-action {
+  background: var(--action-light);
+  color: var(--action);
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+@keyframes pulse-subtle {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* ========================================
+   GRADIENT UTILITIES
+   ======================================== */
+
+.gradient-primary {
+  background: linear-gradient(135deg, var(--primary-electric) 0%, var(--primary-deep) 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, var(--secondary-pop) 0%, var(--secondary-warm) 100%);
+}
+
+.gradient-action {
+  background: linear-gradient(135deg, var(--action) 0%, #DB2777 100%);
+}
+
+.gradient-soft {
+  background: var(--bg-gradient-soft);
+}
+
+.gradient-indigo {
+  background: var(--bg-gradient-indigo);
+}
+
+.gradient-amber {
+  background: var(--bg-gradient-amber);
+}
+
+/* Text Gradients */
+.text-gradient-primary {
+  background: linear-gradient(135deg, var(--primary-electric) 0%, var(--primary-deep) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-secondary {
+  background: linear-gradient(135deg, var(--secondary-pop) 0%, var(--secondary-warm) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ========================================
+   GLOW EFFECTS
+   ======================================== */
+
+.glow-primary {
+  box-shadow: var(--glow-primary);
+}
+
+.glow-secondary {
+  box-shadow: var(--glow-secondary);
+}
+
+.glow-action {
+  box-shadow: var(--glow-action);
+}
+
+.glow-hover-primary:hover {
+  box-shadow: var(--glow-primary);
+  transition: box-shadow 0.3s ease;
+}
+
+/* ========================================
+   ENHANCED ANIMATIONS
+   ======================================== */
+
+/* Smooth bounce */
+@keyframes bounce-smooth {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce-smooth {
+  animation: bounce-smooth 2s ease-in-out infinite;
+}
+
+/* Rotate slowly */
+@keyframes rotate-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-rotate-slow {
+  animation: rotate-slow 20s linear infinite;
+}
+
+/* Fade in */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+/* Scale in */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Shimmer effect for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(90deg,
+      var(--neutral-100) 0%,
+      var(--neutral-200) 50%,
+      var(--neutral-100) 100%);
+  background-size: 1000px 100%;
+}
+
+/* ========================================
+   MOBILE-FIRST UTILITIES
+   ======================================== */
+
+/* Safe area for mobile notches */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Touch-friendly spacing */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth scroll */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* ========================================
+   LEGACY COMPATIBILITY (Keep for now)
+   ======================================== */
 
 /* Arrow Link */
 .arrow-link {
   width: 36px;
   height: 36px;
-  background: var(--card-bg-solid);
+  background: var(--bg-card);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
 }
 
 .arrow-link:hover {
-  background: var(--accent-lime);
+  background: var(--primary-electric);
+  color: white;
   transform: scale(1.1);
+  box-shadow: var(--shadow-glow-primary);
 }
 
 /* Pill Search */
 .pill-search {
-  background: var(--card-bg-solid);
-  border-radius: 100px;
+  background: var(--bg-card);
+  border-radius: var(--radius-full);
   padding: 12px 20px;
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--neutral-200);
 }
 
 .pill-search input {
@@ -146,7 +628,7 @@ body {
 }
 
 .pill-search input::placeholder {
-  color: var(--text-muted);
+  color: var(--neutral-400);
 }
 
 /* Toast animations */
@@ -162,16 +644,6 @@ body {
   }
 }
 
-@keyframes shrink {
-  from {
-    width: 100%;
-  }
-
-  to {
-    width: 0%;
-  }
-}
-
 .animate-slide-in-right {
   animation: slide-in-right 0.3s ease-out;
 }
@@ -184,14 +656,15 @@ body {
 
 /* Product Tag */
 .product-tag {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--neutral-100);
   padding: 6px 12px;
-  border-radius: 100px;
+  border-radius: var(--radius-full);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  color: var(--neutral-600);
 }
 
 /* Color Dot */
@@ -209,5 +682,6 @@ body {
 }
 
 .color-dot.active {
-  border-color: var(--accent-dark);
+  border-color: var(--primary-electric);
+  box-shadow: var(--shadow-glow-primary);
 }

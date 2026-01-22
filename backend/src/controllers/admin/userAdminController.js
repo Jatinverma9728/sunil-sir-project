@@ -113,7 +113,6 @@ const createUser = async (req, res) => {
             password,
             role: role || 'user',
             avatar,
-            isEmailVerified: true, // Admin-created users are auto-verified
         });
 
         // Remove password from response
@@ -150,7 +149,7 @@ const updateUser = async (req, res) => {
             });
         }
 
-        const { name, email, role, avatar, isEmailVerified, password } = req.body;
+        const { name, email, role, avatar, password } = req.body;
 
         // Check if email is being changed and already exists
         if (email && email !== user.email) {
@@ -167,7 +166,6 @@ const updateUser = async (req, res) => {
         if (name) user.name = name;
         if (role) user.role = role;
         if (avatar !== undefined) user.avatar = avatar;
-        if (isEmailVerified !== undefined) user.isEmailVerified = isEmailVerified;
         if (password) user.password = password; // Will be hashed by pre-save hook
 
         await user.save();
@@ -240,7 +238,6 @@ const getUserStats = async (req, res) => {
         const totalUsers = await User.countDocuments();
         const adminUsers = await User.countDocuments({ role: 'admin' });
         const regularUsers = await User.countDocuments({ role: 'user' });
-        const verifiedUsers = await User.countDocuments({ isEmailVerified: true });
 
         // Get users created in last 30 days
         const thirtyDaysAgo = new Date();
@@ -253,7 +250,6 @@ const getUserStats = async (req, res) => {
                 totalUsers,
                 adminUsers,
                 regularUsers,
-                verifiedUsers,
                 newUsers,
             },
         });

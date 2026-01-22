@@ -44,7 +44,6 @@ passport.use(
                     user.googleId = googleId;
                     user.authProvider = 'google'; // Update provider
                     if (!user.avatar) user.avatar = avatar;
-                    user.isEmailVerified = true; // Google verifies emails
                     await user.save({ validateBeforeSave: false });
                     return done(null, user);
                 }
@@ -56,7 +55,6 @@ passport.use(
                     googleId,
                     authProvider: 'google',
                     avatar,
-                    isEmailVerified: true, // Google already verified the email
                     // Password is not set for OAuth users
                 });
 

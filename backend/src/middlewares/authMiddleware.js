@@ -57,6 +57,7 @@ const authorize = (...roles) => {
         }
 
         if (!roles.includes(req.user.role)) {
+            console.warn(`⛔ Authorization Failed: User ${req.user._id} (Role: ${req.user.role}) attempted to access protected route. Required: ${roles.join(', ')}`);
             return res.status(403).json({
                 success: false,
                 message: `User role '${req.user.role}' is not authorized to access this route`,

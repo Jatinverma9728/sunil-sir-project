@@ -1,7 +1,8 @@
 const User = require('../models/User');
+const EmailVerification = require('../models/EmailVerification');
 const { generateToken } = require('../utils/token');
+const { sendVerificationEmail } = require('../utils/email');
 const crypto = require('crypto');
-const { sendOTPEmail } = require('../utils/email');
 
 // Input sanitization helper
 const sanitizeInput = (str) => {
@@ -52,50 +53,55 @@ const register = async (req, res) => {
             name,
             email,
             password,
-        });
-
-        // Generate verification OTP and send email
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
-
-        user.otp = hashedOtp;
-        user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
-        user.otpPurpose = 'email-verification';
-        user.otpAttempts = 0;
-        user.lastOTPSent = Date.now();
-        await user.save({ validateBeforeSave: false });
-
-        // Send verification email (async, don't block response)
-        sendOTPEmail(email, otp, name).then(() => {
-            console.log(`✅ Verification email sent to ${email}`);
-        }).catch((err) => {
-            console.error('❌ Failed to send verification email:', err.message);
-            console.log('='.repeat(50));
-            console.log('EMAIL VERIFICATION OTP (Email failed)');
-            console.log('Email:', email);
-            console.log('OTP:', otp);
-            console.log('='.repeat(50));
+            isEmailVerified: false, // Default to unverified
         });
 
         // Generate token
+        // Generate token
         const token = generateToken(user._id);
+
+        // Generate verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const tokenHash = crypto
+            .createHash('sha256')
+            .update(verificationToken)
+            .digest('hex');
+
+        // Create verification record
+        await EmailVerification.create({
+            user: user._id,
+            email: user.email,
+            token: verificationToken,
+            tokenHash,
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+        });
+
+        // Send verification email
+        const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+        console.log('📧 Sending verification email to:', user.email);
+        console.log('🔗 Verification link:', verificationLink);
+        try {
+            await sendVerificationEmail(user.email, verificationLink, user.name);
+            console.log('✅ Verification email sent successfully to:', user.email);
+        } catch (emailError) {
+            console.error('❌ Failed to send verification email:', emailError.message);
+            console.error('Error details:', emailError);
+        }
 
         res.status(201).json({
             success: true,
-            message: 'User registered successfully. Please check your email to verify your account',
+            message: 'User registered successfully. Please check your email to verify your account.',
             data: {
                 user: {
                     id: user._id,
                     name: user.name,
                     email: user.email,
+                    isEmailVerified: user.isEmailVerified,
                     phone: user.phone,
                     address: user.address,
                     role: user.role,
-                    isEmailVerified: user.isEmailVerified,
                 },
                 token,
-                // In development, include OTP for testing
-                ...(process.env.NODE_ENV === 'development' && { verificationOtp: otp }),
             },
         });
     } catch (error) {
@@ -186,11 +192,11 @@ const login = async (req, res) => {
         const tokenExpiry = rememberMe ? '30d' : '7d';
         const token = generateToken(user._id, tokenExpiry);
 
-        // Set HttpOnly cookie
+        // Set HttpOnly cookie (false to allow frontend access for Authorization header if needed, but true is safer)
         const cookieOptions = {
-            httpOnly: true,
+            httpOnly: false, // Must be false so frontend can read it for Bearer token
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax for localhost dev
             maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000 // 30 days or 7 days
         };
 
@@ -248,7 +254,6 @@ const getProfile = async (req, res) => {
                     avatar: user.avatar,
                     phone: user.phone,
                     address: user.address,
-                    isEmailVerified: user.isEmailVerified,
                     createdAt: user.createdAt,
                 },
             },

@@ -1,4 +1,5 @@
 import { apiClient, ApiResponse } from './client';
+export { apiClient };
 
 // Types
 export interface LoginCredentials {
@@ -92,7 +93,7 @@ export const setAuthToken = (token: string, rememberMe: boolean = false): void =
     const days = rememberMe ? 30 : 7;
     expires.setDate(expires.getDate() + days);
 
-    document.cookie = `auth_token=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Strict`;
+    document.cookie = `auth_token=${token}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
 };
 
 /**

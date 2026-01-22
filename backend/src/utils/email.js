@@ -954,6 +954,124 @@ const sendPasswordChangeNotification = async (to, name = 'User') => {
     }
 };
 
+/**
+ * Send email verification link
+ */
+const sendVerificationEmail = async (to, verificationLink, name = 'User') => {
+    try {
+        console.log('📧 [Email] Sending verification email to:', to);
+        const transporter = createTransporter();
+        console.log('📧 [Email] Transporter created successfully');
+
+        const mailOptions = {
+            from: `"Flash" <${process.env.EMAIL_USER}>`,
+            to,
+            subject: 'Verify Your Email - Flash',
+            html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #1a2332 0%, #475569 100%); padding: 40px 20px; border-radius: 12px 12px 0 0; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">Verify Your Email</h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="color: #475569; font-size: 16px; margin: 0 0 20px 0;">Hi <strong>${name}</strong>,</p>
+                            
+                            <p style="color: #64748b; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">
+                                Welcome to Flash! To complete your registration and unlock full access to our platform, please verify your email address by clicking the button below.
+                            </p>
+                            
+                            <p style="color: #64748b; font-size: 15px; line-height: 1.6; margin: 0 0 30px 0;">
+                                This verification link will expire in <strong>24 hours</strong>.
+                            </p>
+                            
+                            <!-- CTA Button -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                                <tr>
+                                    <td style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 8px; padding: 0; text-align: center;">
+                                        <a href="${verificationLink}" style="color: #ffffff; text-decoration: none; display: inline-block; padding: 14px 40px; font-size: 16px; font-weight: 600; border-radius: 8px;">
+                                            Verify Email
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Divider -->
+                            <div style="border-top: 1px solid #e2e8f0; margin: 30px 0;"></div>
+                            
+                            <!-- Alternative Link -->
+                            <p style="color: #64748b; font-size: 13px; margin: 0 0 10px 0;">
+                                Or copy and paste this link in your browser:
+                            </p>
+                            <p style="color: #3b82f6; font-size: 12px; word-break: break-all; margin: 0 0 20px 0;">
+                                <a href="${verificationLink}" style="color: #3b82f6; text-decoration: none;">${verificationLink}</a>
+                            </p>
+                            
+                            <!-- Security Note -->
+                            <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 4px; margin: 20px 0;">
+                                <p style="color: #0c4a6e; font-size: 13px; margin: 0;">
+                                    <strong>Security Tip:</strong> If you didn't create this account, please ignore this email or contact our support team.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 20px 30px; border-top: 1px solid #e2e8f0; background-color: #f8fafc; border-radius: 0 0 12px 12px;">
+                            <p style="color: #94a3b8; font-size: 12px; text-align: center; margin: 0 0 10px 0;">
+                                © 2026 Flash. All rights reserved.
+                            </p>
+                            <p style="color: #cbd5e1; font-size: 11px; text-align: center; margin: 0;">
+                                <a href="${process.env.FRONTEND_URL}/privacy" style="color: #3b82f6; text-decoration: none;">Privacy Policy</a> | 
+                                <a href="${process.env.FRONTEND_URL}/terms" style="color: #3b82f6; text-decoration: none;">Terms of Service</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+            `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ [Email] Verification email sent successfully');
+        console.log('✅ [Email] Message ID:', info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error('❌ [Email] Failed to send verification email');
+        console.error('❌ [Email] Error message:', error.message);
+        console.error('❌ [Email] Error code:', error.code);
+        console.error('❌ [Email] Full error:', error);
+        throw error;  // Re-throw to be caught in authController
+    }
+};
+
+/**
+ * Send resend verification email (same template)
+ */
+const sendResendVerificationEmail = async (to, verificationLink, name = 'User') => {
+    return sendVerificationEmail(to, verificationLink, name);
+};
+
 module.exports = {
     sendOTPEmail,
     sendWelcomeEmail,
@@ -962,4 +1080,6 @@ module.exports = {
     sendShippingUpdateEmail,
     sendCourseEnrollmentEmail,
     sendPasswordChangeNotification,
+    sendVerificationEmail,
+    sendResendVerificationEmail,
 };

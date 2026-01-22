@@ -100,6 +100,15 @@ const orderSchema = new mongoose.Schema(
             required: true,
             default: 0,
         },
+        discountPrice: {
+            type: Number,
+            required: true,
+            default: 0,
+        },
+        coupon: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Coupon',
+        },
         totalPrice: {
             type: Number,
             required: true,
@@ -136,8 +145,22 @@ orderSchema.methods.calculateTotal = function () {
         (acc, item) => acc + item.price * item.quantity,
         0
     );
-    this.taxPrice = this.itemsPrice * 0.18; // 18% GST
-    this.totalPrice = this.itemsPrice + this.taxPrice + this.shippingPrice;
+    this.taxPrice = Math.round(this.itemsPrice * 0.10 * 100) / 100; // 10% GST
+    const taxableAmount = Math.max(0, this.itemsPrice - (this.discountPrice || 0));
+    // Re-calculate tax based on taxable amount? 
+    // Usually tax is on post-discount amount if discount is large. 
+    // But let's stick to the controller logic: tax is on post-discount.
+
+    // Controller logic: 
+    // const taxableAmount = Math.max(0, calculatedItemsPrice - calculatedDiscount);
+    // const calculatedTaxPrice = Math.round(taxableAmount * 0.10 * 100) / 100; 
+
+    // Update method to match:
+    const discount = this.discountPrice || 0;
+    const taxable = Math.max(0, this.itemsPrice - discount);
+    this.taxPrice = Math.round(taxable * 0.10 * 100) / 100;
+
+    this.totalPrice = taxable + this.taxPrice + this.shippingPrice;
 };
 
 const Order = mongoose.model('Order', orderSchema);

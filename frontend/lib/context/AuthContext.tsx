@@ -34,13 +34,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setToken(storedToken);
 
             if (storedToken) {
+                // Ensure ApiClient has the token set
+                authAPI.apiClient.setAuthToken(storedToken);
                 const response = await authAPI.getProfile();
                 setUser(response.data.user);
+            } else {
+                setLoading(false);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to load user:', error);
-            authAPI.removeAuthToken();
-            setToken(null);
+            // Only remove token if it was an auth error (401)
+            if (error?.status === 401) {
+                authAPI.removeAuthToken();
+                setToken(null);
+            }
         } finally {
             setLoading(false);
         }

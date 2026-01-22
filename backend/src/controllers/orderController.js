@@ -1,3 +1,4 @@
+const Coupon = require('../models/Coupon');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const User = require('../models/User');
@@ -9,25 +10,30 @@ const {
 } = require('../utils/payment');
 const { sendOrderConfirmationEmail } = require('../utils/email');
 
+// ... existing imports ...
+
 /**
  * @desc    Create new order
  * @route   POST /api/orders
  * @access  Private
  */
 const createOrder = async (req, res) => {
+    console.log('--- Create Order Request Started ---');
     try {
+        console.log('User:', req.user ? req.user._id : 'No User');
+        console.log('Body:', JSON.stringify(req.body, null, 2));
+
         const {
             orderItems,
             shippingAddress,
             paymentMethod,
-            itemsPrice,
-            taxPrice,
-            shippingPrice,
-            totalPrice,
+            itemsPrice, // These are ignored in favor of server calculation
+            couponCode
         } = req.body;
 
         // Validate required fields
         if (!orderItems || orderItems.length === 0) {
+            console.log('Error: No order items');
             return res.status(400).json({
                 success: false,
                 message: 'No order items provided',
@@ -35,6 +41,7 @@ const createOrder = async (req, res) => {
         }
 
         if (!shippingAddress) {
+            console.log('Error: No shipping address');
             return res.status(400).json({
                 success: false,
                 message: 'Shipping address is required',
@@ -42,13 +49,16 @@ const createOrder = async (req, res) => {
         }
 
         // Verify product availability and calculate prices server-side
+        console.log('Verifying products...');
         let calculatedItemsPrice = 0;
         const verifiedOrderItems = [];
 
         for (const item of orderItems) {
+            console.log(`Checking product: ${item.product}`);
             const product = await Product.findById(item.product);
 
             if (!product) {
+                console.log(`Product not found: ${item.product}`);
                 return res.status(404).json({
                     success: false,
                     message: `Product not found: ${item.product}`,
@@ -56,6 +66,7 @@ const createOrder = async (req, res) => {
             }
 
             if (!product.isActive) {
+                console.log(`Product inactive: ${product.title}`);
                 return res.status(400).json({
                     success: false,
                     message: `Product ${product.title} is not available`,
@@ -63,6 +74,7 @@ const createOrder = async (req, res) => {
             }
 
             if (product.stock < item.quantity) {
+                console.log(`Insufficient stock for ${product.title}`);
                 return res.status(400).json({
                     success: false,
                     message: `Insufficient stock for ${product.title}. Available: ${product.stock}`,
@@ -89,18 +101,83 @@ const createOrder = async (req, res) => {
             );
         }
 
+        console.log('Products verified. Calculated Items Price:', calculatedItemsPrice);
+
         // Calculate prices server-side
-        const calculatedTaxPrice = Math.round(calculatedItemsPrice * 0.18 * 100) / 100; // 18% GST
-        const calculatedShippingPrice = calculatedItemsPrice > 500 ? 0 : 50; // Free shipping over 500
-        const calculatedTotalPrice = calculatedItemsPrice + calculatedTaxPrice + calculatedShippingPrice;
+        let calculatedDiscount = 0;
+        let appliedCoupon = null;
+
+        // Apply Coupon if provided
+        if (couponCode) {
+            console.log(`Verifying coupon: ${couponCode}`);
+            const coupon = await Coupon.findOne({
+                code: couponCode.toUpperCase(),
+                isActive: true,
+                startDate: { $lte: new Date() },
+                endDate: { $gte: new Date() }
+            });
+
+            if (coupon) {
+                console.log('Coupon found:', coupon.code);
+                // Check usage limits
+                if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+                    console.log(`Coupon ${couponCode} exhausted`);
+                } else {
+                    // Check per-user limit
+                    const userUsage = coupon.usedBy.filter(u => u.user.toString() === req.user._id.toString()).length;
+                    if (coupon.perUserLimit && userUsage >= coupon.perUserLimit) {
+                        console.log(`Coupon ${couponCode} limit reached for user`);
+                    } else {
+                        // Check min purchase
+                        if (calculatedItemsPrice >= coupon.minPurchase) {
+                            if (coupon.discountType === 'percentage') {
+                                calculatedDiscount = (calculatedItemsPrice * coupon.discountValue) / 100;
+                                if (coupon.maxDiscount && calculatedDiscount > coupon.maxDiscount) {
+                                    calculatedDiscount = coupon.maxDiscount;
+                                }
+                            } else {
+                                calculatedDiscount = coupon.discountValue;
+                            }
+                            appliedCoupon = coupon._id;
+                            console.log('Coupon applied. Discount:', calculatedDiscount);
+                        } else {
+                            console.log('Coupon min purchase not met');
+                        }
+                    }
+                }
+            } else {
+                console.log('Coupon invalid or expired');
+            }
+        }
+
+        const taxableAmount = Math.max(0, calculatedItemsPrice - calculatedDiscount);
+        const calculatedTaxPrice = Math.round(taxableAmount * 0.10 * 100) / 100; // 10% GST
+        const calculatedShippingPrice = calculatedItemsPrice > 999 ? 0 : 99; // Free shipping over 999
+        const calculatedTotalPrice = Math.round((taxableAmount + calculatedTaxPrice + calculatedShippingPrice) * 100) / 100;
+
+        console.log('Final Totals:', {
+            items: calculatedItemsPrice,
+            discount: calculatedDiscount,
+            tax: calculatedTaxPrice,
+            shipping: calculatedShippingPrice,
+            total: calculatedTotalPrice
+        });
 
         // Create Razorpay order with verified total
         let razorpayOrder = null;
         if (paymentMethod === 'razorpay') {
-            razorpayOrder = await createRazorpayOrder(calculatedTotalPrice);
+            console.log('Creating Razorpay order...');
+            try {
+                razorpayOrder = await createRazorpayOrder(calculatedTotalPrice);
+                console.log('Razorpay order created:', razorpayOrder.id);
+            } catch (rpError) {
+                console.error('Razorpay Error:', rpError);
+                throw new Error('Payment gateway initialization failed');
+            }
         }
 
         // Create order with server-calculated prices
+        console.log('Saving order to DB...');
         const order = await Order.create({
             user: req.user._id,
             orderItems: verifiedOrderItems,
@@ -114,7 +191,11 @@ const createOrder = async (req, res) => {
             taxPrice: calculatedTaxPrice,
             shippingPrice: calculatedShippingPrice,
             totalPrice: calculatedTotalPrice,
+            discountPrice: calculatedDiscount,
+            coupon: appliedCoupon
         });
+
+        console.log('Order saved successfully:', order._id);
 
         res.status(201).json({
             success: true,
@@ -126,7 +207,8 @@ const createOrder = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error('Create order error:', error);
+        console.error('Create order error stack:', error.stack);
+        console.error('Create order error message:', error.message);
         res.status(500).json({
             success: false,
             message: 'Error creating order',
@@ -191,6 +273,19 @@ const verifyPayment = async (req, res) => {
                 product.stock -= item.quantity;
                 await product.save();
             }
+        }
+
+        // Update usage count for coupon
+        if (order.coupon) {
+            await Coupon.findByIdAndUpdate(order.coupon, {
+                $inc: { usedCount: 1 },
+                $push: {
+                    usedBy: {
+                        user: req.user._id,
+                        count: 1 // simplified, tracking individual uses
+                    }
+                }
+            });
         }
 
         await order.save();

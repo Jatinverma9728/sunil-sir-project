@@ -8,29 +8,43 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: async (req, file) => {
         const type = req.query.type || 'products';
+        let folder = `flash-ecommerce/${type}`;
 
-        return {
-            folder: `flash-ecommerce/${type}`, // Organize by type in Cloudinary
-            allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-            transformation: [
-                { width: 2000, height: 2000, crop: 'limit' }, // Max dimensions
-                { quality: 'auto:good' } // Automatic quality optimization
-            ],
-            public_id: `${Date.now()}-${Math.round(Math.random() * 1E9)}` // Unique filename
+        const isVideo = file.mimetype.startsWith('video/');
+        const isPDF = file.mimetype === 'application/pdf';
+
+        const params = {
+            folder: folder,
+            public_id: `${Date.now()}-${Math.round(Math.random() * 1E9)}`,
+            resource_type: isVideo ? 'video' : (isPDF ? 'raw' : 'image'), // vital for non-images
         };
+
+        if (!isVideo && !isPDF) {
+            params.allowed_formats = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            params.transformation = [
+                { width: 2000, height: 2000, crop: 'limit' },
+                { quality: 'auto:good' }
+            ];
+        }
+
+        return params;
     }
 });
 
-// File filter (same as before)
+// File filter
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
+    // Allowed extensions
+    const allowedExtensions = /jpeg|jpg|png|gif|webp|pdf|mp4/;
+    // Allowed mimetypes
+    const allowedMimeTypes = /image\/(jpeg|jpg|png|gif|webp)|application\/pdf|video\/mp4/;
+
+    const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedMimeTypes.test(file.mimetype);
 
     if (extname && mimetype) {
-        return cb(null, true);
+        cb(null, true);
     } else {
-        cb(new Error('Only image files are allowed!'), false);
+        cb(new Error('Unsupported file type! Allowed: Images, PDF, MP4'), false);
     }
 };
 
@@ -38,7 +52,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB max file size
+        fileSize: 50 * 1024 * 1024, // 50MB max file size (accommodates videos)
         files: 10 // Max 10 files at once
     },
     fileFilter: fileFilter

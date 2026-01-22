@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/context/CartContext";
 import { useAuth } from "@/lib/context/AuthContext";
-import { getAuthToken } from "@/lib/api/auth";
+import { getAuthToken, apiClient } from "@/lib/api/auth";
 import AddressForm from "@/components/checkout/AddressForm";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import PaymentMethod from "@/components/checkout/PaymentMethod";
@@ -36,7 +36,7 @@ interface OrderData {
 
 export default function CheckoutPage() {
     const router = useRouter();
-    const { items, getTotalPrice, clearCart } = useCart();
+    const { items, getTotalPrice, clearCart, getCartTotal, appliedCoupon } = useCart();
     const { user, loading: authLoading } = useAuth();
     const toast = useToast();
 
@@ -46,12 +46,8 @@ export default function CheckoutPage() {
     const [orderData, setOrderData] = useState<OrderData | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // Calculate totals
-    const subtotal = getTotalPrice();
-    const shipping = subtotal > 50 ? 0 : 10;
-    const tax = subtotal * 0.1;
-    const discount = 0;
-    const total = subtotal - discount + tax + shipping;
+    // Get centralized calculations
+    const { subtotal, tax, shipping, total, discount } = getCartTotal();
 
     // Check authentication on mount
     useEffect(() => {
@@ -89,7 +85,7 @@ export default function CheckoutPage() {
         setIsProcessing(true);
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
             const token = getAuthToken();
 
             if (!token) {
@@ -120,23 +116,16 @@ export default function CheckoutPage() {
                 itemsPrice: subtotal,
                 taxPrice: tax,
                 shippingPrice: shipping,
-                totalPrice: total
+                totalPrice: total,
+                discountPrice: discount,
+                couponCode: appliedCoupon?.code
             };
 
             console.log("Creating order:", orderPayload);
 
-            const response = await fetch(`${API_URL}/orders`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(orderPayload)
-            });
+            const result = await apiClient.post<any>('/orders', orderPayload, true);
 
-            const result = await response.json();
-
-            if (!response.ok || !result.success) {
+            if (!result.success) {
                 throw new Error(result.message || 'Failed to create order');
             }
 
@@ -178,22 +167,14 @@ export default function CheckoutPage() {
             const token = getAuthToken();
 
             // Verify payment on backend
-            const verifyResponse = await fetch(`${API_URL}/orders/${orderData.order._id}/verify`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    razorpayOrderId: response.razorpay_order_id,
-                    razorpayPaymentId: response.razorpay_payment_id,
-                    razorpaySignature: response.razorpay_signature,
-                })
-            });
+            // Verify payment on backend
+            const verifyResult = await apiClient.post<any>(`/orders/${orderData.order._id}/verify`, {
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+            }, true);
 
-            const verifyResult = await verifyResponse.json();
-
-            if (!verifyResponse.ok || !verifyResult.success) {
+            if (!verifyResult.success) {
                 throw new Error(verifyResult.message || 'Payment verification failed');
             }
 
@@ -436,6 +417,7 @@ export default function CheckoutPage() {
                             tax={tax}
                             discount={discount}
                             total={total}
+                            appliedCoupon={appliedCoupon}
                         />
                     </div>
                 </div>

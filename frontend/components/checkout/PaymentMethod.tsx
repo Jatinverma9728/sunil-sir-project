@@ -38,17 +38,30 @@ export default function PaymentMethod({
     onPaymentError,
     onCODPayment,
 }: PaymentMethodProps) {
-    const [selectedMethod, setSelectedMethod] = useState<string>("razorpay");
+    const [selectedMethod, setSelectedMethod] = useState<string>("card"); // Default to card
     const [processing, setProcessing] = useState(false);
     const [scriptLoaded, setScriptLoaded] = useState(false);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
 
+    // Consolidated payment methods into granular options
     const paymentMethods = [
         {
-            id: "razorpay",
-            name: "Razorpay",
-            description: "Credit/Debit Card, UPI, Netbanking",
+            id: "card",
+            name: "Credit / Debit Card",
+            description: "Visa, Mastercard, RuPay & more",
             icon: "💳",
+        },
+        {
+            id: "upi",
+            name: "UPI",
+            description: "Google Pay, PhonePe, Paytm & more",
+            icon: "📱",
+        },
+        {
+            id: "netbanking",
+            name: "Netbanking",
+            description: "All Indian banks supported",
+            icon: "🏦",
         },
         {
             id: "cod",
@@ -88,10 +101,16 @@ export default function PaymentMethod({
             },
             notes: {
                 order_id: orderId,
+                payment_method_selected: selectedMethod, // Pass the selected UI method for analytics if needed
             },
             theme: {
                 color: "#1a1a1a",
             },
+            // Pre-select payment method in Razorpay based on UI choice
+            // valid structure depends on Razorpay's config, often 'method' or 'config'
+            // For standard checkout, we can mostly guide user or letting them choose inside is fine too.
+            // Sending 'method' via prefill or similar is not standard in standard checkout.js options without custom config.
+            // We'll rely on global checkout for now, but UI distinction helps intent.
             handler: async function (response: {
                 razorpay_payment_id: string;
                 razorpay_order_id: string;
@@ -156,15 +175,18 @@ export default function PaymentMethod({
             return;
         }
 
-        if (selectedMethod === "razorpay") {
+        // Map UI selections to underlying payment flows
+        if (["card", "upi", "netbanking"].includes(selectedMethod)) {
             await handleRazorpayPayment();
         } else if (selectedMethod === "cod") {
             await handleCODPayment();
         }
     };
 
+    const isRazorpayMethod = ["card", "upi", "netbanking"].includes(selectedMethod);
+
     const isButtonDisabled = processing || !agreedToTerms ||
-        (selectedMethod === "razorpay" && (!razorpayKeyId || !razorpayOrderId));
+        (isRazorpayMethod && (!razorpayKeyId || !razorpayOrderId));
 
     return (
         <div className="bg-white rounded-2xl p-8 shadow-sm">
@@ -207,13 +229,14 @@ export default function PaymentMethod({
             </div>
 
             {/* Razorpay Info */}
-            {selectedMethod === "razorpay" && (
+            {isRazorpayMethod && (
                 <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm text-blue-900 mb-2 font-medium">
                         🔒 Secure Payment via Razorpay
                     </p>
                     <p className="text-xs text-blue-700">
-                        Pay securely using Credit/Debit Card, UPI, Netbanking, or Wallet. Your payment is protected by Razorpay's secure payment gateway.
+                        You selected <strong>{paymentMethods.find(m => m.id === selectedMethod)?.name}</strong>.
+                        You will be redirected to Razorpay's secure gateway to complete the payment.
                     </p>
                     {(!razorpayKeyId || !razorpayOrderId) && (
                         <p className="text-xs text-orange-600 mt-2">
@@ -274,7 +297,7 @@ export default function PaymentMethod({
                     </>
                 ) : (
                     <>
-                        {selectedMethod === "razorpay" && "Pay"}
+                        {isRazorpayMethod && "Pay"}
                         {selectedMethod === "cod" && "Place Order"}
                         {" "}₹{totalAmount.toFixed(2)}
                     </>
