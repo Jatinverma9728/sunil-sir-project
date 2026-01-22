@@ -223,10 +223,13 @@ const createOrder = async (req, res) => {
  * @access  Private
  */
 const verifyPayment = async (req, res) => {
+    console.log('--- Verify Payment Started ---');
     try {
         const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+        console.log('Params:', { razorpayOrderId, razorpayPaymentId, signatureLength: razorpaySignature?.length });
 
         const order = await Order.findById(req.params.id);
+        console.log('Order found:', order ? order._id : 'null');
 
         if (!order) {
             return res.status(404).json({
@@ -236,6 +239,7 @@ const verifyPayment = async (req, res) => {
         }
 
         // Verify user owns this order
+        console.log('Verifying user ownership:', order.user, req.user._id);
         if (order.user.toString() !== req.user._id.toString()) {
             return res.status(403).json({
                 success: false,
@@ -244,11 +248,13 @@ const verifyPayment = async (req, res) => {
         }
 
         // Verify signature (mock)
+        console.log('Calling verifyRazorpaySignature...');
         const isValid = verifyRazorpaySignature({
             razorpayOrderId,
             razorpayPaymentId,
             razorpaySignature,
         });
+        console.log('Signature valid:', isValid);
 
         if (!isValid) {
             order.paymentInfo.status = 'failed';
@@ -266,6 +272,7 @@ const verifyPayment = async (req, res) => {
         order.paymentInfo.status = 'completed';
         order.orderStatus = 'processing';
 
+        console.log('Reducing stock...');
         // Reduce product stock
         for (const item of order.orderItems) {
             const product = await Product.findById(item.product);
@@ -275,6 +282,7 @@ const verifyPayment = async (req, res) => {
             }
         }
 
+        console.log('Updating coupon...');
         // Update usage count for coupon
         if (order.coupon) {
             await Coupon.findByIdAndUpdate(order.coupon, {
@@ -289,6 +297,7 @@ const verifyPayment = async (req, res) => {
         }
 
         await order.save();
+        console.log('Order saved.');
 
         // Send order confirmation email
         try {
@@ -309,6 +318,7 @@ const verifyPayment = async (req, res) => {
             data: order,
         });
     } catch (error) {
+        console.error('Create order error stack:', error.stack);
         console.error('Verify payment error:', error);
         res.status(500).json({
             success: false,

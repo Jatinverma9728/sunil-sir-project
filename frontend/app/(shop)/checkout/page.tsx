@@ -283,7 +283,10 @@ export default function CheckoutPage() {
                     <div className="lg:col-span-2">
                         {step === "address" && (
                             <>
-                                <AddressForm onSubmit={handleAddressSubmit} />
+                                <AddressForm
+                                    onSubmit={handleAddressSubmit}
+                                    initialAddress={shippingAddress || undefined}
+                                />
 
                                 {/* Delivery Options */}
                                 <div className="mt-6 bg-white rounded-2xl p-8 shadow-sm">

@@ -105,10 +105,15 @@ const verifyRazorpaySignature = (params) => {
             .digest('hex');
 
         // Secure comparison to prevent timing attacks
-        const isValid = crypto.timingSafeEqual(
-            Buffer.from(razorpaySignature, 'hex'),
-            Buffer.from(expectedSignature, 'hex')
-        );
+        const signatureBuffer = Buffer.from(razorpaySignature, 'hex');
+        const expectedBuffer = Buffer.from(expectedSignature, 'hex');
+
+        if (signatureBuffer.length !== expectedBuffer.length) {
+            console.error(`❌ Signature length mismatch: Received ${signatureBuffer.length}, Expected ${expectedBuffer.length}`);
+            return false;
+        }
+
+        const isValid = crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
 
         if (isValid) {
             console.log(`✅ Payment signature verified for order: ${razorpayOrderId}`);
