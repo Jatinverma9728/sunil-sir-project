@@ -225,9 +225,12 @@ const createApp = () => {
     app.use('/api/products', apiLimiter, productRoutes);
     app.use('/api/orders', paymentLimiter, orderRoutes); // Payment limiter for orders
     app.use('/api/courses', apiLimiter, courseRoutes);
+    app.use('/api/admin/auth', apiLimiter, require('./routes/adminAuthRoutes')); // Admin auth routes
     app.use('/api/admin', adminLimiter, adminRoutes); // Admin limiter
     app.use('/api/upload', apiLimiter, uploadRoutes); // Upload routes
     app.use('/api/reviews', apiLimiter, reviewRoutes); // Review routes
+    app.use('/api/cart', apiLimiter, require('./routes/cartRoutes')); // Cart routes
+    app.use('/api/wishlist', apiLimiter, require('./routes/wishlistRoutes')); // Wishlist routes
     app.use('/api', apiLimiter, promotionsRoutes); // Public promotions routes (banners, announcements, coupons)
     // app.use('/api/users', userRoutes);
 

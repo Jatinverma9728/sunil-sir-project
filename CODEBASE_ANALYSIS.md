@@ -3,7 +3,7 @@
 
 **Generated:** January 21, 2026  
 **Stack:** Next.js 16 (Frontend) + Express.js + MongoDB (Backend)  
-**Status:** 70% Complete - Core features working, security & payment integration pending
+**Status:** 80% Complete - Core features working, Cart & Checkout Integrated, Backend Cart & Wishlist Persistence Added
 
 ---
 
@@ -346,7 +346,7 @@ project/
 ---
 
 #### 6. **Additional Models**
-- **Cart.ts** - ❌ To be implemented
+- **Cart.ts** - ✅ Implemented & Syncs with User Account
 - **Category.js** - ✅ Category management
 - **Coupon.js** - ✅ Discount code system
 - **Enrollment.js** - ✅ Course enrollments

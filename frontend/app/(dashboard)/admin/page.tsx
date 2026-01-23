@@ -216,7 +216,7 @@ export default function AdminDashboard() {
             const result = await getAdminProducts(productsPage, 10);
             if (result.success) {
                 setProducts(result.data || []);
-                setProductsTotalPages(result.pages || 1);
+                setProductsTotalPages(result.pagination?.totalPages || 1);
             }
         } catch (error) {
             console.error("Error fetching products:", error);
@@ -255,7 +255,7 @@ export default function AdminDashboard() {
             const result = await getAdminOrders(ordersPage, 10, filters);
             if (result.success) {
                 setOrders(result.data || []);
-                setOrdersTotalPages(result.pages || 1);
+                setOrdersTotalPages(result.pagination?.totalPages || 1);
             }
         } catch (error) {
             console.error("Error fetching orders:", error);
@@ -280,7 +280,7 @@ export default function AdminDashboard() {
             const result = await getAdminCourses(coursesPage, 10);
             if (result.success) {
                 setCourses(result.data || []);
-                setCoursesTotalPages(result.pages || 1);
+                setCoursesTotalPages(result.pagination?.totalPages || 1);
             }
         } catch (error) {
             console.error("Error fetching courses:", error);
@@ -306,7 +306,7 @@ export default function AdminDashboard() {
             const result = await getAdminUsers(usersPage, 10, usersSearch);
             if (result.success) {
                 setUsers(result.data || []);
-                setUsersTotalPages(result.pages || 1);
+                setUsersTotalPages(result.pagination?.totalPages || 1);
             }
         } catch (error) {
             console.error("Error fetching users:", error);

@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useToast } from "@/components/ui/Toast";
-import { ApiClient } from "@/lib/api/client";
+import { apiClient } from "@/lib/api/client";
 
 export default function VerifyEmailPage() {
     const router = useRouter();
     const { user, token } = useAuth();
     const toast = useToast();
-    const api = new ApiClient(token);
+    const api = apiClient;
 
     const [loading, setLoading] = useState(false);
     const [resendLoading, setResendLoading] = useState(false);
@@ -33,9 +33,9 @@ export default function VerifyEmailPage() {
         const fetchStatus = async () => {
             try {
                 setLoading(true);
-                const response = await api.get("/verification/status");
-                setVerificationStatus(response.isEmailVerified ? "verified" : "pending");
-                setMessage(response.email || "");
+                const response = await api.get<{ isEmailVerified: boolean; email: string }>("/verification/status");
+                setVerificationStatus(response.data?.isEmailVerified ? "verified" : "pending");
+                setMessage(response.data?.email || "");
             } catch (error: any) {
                 setVerificationStatus("pending");
                 setMessage(user?.email || "");

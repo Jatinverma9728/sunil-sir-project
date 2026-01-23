@@ -155,18 +155,20 @@ export default function CheckoutPage() {
         razorpay_order_id: string;
         razorpay_signature: string;
     }) => {
+        console.log("Payment success callback received:", response);
+
         if (!orderData) {
             toast.error("Order data not found");
+            console.error("Order data missing in payment success");
             return;
         }
 
         setIsProcessing(true);
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+            console.log("Verifying payment for order:", orderData.order._id);
             const token = getAuthToken();
 
-            // Verify payment on backend
             // Verify payment on backend
             const verifyResult = await apiClient.post<any>(`/orders/${orderData.order._id}/verify`, {
                 razorpayOrderId: response.razorpay_order_id,
@@ -174,17 +176,20 @@ export default function CheckoutPage() {
                 razorpaySignature: response.razorpay_signature,
             }, true);
 
+            console.log("Payment verification result:", verifyResult);
+
             if (!verifyResult.success) {
+                console.error("Verification failed success check:", verifyResult);
                 throw new Error(verifyResult.message || 'Payment verification failed');
             }
 
-            console.log("Payment verified:", verifyResult);
+            console.log("Payment verified, redirecting...");
 
             // Store order for success page
             sessionStorage.setItem('lastOrder', JSON.stringify(verifyResult.data || orderData.order));
 
             // Clear cart and redirect
-            clearCart();
+            await clearCart(); // Await clearCart in case it async fails
             toast.success("Payment successful! Your order has been placed.");
             router.push('/order-success');
 

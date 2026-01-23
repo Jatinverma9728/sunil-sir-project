@@ -30,7 +30,7 @@ interface RequestConfig extends RequestInit {
     retries?: number;
 }
 
-class ApiClient {
+export class ApiClient {
     private baseURL: string;
     private defaultHeaders: HeadersInit;
     private csrfToken: string | null = null;

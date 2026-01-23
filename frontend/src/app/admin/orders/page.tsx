@@ -24,7 +24,7 @@ export default function AdminOrdersPage() {
 
         if (response.success) {
             setOrders(response.data || []);
-            setTotalPages(response.totalPages || 1);
+            setTotalPages(response.pagination?.totalPages || 1);
         }
         setLoading(false);
     };
@@ -77,8 +77,8 @@ export default function AdminOrdersPage() {
                                     setCurrentPage(1);
                                 }}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${statusFilter === status
-                                        ? "bg-gray-900 dark:bg-gray-700 text-white"
-                                        : "bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800"
+                                    ? "bg-gray-900 dark:bg-gray-700 text-white"
+                                    : "bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800"
                                     }`}
                             >
                                 {status}
@@ -190,8 +190,8 @@ export default function AdminOrdersPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span
                                                 className={`inline-flex px-2 py-1 text-xs font-medium rounded-full capitalize ${order.paymentInfo.status === "paid"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-yellow-100 text-yellow-800"
+                                                    ? "bg-green-100 text-green-800"
+                                                    : "bg-yellow-100 text-yellow-800"
                                                     }`}
                                             >
                                                 {order.paymentInfo.status}

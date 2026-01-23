@@ -59,9 +59,17 @@ const getToast = (): { success: ToastFunction; info: ToastFunction } | null => {
     }
 };
 
+
+// ... (imports remain similar, assume 'useAuth' is imported)
+import { useAuth } from "./AuthContext";
+import { cartApi } from "../api/cart";
+
+// ... (Interface definitions same)
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [items, setItems] = useState<CartItem[]>([]);
     const [isLoaded, setIsLoaded] = useState(false);
+    const { user, loading: authLoading } = useAuth(); // Get auth state
 
     const [couponCode, setCouponCode] = useState<string>("");
     const [appliedCoupon, setAppliedCoupon] = useState<{
@@ -71,80 +79,159 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         discount: number;
     } | null>(null);
 
-    // Load cart and coupon from localStorage on mount
+    // Initial load logic
     useEffect(() => {
-        const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-        const storedCoupon = localStorage.getItem('cart_coupon');
-        if (storedCart) {
-            try {
-                const parsedCart = JSON.parse(storedCart);
-                setItems(parsedCart);
-            } catch (error) {
-                console.error('Failed to parse cart from localStorage:', error);
-            }
-        }
-        if (storedCoupon) {
-            try {
-                const parsedCoupon = JSON.parse(storedCoupon);
-                setAppliedCoupon(parsedCoupon);
-                setCouponCode(parsedCoupon.code);
-            } catch (error) {
-                console.error('Failed to parse coupon from localStorage:', error);
-            }
-        }
-        setIsLoaded(true);
-    }, []);
+        // If auth is loading, wait
+        if (authLoading) return;
 
-    // Save cart and coupon to localStorage
+        const loadCart = async () => {
+            const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+            let localItems: CartItem[] = [];
+
+            if (storedCart) {
+                try {
+                    localItems = JSON.parse(storedCart);
+                } catch (error) {
+                    console.error('Failed to parse cart from localStorage:', error);
+                }
+            }
+
+            if (user) {
+                // Logged in: Fetch backend cart
+                try {
+                    // Start sync if local items exist
+                    if (localItems.length > 0) {
+                        try {
+                            const syncRes = await cartApi.syncCart(localItems);
+                            if (syncRes.success && syncRes.data) {
+                                setItems(syncRes.data.items); // Fixed: Access res.data.items
+                                // Clear local storage after sync
+                                localStorage.removeItem(CART_STORAGE_KEY);
+                            }
+                        } catch (syncErr) {
+                            console.error("Sync cart failed", syncErr);
+                            // Fallback to fetching remote if sync fails? 
+                            // Or keep local? Let's just create a merge view? 
+                            // For simplicity, just fetch backend cart if sync failed
+                            const res = await cartApi.getCart();
+                            if (res.success && res.data) setItems(res.data.items);
+                        }
+                    } else {
+                        // Just fetch
+                        const res = await cartApi.getCart();
+                        if (res.success && res.data) setItems(res.data.items);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch backend cart:", error);
+                    // Fallback to local items if backend fails?
+                    // Better to show empty or error toast. 
+                    // But if fetching failed, maybe network error.
+                    // Let's keep existing items if any, but setItems([]) is safer if we want to avoid desync
+                    // Or keep local view
+                }
+            } else {
+                // Guest: Use local items
+                setItems(localItems);
+            }
+
+            // Load coupon (local only for now, unless we persist coupon in backend too - Task doesn't specify coupon persistence)
+            const storedCoupon = localStorage.getItem('cart_coupon');
+            if (storedCoupon) {
+                try {
+                    const parsedCoupon = JSON.parse(storedCoupon);
+                    setAppliedCoupon(parsedCoupon);
+                    setCouponCode(parsedCoupon.code);
+                } catch (error) {
+                    console.error('Failed to parse coupon from localStorage:', error);
+                }
+            }
+
+            setIsLoaded(true);
+        };
+
+        loadCart();
+    }, [user, authLoading]);
+
+    // Save cart to localStorage ONLY if Guest
     useEffect(() => {
-        if (isLoaded) {
+        if (isLoaded && !user) {
             localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+        }
+
+        // Always persist coupon locally for now (simplified)
+        if (isLoaded) {
             if (appliedCoupon) {
                 localStorage.setItem('cart_coupon', JSON.stringify(appliedCoupon));
             } else {
                 localStorage.removeItem('cart_coupon');
             }
         }
-    }, [items, appliedCoupon, isLoaded]);
+    }, [items, appliedCoupon, isLoaded, user]);
 
-    const addToCart = useCallback((product: any, quantity: number = 1) => {
+    const addToCart = useCallback(async (product: any, quantity: number = 1) => {
         const toast = getToast();
 
-        setItems((prevItems) => {
-            const existingItem = prevItems.find((item) => item.product._id === product._id);
+        // Optimistic UI update or wait for API?
+        // Let's wait for API if logged in, to ensure stock/validation? 
+        // Or Optimistic for speed.
+        // Let's go with Optimistic for Guest, API for User to verify persistence.
 
-            if (existingItem) {
-                return prevItems.map((item) =>
-                    item.product._id === product._id
-                        ? { ...item, quantity: item.quantity + quantity }
-                        : item
-                );
-            } else {
-                return [...prevItems, { product, quantity }];
+        if (user) {
+            try {
+                // API Call
+                const res = await cartApi.addToCart(product._id || product.id, quantity);
+                if (res.success && res.data) {
+                    setItems(res.data.items); // Backend returns full updated cart items usually
+                    toast?.success(`${product.title} added to cart! 🛒`);
+                } else {
+                    toast?.info(res.message || "Could not add to cart");
+                }
+            } catch (error) {
+                console.error("Add to cart API error:", error);
+                toast?.info("Failed to add to cart. Please try again.");
             }
-        });
-
-        // Show toast
-        const existingItem = items.find((item) => item.product._id === product._id);
-        if (existingItem) {
-            toast?.success(`Updated ${product.title} quantity in cart`);
         } else {
+            // Guest Logic (Local)
+            setItems((prevItems) => {
+                const existingItem = prevItems.find((item) => item.product._id === product._id);
+                if (existingItem) {
+                    return prevItems.map((item) =>
+                        item.product._id === product._id
+                            ? { ...item, quantity: item.quantity + quantity }
+                            : item
+                    );
+                } else {
+                    return [...prevItems, { product, quantity }];
+                }
+            });
             toast?.success(`${product.title} added to cart! 🛒`);
         }
-    }, [items]);
+    }, [items, user]);
 
-    const removeFromCart = useCallback((productId: string) => {
+    const removeFromCart = useCallback(async (productId: string) => {
+        const toast = getToast();
         const item = items.find((i) => i.product._id === productId);
 
-        setItems((prevItems) => prevItems.filter((item) => item.product._id !== productId));
-
-        if (item) {
-            const toast = getToast();
-            toast?.info(`${item.product.title} removed from cart`);
+        if (user) {
+            try {
+                const res = await cartApi.removeItem(productId);
+                if (res.success && res.data) {
+                    setItems(res.data.items);
+                    toast?.info(`${item?.product?.title || 'Item'} removed from cart`);
+                }
+            } catch (error) {
+                console.error("Remove cart item API error:", error);
+            }
+        } else {
+            setItems((prevItems) => prevItems.filter((item) => item.product._id !== productId));
+            if (item) {
+                toast?.info(`${item.product.title} removed from cart`);
+            }
         }
-    }, [items]);
+    }, [items, user]);
 
-    const updateQuantity = useCallback((productId: string, quantity: number) => {
+    const updateQuantity = useCallback(async (productId: string, quantity: number) => {
+        const toast = getToast();
         if (quantity <= 0) {
             removeFromCart(productId);
             return;
@@ -152,25 +239,45 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
         const item = items.find((i) => i.product._id === productId);
 
-        setItems((prevItems) =>
-            prevItems.map((item) =>
-                item.product._id === productId ? { ...item, quantity } : item
-            )
-        );
+        if (user) {
+            try {
+                const res = await cartApi.updateItem(productId, quantity);
+                if (res.success && res.data) {
+                    setItems(res.data.items);
+                    toast?.info(`Cart updated: ${item?.product?.title} × ${quantity}`);
+                }
+            } catch (error) {
+                console.error("Update cart item API error:", error);
+            }
+        } else {
+            setItems((prevItems) =>
+                prevItems.map((item) =>
+                    item.product._id === productId ? { ...item, quantity } : item
+                )
+            );
 
-        if (item) {
-            const toast = getToast();
-            toast?.info(`Cart updated: ${item.product.title} × ${quantity}`);
+            if (item) {
+                toast?.info(`Cart updated: ${item.product.title} × ${quantity}`);
+            }
         }
-    }, [items, removeFromCart]);
+    }, [items, removeFromCart, user]);
 
-    const clearCart = useCallback(() => {
-        setItems([]);
+    const clearCart = useCallback(async () => {
+        if (user) {
+            try {
+                await cartApi.clearCart();
+                setItems([]);
+            } catch (e) {
+                console.error("Clear cart error", e);
+            }
+        } else {
+            setItems([]);
+        }
         setAppliedCoupon(null);
         setCouponCode("");
-        // Toast handled in component if needed, or re-add here if consistent with design
-    }, []);
+    }, [user]);
 
+    // ... (rest of calculations same) ...
     const getTotalItems = useCallback((): number => {
         return items.reduce((total, item) => total + item.quantity, 0);
     }, [items]);
@@ -184,14 +291,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const getCartTotal = useCallback(() => {
         const subtotal = getTotalPrice();
         const couponDiscount = appliedCoupon?.discount || 0;
-
-        // Shipping Logic: Free if > 999, else 99
-        // Note: Check if subtotal is after discount or before. Usually shipping is on subtotal.
         const shipping = subtotal > 999 ? 0 : 99;
-
         const taxableAmount = Math.max(0, subtotal - couponDiscount);
         const tax = taxableAmount * 0.1; // 10% tax
-
         const total = taxableAmount + tax + shipping;
 
         return {
@@ -225,7 +327,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         clearCart,
         getTotalItems,
         getTotalPrice,
-        // New exports
         appliedCoupon,
         couponCode,
         applyCoupon,
@@ -239,6 +340,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
+
 
 export const useCart = () => {
     const context = useContext(CartContext);

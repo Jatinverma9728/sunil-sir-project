@@ -32,6 +32,77 @@ const protect = async (req, res, next) => {
 
         // Attach user to request object
         req.user = user;
+
+        // Admin Session Checks
+        if (user.role === 'admin') {
+            const AdminSession = require('../models/AdminSession');
+            let session = await AdminSession.findOne({ user: user._id });
+
+            // If no session exists, create one (lazy creation)
+            if (!session) {
+                session = await AdminSession.create({
+                    user: user._id,
+                    lastActivity: new Date(),
+                    isLocked: false,
+                    ipAddress: req.ip,
+                    deviceInfo: req.headers['user-agent']
+                });
+            } else {
+                // Check if session is locked
+                if (session.isLocked) {
+                    // Allow specific endpoints to bypass lock (unlock, logout, status)
+                    // We can check req.path, but safer to let controller/router handle it?
+                    // BUT: protect runs BEFORE router.
+                    // SO: We must check URL here or use a separate middleware for 'strict lock'.
+                    // Strategy: Mark request as locked, let `authorize` or route handler decide? 
+                    // Better: If locked, return 423 immediately UNLESS it is an allowed path.
+                    // The allowed paths are: /api/admin/auth/unlock, /api/admin/auth/logout, /api/admin/auth/status
+
+                    const allowedPaths = ['/api/admin/auth/unlock', '/api/admin/auth/logout', '/api/admin/auth/status'];
+                    // req.originalUrl includes the base path
+                    const isAllowed = allowedPaths.some(path => req.originalUrl.includes(path));
+
+                    if (!isAllowed) {
+                        return res.status(423).json({
+                            success: false,
+                            message: 'Session locked due to inactivity',
+                            code: 'SESSION_LOCKED'
+                        });
+                    }
+                }
+
+                // Update activity (unless locked)
+                if (!session.isLocked) {
+                    const now = new Date();
+                    const timeDiff = now - session.lastActivity;
+
+                    // Lock if inactive for > 15 minutes (15 * 60 * 1000 = 900000 ms)
+                    // Make this configurable if possible, for now hardcoded 15m
+                    if (timeDiff > 15 * 60 * 1000) {
+                        session.isLocked = true;
+                        session.save();
+
+                        // Check if we should block NOW? Yes.
+                        // Same allow-list check needed if we just locked it.
+                        const allowedPaths = ['/api/admin/auth/unlock', '/api/admin/auth/logout', '/api/admin/auth/status'];
+                        const isAllowed = allowedPaths.some(path => req.originalUrl.includes(path));
+
+                        if (!isAllowed) {
+                            return res.status(423).json({
+                                success: false,
+                                message: 'Session locked due to inactivity',
+                                code: 'SESSION_LOCKED'
+                            });
+                        }
+                    } else {
+                        // Just update activity
+                        session.lastActivity = now;
+                        session.save();
+                    }
+                }
+            }
+        }
+
         next();
     } catch (error) {
         console.error('Auth middleware error:', error);
