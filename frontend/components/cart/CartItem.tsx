@@ -28,7 +28,8 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
     return (
         <div
             className={`
-                bg-white rounded-3xl p-6 flex gap-6 
+                bg-white rounded-3xl p-4 sm:p-6 
+                flex flex-col sm:flex-row gap-4 sm:gap-6 
                 border border-gray-100
                 transition-all duration-300
                 ${isHovered ? 'shadow-lg border-gray-200' : 'shadow-sm'}
@@ -39,7 +40,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
             {/* Product Image */}
             <Link
                 href={`/products/${product._id}`}
-                className="w-28 h-28 bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden group"
+                className="w-full sm:w-28 h-32 sm:h-28 bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden group"
             >
                 {productImage ? (
                     <img
@@ -63,8 +64,8 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                     </h3>
                 </Link>
 
-                {/* Quantity Controls */}
-                <div className="flex items-center gap-4">
+                {/* Quantity Controls and Price on Mobile */}
+                <div className="flex items-center justify-between sm:justify-start gap-4">
                     <div className="flex items-center border border-gray-200 rounded-full overflow-hidden">
                         <button
                             onClick={() => onUpdateQuantity(product._id, quantity - 1)}
@@ -86,6 +87,13 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                         </button>
                     </div>
 
+                    {/* Price on Mobile */}
+                    <div className="sm:hidden text-right">
+                        <p className="text-lg font-semibold text-gray-900">
+                            ₹{itemTotal.toFixed(2)}
+                        </p>
+                    </div>
+
                     {/* Remove Button */}
                     <button
                         onClick={() => onRemove(product._id)}
@@ -98,8 +106,8 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                 </div>
             </div>
 
-            {/* Price Info */}
-            <div className="text-right flex flex-col justify-center">
+            {/* Price Info - Desktop only */}
+            <div className="hidden sm:flex text-right flex-col justify-center">
                 <p className="text-xl font-semibold text-gray-900">
                     ₹{itemTotal.toFixed(2)}
                 </p>

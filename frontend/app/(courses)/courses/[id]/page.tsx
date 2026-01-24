@@ -10,27 +10,29 @@ interface Course {
     description: string;
     instructor: {
         name: string;
-        title: string;
-        bio: string;
-        rating: number;
-        students: number;
-        courses: number;
+        title?: string;
+        bio?: string;
+        rating?: number;
+        students?: number;
+        courses?: number;
     };
     price: number;
     originalPrice?: number;
-    duration: number;
-    rating: number;
-    reviews: number;
-    students: number;
+    duration?: number;
+    rating: number | { average: number; count: number };
+    reviews?: number;
+    students?: number;
+    enrolledStudents?: number;
     level: string;
     category: string;
-    lessons: number;
-    language: string;
-    lastUpdated: string;
+    lessons: number | Array<{ _id: string; title: string; duration: number; isFree?: boolean }>;
+    language?: string;
+    lastUpdated?: string;
     isPurchased?: boolean;
-    whatYouLearn: string[];
-    requirements: string[];
-    syllabus: Array<{
+    whatYouLearn?: string[];
+    whatYouWillLearn?: string[];
+    requirements?: string[];
+    syllabus?: Array<{
         title: string;
         lessons: number;
         duration: string;
@@ -40,7 +42,7 @@ interface Course {
             isPreview?: boolean;
         }>;
     }>;
-    features: string[];
+    features?: string[];
 }
 
 export default function CourseDetailPage() {
@@ -243,20 +245,20 @@ This course is designed to take you from zero to hero in web development. You'll
                         <div className="flex flex-wrap items-center gap-6 mb-6">
                             <div className="flex items-center gap-2">
                                 <span className="text-yellow-400 text-lg">★</span>
-                                <span className="font-bold">{course.rating}</span>
-                                <span className="text-gray-300">({course.reviews.toLocaleString()} reviews)</span>
+                                <span className="font-bold">{typeof course.rating === 'number' ? course.rating : course.rating?.average || 0}</span>
+                                <span className="text-gray-300">({(course.reviews || (typeof course.rating === 'object' ? course.rating?.count : 0) || 0).toLocaleString()} reviews)</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span>👥</span>
-                                <span>{course.students.toLocaleString()} students</span>
+                                <span>{(course.students || course.enrolledStudents || 0).toLocaleString()} students</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span>🌐</span>
-                                <span>{course.language}</span>
+                                <span>{course.language || 'English'}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span>📅</span>
-                                <span>Updated {course.lastUpdated}</span>
+                                <span>Updated {course.lastUpdated || 'Recently'}</span>
                             </div>
                         </div>
 
@@ -267,7 +269,7 @@ This course is designed to take you from zero to hero in web development. You'll
                             </div>
                             <div>
                                 <p className="text-sm text-gray-300">Created by</p>
-                                <p className="font-semibold">{course.instructor.name}</p>
+                                <p className="font-semibold">{course.instructor?.name || 'Instructor'}</p>
                             </div>
                         </div>
                     </div>
@@ -282,7 +284,7 @@ This course is designed to take you from zero to hero in web development. You'll
                         <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 mb-8">
                             <h2 className="text-2xl font-bold text-gray-900 mb-6">What you'll learn</h2>
                             <div className="grid md:grid-cols-2 gap-4">
-                                {course.whatYouLearn.map((item, index) => (
+                                {(course.whatYouLearn || course.whatYouWillLearn || []).map((item: string, index: number) => (
                                     <div key={index} className="flex items-start gap-3">
                                         <span className="text-green-500 mt-1">✓</span>
                                         <span className="text-gray-700">{item}</span>
@@ -295,11 +297,11 @@ This course is designed to take you from zero to hero in web development. You'll
                         <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 mb-8">
                             <h2 className="text-2xl font-bold text-gray-900 mb-2">Course Content</h2>
                             <p className="text-gray-600 mb-6">
-                                {course.syllabus.length} sections • {course.lessons} lectures • {course.duration}h total length
+                                {(course.syllabus?.length || 0)} sections • {typeof course.lessons === 'number' ? course.lessons : (Array.isArray(course.lessons) ? course.lessons.length : 0)} lectures • {course.duration || 0}h total length
                             </p>
 
                             <div className="space-y-2">
-                                {course.syllabus.map((section, index) => (
+                                {(course.syllabus || []).map((section: { title: string; lessons: number; duration: string; lectures: Array<{ title: string; duration: string; isPreview?: boolean }> }, index: number) => (
                                     <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
                                         <button
                                             onClick={() => toggleSection(index)}
@@ -351,7 +353,7 @@ This course is designed to take you from zero to hero in web development. You'll
                         <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 mb-8">
                             <h2 className="text-2xl font-bold text-gray-900 mb-6">Requirements</h2>
                             <ul className="space-y-3">
-                                {course.requirements.map((req, index) => (
+                                {(course.requirements || []).map((req: string, index: number) => (
                                     <li key={index} className="flex items-start gap-3 text-gray-700">
                                         <span className="text-gray-400 mt-1">•</span>
                                         <span>{req}</span>
@@ -393,7 +395,7 @@ This course is designed to take you from zero to hero in web development. You'll
                                         </div>
                                         <div>
                                             <p className="text-2xl font-bold text-gray-900 mb-1">
-                                                {(course.instructor.students / 1000).toFixed(0)}K
+                                                {((course.instructor.students || 0) / 1000).toFixed(0)}K
                                             </p>
                                             <p className="text-sm text-gray-600">Students</p>
                                         </div>
@@ -418,7 +420,7 @@ This course is designed to take you from zero to hero in web development. You'll
                             <div className="flex items-center gap-8 mb-8 p-6 bg-gray-50 rounded-xl">
                                 <div className="text-center">
                                     <div className="text-6xl font-bold text-gray-900 mb-2">
-                                        {course.rating}
+                                        {typeof course.rating === 'number' ? course.rating : (course.rating?.average || 0)}
                                     </div>
                                     <div className="flex text-yellow-400 text-xl mb-2">★★★★★</div>
                                     <p className="text-gray-600">Course Rating</p>
@@ -539,7 +541,7 @@ This course is designed to take you from zero to hero in web development. You'll
                                         <h3 className="font-semibold text-gray-900 mb-4">
                                             This course includes:
                                         </h3>
-                                        {course.features.map((feature, index) => (
+                                        {(course.features || []).map((feature: string, index: number) => (
                                             <div key={index} className="flex items-center gap-3 text-sm">
                                                 <span className="text-gray-600">✓</span>
                                                 <span className="text-gray-700">{feature}</span>

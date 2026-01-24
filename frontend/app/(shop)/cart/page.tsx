@@ -85,12 +85,12 @@ export default function CartPage() {
             {/* Header */}
             <div className="border-b border-gray-100">
                 <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-12">
-                    <div className="flex items-end justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                         <div>
-                            <p className="text-sm font-medium text-gray-400 uppercase tracking-[0.2em] mb-3">
+                            <p className="text-sm font-medium text-gray-400 uppercase tracking-[0.2em] mb-2 sm:mb-3">
                                 Shopping
                             </p>
-                            <h1 className="text-4xl md:text-5xl font-medium text-gray-900 tracking-tight">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium text-gray-900 tracking-tight">
                                 Your Cart
                             </h1>
                             <p className="text-gray-500 mt-2">
@@ -99,7 +99,7 @@ export default function CartPage() {
                         </div>
                         <button
                             onClick={clearCart}
-                            className="px-5 py-2.5 text-sm text-gray-500 hover:text-red-600 font-medium transition-colors border border-gray-200 rounded-full hover:border-red-200 hover:bg-red-50"
+                            className="self-start sm:self-auto px-5 py-2.5 text-sm text-gray-500 hover:text-red-600 font-medium transition-colors border border-gray-200 rounded-full hover:border-red-200 hover:bg-red-50"
                         >
                             Clear Cart
                         </button>
@@ -108,7 +108,7 @@ export default function CartPage() {
             </div>
 
             <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-12">
-                <div className="grid lg:grid-cols-3 gap-10">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
                     {/* Cart Items */}
                     <div className="lg:col-span-2 space-y-4">
                         {items.map((item) => (
@@ -242,7 +242,7 @@ export default function CartPage() {
                 </div>
 
                 {/* Trust Badges */}
-                <div className="mt-16 grid md:grid-cols-3 gap-8">
+                <div className="mt-12 sm:mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
                     {[
                         { icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z", title: "Secure Payment", desc: "256-bit SSL encryption" },
                         { icon: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", title: "Free Shipping", desc: "On orders over ₹999" },

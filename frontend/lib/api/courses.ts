@@ -83,10 +83,10 @@ export const purchaseCourse = async (courseId: string, token?: string) => {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch(`${API_URL}/courses/purchase`, {
+        // Fixed: Correct endpoint is /courses/:id/purchase, not /courses/purchase
+        const response = await fetch(`${API_URL}/courses/${courseId}/purchase`, {
             method: 'POST',
             headers,
-            body: JSON.stringify({ courseId })
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Failed to purchase course');
@@ -98,7 +98,7 @@ export const purchaseCourse = async (courseId: string, token?: string) => {
 
 // Admin functions
 export const createCourse = async (courseData: Partial<Course>, token: string) => {
-    const response = await fetch(`${API_URL}/courses`, {
+    const response = await fetch(`${API_URL}/admin/courses`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ export const createCourse = async (courseData: Partial<Course>, token: string) =
 };
 
 export const updateCourse = async (id: string, courseData: Partial<Course>, token: string) => {
-    const response = await fetch(`${API_URL}/courses/${id}`, {
+    const response = await fetch(`${API_URL}/admin/courses/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -122,11 +122,69 @@ export const updateCourse = async (id: string, courseData: Partial<Course>, toke
 };
 
 export const deleteCourse = async (id: string, token: string) => {
-    const response = await fetch(`${API_URL}/courses/${id}`, {
+    const response = await fetch(`${API_URL}/admin/courses/${id}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`
         }
     });
     return response.json();
+};
+
+// Payment verification response interface
+export interface PaymentOrderResponse {
+    success: boolean;
+    message: string;
+    data: {
+        orderId: string;
+        amount: number;
+        currency: string;
+        courseId: string;
+        courseTitle: string;
+        keyId: string;
+        isFree?: boolean;
+    };
+}
+
+// Verify course payment after Razorpay callback
+export const verifyCoursePurchase = async (
+    courseId: string,
+    paymentData: {
+        razorpay_order_id: string;
+        razorpay_payment_id: string;
+        razorpay_signature: string;
+    },
+    token: string
+) => {
+    try {
+        const response = await fetch(`${API_URL}/courses/${courseId}/verify-payment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(paymentData)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Payment verification failed');
+        return data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Get user's enrolled courses
+export const getMyCourses = async (token: string) => {
+    try {
+        const response = await fetch(`${API_URL}/courses/my-courses`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch enrolled courses');
+        return data;
+    } catch (error) {
+        throw error;
+    }
 };

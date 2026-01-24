@@ -3,7 +3,25 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CourseCard from "@/components/courses/CourseCard";
+import { API_URL } from "@/lib/constants";
 
+// Interface matching the API response
+interface APICourse {
+    _id: string;
+    title: string;
+    description: string;
+    instructor: { name: string; email?: string };
+    price: number;
+    level: string;
+    category: string;
+    lessons: { _id: string }[];
+    rating: { average: number; count: number };
+    enrolledStudents: number;
+    thumbnail?: string;
+    isPublished?: boolean;
+}
+
+// Interface for CourseCard component
 interface Course {
     _id: string;
     title: string;
@@ -22,6 +40,23 @@ interface Course {
     isBestseller?: boolean;
 }
 
+// Adapter function to convert API response to component format
+const adaptCourse = (apiCourse: APICourse): Course => ({
+    _id: apiCourse._id,
+    title: apiCourse.title,
+    description: apiCourse.description,
+    instructor: apiCourse.instructor?.name || "Instructor",
+    price: apiCourse.price,
+    duration: apiCourse.lessons?.length || 0,
+    rating: apiCourse.rating?.average || 0,
+    students: apiCourse.enrolledStudents || 0,
+    level: apiCourse.level?.charAt(0).toUpperCase() + apiCourse.level?.slice(1) || "Beginner",
+    category: apiCourse.category?.charAt(0).toUpperCase() + apiCourse.category?.slice(1) || "Other",
+    lessons: apiCourse.lessons?.length || 0,
+    image: apiCourse.thumbnail,
+    isBestseller: (apiCourse.enrolledStudents || 0) > 100,
+});
+
 export default function CoursesPage() {
     const router = useRouter();
     const [courses, setCourses] = useState<Course[]>([]);
@@ -32,10 +67,10 @@ export default function CoursesPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [selectedLevel, setSelectedLevel] = useState("all");
-    const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
+    const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
     const [sortBy, setSortBy] = useState("popular");
 
-    const categories = ["Development", "Design", "Business", "Marketing", "Photography"];
+    const categories = ["Programming", "Design", "Business", "Marketing", "Photography", "Music", "Health", "Personal-development"];
     const levels = ["Beginner", "Intermediate", "Advanced"];
 
     useEffect(() => {
@@ -45,115 +80,31 @@ export default function CoursesPage() {
     const fetchCourses = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses`);
+            const response = await fetch(`${API_URL}/courses`);
             if (response.ok) {
                 const data = await response.json();
-                setCourses(data.data || []);
-                setFilteredCourses(data.data || []);
+                if (data.success && data.data) {
+                    const adaptedCourses = data.data.map(adaptCourse);
+                    setCourses(adaptedCourses);
+                    setFilteredCourses(adaptedCourses);
+                } else {
+                    setCourses([]);
+                    setFilteredCourses([]);
+                }
             } else {
-                setCourses(getMockCourses());
-                setFilteredCourses(getMockCourses());
+                setCourses([]);
+                setFilteredCourses([]);
             }
         } catch (error) {
             console.error("Error fetching courses:", error);
-            setCourses(getMockCourses());
-            setFilteredCourses(getMockCourses());
+            setCourses([]);
+            setFilteredCourses([]);
         } finally {
             setLoading(false);
         }
     };
 
-    const getMockCourses = (): Course[] => {
-        return [
-            {
-                _id: "1",
-                title: "Complete Web Development Bootcamp 2025",
-                description: "Learn HTML, CSS, JavaScript, React, Node.js and more with this comprehensive web development course.",
-                instructor: "John Doe",
-                price: 49,
-                originalPrice: 199,
-                duration: 42,
-                rating: 4.9,
-                students: 12543,
-                level: "Beginner",
-                category: "Development",
-                lessons: 320,
-                isBestseller: true,
-            },
-            {
-                _id: "2",
-                title: "Advanced React & Next.js Development",
-                description: "Master React, Next.js, TypeScript, and modern web development practices.",
-                instructor: "Jane Smith",
-                price: 59,
-                originalPrice: 249,
-                duration: 35,
-                rating: 4.8,
-                students: 8392,
-                level: "Intermediate",
-                category: "Development",
-                lessons: 180,
-                isBestseller: true,
-            },
-            {
-                _id: "3",
-                title: "UI/UX Design Masterclass",
-                description: "Learn user interface and user experience design with Figma, Adobe XD, and modern design principles.",
-                instructor: "Mike Johnson",
-                price: 69,
-                originalPrice: 299,
-                duration: 28,
-                rating: 4.9,
-                students: 15234,
-                level: "Beginner",
-                category: "Design",
-                lessons: 240,
-            },
-            {
-                _id: "4",
-                title: "Digital Marketing Complete Guide",
-                description: "Master SEO, social media marketing, email marketing, and paid advertising strategies.",
-                instructor: "Sarah Williams",
-                price: 39,
-                originalPrice: 149,
-                duration: 22,
-                rating: 4.7,
-                students: 6789,
-                level: "Beginner",
-                category: "Marketing",
-                lessons: 150,
-                isBestseller: true,
-            },
-            {
-                _id: "5",
-                title: "Business Strategy & Management",
-                description: "Learn business fundamentals, strategy, leadership, and management skills.",
-                instructor: "David Brown",
-                price: 79,
-                originalPrice: 299,
-                duration: 30,
-                rating: 4.6,
-                students: 4521,
-                level: "Advanced",
-                category: "Business",
-                lessons: 200,
-            },
-            {
-                _id: "6",
-                title: "Professional Photography Course",
-                description: "Master camera settings, composition, lighting, and photo editing with Lightroom and Photoshop.",
-                instructor: "Emily Davis",
-                price: 89,
-                originalPrice: 349,
-                duration: 38,
-                rating: 4.8,
-                students: 9876,
-                level: "Intermediate",
-                category: "Photography",
-                lessons: 220,
-            },
-        ];
-    };
+
 
     useEffect(() => {
         applyFilters();

@@ -48,8 +48,14 @@ const getCourses = async (req, res) => {
             .sort(sort)
             .skip(skip)
             .limit(limit)
-            .populate('instructor', 'name email')
-            .select('-lessons'); // Don't send lessons in list view
+            .populate({
+                path: 'instructor',
+                select: 'name email',
+                // Fallback for missing instructors
+                match: {},
+            })
+            .select('-lessons') // Don't send lessons in list view
+            .lean(); // Use lean for better performance
 
         const total = await Course.countDocuments(query);
 
@@ -62,11 +68,13 @@ const getCourses = async (req, res) => {
             data: courses,
         });
     } catch (error) {
-        console.error('Get courses error:', error);
+        console.error('Get courses error:', error.message);
+        console.error('Full error stack:', error.stack);
         res.status(500).json({
             success: false,
             message: 'Error fetching courses',
             error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
         });
     }
 };
@@ -140,7 +148,7 @@ const getCourse = async (req, res) => {
 };
 
 /**
- * @desc    Purchase/Enroll in course
+ * @desc    Initiate course purchase - creates Razorpay order for paid courses
  * @route   POST /api/courses/:id/purchase
  * @access  Private
  */
@@ -175,10 +183,109 @@ const purchaseCourse = async (req, res) => {
             });
         }
 
+        // Free course - enroll directly
+        if (course.price === 0) {
+            const enrollment = await Enrollment.create({
+                user: req.user._id,
+                course: course._id,
+            });
+
+            course.enrolledStudents += 1;
+            await course.save();
+
+            return res.status(201).json({
+                success: true,
+                message: 'Successfully enrolled in free course',
+                data: { enrollment, isFree: true },
+            });
+        }
+
+        // Paid course - create Razorpay order
+        const { createRazorpayOrder } = require('../utils/payment');
+
+        const order = await createRazorpayOrder(course.price, 'INR', {
+            receipt: `course_${course._id}_${Date.now()}`,
+            notes: {
+                courseId: course._id.toString(),
+                userId: req.user._id.toString(),
+                courseTitle: course.title,
+            }
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Payment order created',
+            data: {
+                orderId: order.id,
+                amount: order.amount,
+                currency: order.currency,
+                courseId: course._id,
+                courseTitle: course.title,
+                keyId: process.env.RAZORPAY_KEY_ID,
+            },
+        });
+    } catch (error) {
+        console.error('Purchase course error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error initiating course purchase',
+            error: error.message,
+        });
+    }
+};
+
+/**
+ * @desc    Verify course payment and enroll
+ * @route   POST /api/courses/:id/verify-payment
+ * @access  Private
+ */
+const verifyCoursePurchase = async (req, res) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+        const course = await Course.findById(req.params.id);
+
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                message: 'Course not found',
+            });
+        }
+
+        // Verify payment signature
+        const { verifyRazorpaySignature } = require('../utils/payment');
+        const isValid = verifyRazorpaySignature({
+            razorpayOrderId: razorpay_order_id,
+            razorpayPaymentId: razorpay_payment_id,
+            razorpaySignature: razorpay_signature,
+        });
+
+        if (!isValid) {
+            return res.status(400).json({
+                success: false,
+                message: 'Payment verification failed',
+            });
+        }
+
+        // Check if already enrolled (race condition protection)
+        const existingEnrollment = await Enrollment.findOne({
+            user: req.user._id,
+            course: course._id,
+        });
+
+        if (existingEnrollment) {
+            return res.status(200).json({
+                success: true,
+                message: 'Already enrolled',
+                data: existingEnrollment,
+            });
+        }
+
         // Create enrollment
         const enrollment = await Enrollment.create({
             user: req.user._id,
             course: course._id,
+            paymentId: razorpay_payment_id,
+            orderId: razorpay_order_id,
         });
 
         // Increment enrolled students count
@@ -191,13 +298,14 @@ const purchaseCourse = async (req, res) => {
             data: enrollment,
         });
     } catch (error) {
-        console.error('Purchase course error:', error);
+        console.error('Verify course purchase error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error enrolling in course',
+            message: 'Error verifying course purchase',
             error: error.message,
         });
     }
+
 };
 
 /**
@@ -275,6 +383,7 @@ module.exports = {
     getCourses,
     getCourse,
     purchaseCourse,
+    verifyCoursePurchase,
     getMyCourses,
     getCategories,
 };
