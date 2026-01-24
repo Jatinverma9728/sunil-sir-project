@@ -36,9 +36,13 @@ const protect = async (req, res, next) => {
         // Admin Session Lock Feature
         // ---------------------------
         // Locks admin session after 15 minutes of inactivity.
+        // IMPORTANT: Only applies to /api/admin/* routes, NOT to regular auth routes
         // Frontend LockScreen component handles unlock flow via password.
 
-        if (user.role === 'admin') {
+        // Only apply session lock to admin panel routes
+        const isAdminRoute = req.originalUrl.startsWith('/api/admin');
+
+        if (user.role === 'admin' && isAdminRoute) {
             const AdminSession = require('../models/AdminSession');
             let session = await AdminSession.findOne({ user: user._id });
 
