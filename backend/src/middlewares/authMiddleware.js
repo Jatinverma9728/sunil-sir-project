@@ -33,12 +33,16 @@ const protect = async (req, res, next) => {
         // Attach user to request object
         req.user = user;
 
-        // Admin Session Checks
+        // Admin Session Lock Feature
+        // ---------------------------
+        // Locks admin session after 15 minutes of inactivity.
+        // Frontend LockScreen component handles unlock flow via password.
+
         if (user.role === 'admin') {
             const AdminSession = require('../models/AdminSession');
             let session = await AdminSession.findOne({ user: user._id });
 
-            // If no session exists, create one (lazy creation)
+            // Create session if doesn't exist
             if (!session) {
                 session = await AdminSession.create({
                     user: user._id,
@@ -48,18 +52,10 @@ const protect = async (req, res, next) => {
                     deviceInfo: req.headers['user-agent']
                 });
             } else {
-                // Check if session is locked
+                // Check if session is already locked
                 if (session.isLocked) {
-                    // Allow specific endpoints to bypass lock (unlock, logout, status)
-                    // We can check req.path, but safer to let controller/router handle it?
-                    // BUT: protect runs BEFORE router.
-                    // SO: We must check URL here or use a separate middleware for 'strict lock'.
-                    // Strategy: Mark request as locked, let `authorize` or route handler decide? 
-                    // Better: If locked, return 423 immediately UNLESS it is an allowed path.
-                    // The allowed paths are: /api/admin/auth/unlock, /api/admin/auth/logout, /api/admin/auth/status
-
+                    // Allow unlock, logout, and status endpoints even when locked
                     const allowedPaths = ['/api/admin/auth/unlock', '/api/admin/auth/logout', '/api/admin/auth/status'];
-                    // req.originalUrl includes the base path
                     const isAllowed = allowedPaths.some(path => req.originalUrl.includes(path));
 
                     if (!isAllowed) {
@@ -69,21 +65,18 @@ const protect = async (req, res, next) => {
                             code: 'SESSION_LOCKED'
                         });
                     }
-                }
-
-                // Update activity (unless locked)
-                if (!session.isLocked) {
+                } else {
+                    // Check inactivity timeout (15 minutes)
                     const now = new Date();
                     const timeDiff = now - session.lastActivity;
+                    const LOCK_TIMEOUT = 15 * 60 * 1000; // 15 minutes
 
-                    // Lock if inactive for > 15 minutes (15 * 60 * 1000 = 900000 ms)
-                    // Make this configurable if possible, for now hardcoded 15m
-                    if (timeDiff > 15 * 60 * 1000) {
+                    if (timeDiff > LOCK_TIMEOUT) {
+                        // Lock the session
                         session.isLocked = true;
-                        session.save();
+                        await session.save();
 
-                        // Check if we should block NOW? Yes.
-                        // Same allow-list check needed if we just locked it.
+                        // Check if current request is to an allowed path
                         const allowedPaths = ['/api/admin/auth/unlock', '/api/admin/auth/logout', '/api/admin/auth/status'];
                         const isAllowed = allowedPaths.some(path => req.originalUrl.includes(path));
 
@@ -95,9 +88,9 @@ const protect = async (req, res, next) => {
                             });
                         }
                     } else {
-                        // Just update activity
+                        // Update last activity time
                         session.lastActivity = now;
-                        session.save();
+                        await session.save();
                     }
                 }
             }

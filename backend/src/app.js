@@ -6,7 +6,7 @@ const compression = require('compression');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const cookieParser = require('cookie-parser');
-const csrf = require('csurf');
+// CSRF not needed for JWT Bearer token auth (see comments below)
 const { apiLimiter, authLimiter, paymentLimiter, adminLimiter } = require('./middlewares/rateLimiter');
 
 /**
@@ -104,27 +104,16 @@ const createApp = () => {
     // Compression Middleware
     app.use(compression());
 
-    // CSRF Protection
-    // Must be added AFTER body parser (if using body for token) and AFTER webhooks (to exclude them)
-    // We use cookie-based CSRF with proper cross-origin settings for production
-    const isProduction = process.env.NODE_ENV === 'production';
-
-    const csrfProtection = csrf({
-        cookie: {
-            key: '_csrf',
-            httpOnly: true,
-            secure: isProduction, // HTTPS only in production
-            sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-origin
-            maxAge: 3600 // 1 hour
-        }
-    });
-
-    // Apply CSRF protection globally (webhooks are already handled above before this)
-    app.use(csrfProtection);
-
-    // Expose CSRF Token Endpoint
+    // CSRF Protection Strategy
+    // -------------------------
+    // This API uses JWT Bearer tokens in Authorization headers (not cookies for auth).
+    // CSRF protection is NOT required because CSRF attacks work by tricking browsers 
+    // into sending cookies automatically - but Authorization headers require explicit 
+    // JavaScript, which attackers cannot forge from their own domains due to CORS.
+    //
+    // Keeping a dummy endpoint for frontend backwards compatibility.
     app.get('/api/csrf-token', (req, res) => {
-        res.json({ csrfToken: req.csrfToken() });
+        res.json({ csrfToken: 'not-required-bearer-auth' });
     });
 
     // Passport Middleware (for OAuth)
@@ -261,13 +250,7 @@ const createApp = () => {
     app.use((err, req, res, next) => {
         console.error('Error:', err);
 
-        // Handle CSRF Validation Errors
-        if (err.code === 'EBADCSRFTOKEN') {
-            return res.status(403).json({
-                success: false,
-                message: 'Invalid or missing CSRF token. Please refresh the page and try again.'
-            });
-        }
+        // Note: CSRF middleware removed - JWT Bearer auth provides equivalent protection
 
         const statusCode = err.statusCode || 500;
         const message = err.message || 'Internal Server Error';

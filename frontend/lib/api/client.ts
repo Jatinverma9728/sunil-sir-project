@@ -159,6 +159,15 @@ export class ApiClient {
             throw new ApiError(errorMessage || 'Access forbidden', 403, errorData);
         }
 
+        // Handle session locked (Admin inactivity)
+        if (response.status === 423) {
+            // Dispatch event for AdminAuthContext to detect
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('admin-session-locked'));
+            }
+            throw new ApiError(errorMessage || 'Session locked due to inactivity', 423, errorData);
+        }
+
         if (response.status === 404) {
             throw new ApiError('Resource not found', 404, errorData);
         }

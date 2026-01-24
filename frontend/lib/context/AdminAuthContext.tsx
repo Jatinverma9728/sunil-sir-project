@@ -47,17 +47,18 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
         checkStatus();
     }, [user, authLoading]);
 
-    // Setup global API interceptor for 423
+    // Listen for 423 errors from API client
     useEffect(() => {
-        // We can't easily inject hooks into the singleton apiClient, 
-        // but we can listen for a global event or valid "Locked" state detection.
-        // For simpler integration, creating a custom fetch wrapper or observing window events might be needed
-        // if apiClient doesn't support listeners.
-        // Assuming apiClient throws errors, we catch them in components.
-        // However, catching every 423 in every component is tedious.
+        const handleSessionLocked = () => {
+            console.log('Session lock event received');
+            setIsLocked(true);
+        };
 
-        // Strategy: We rely on the Inactivity Timer primarily. 
-        // Determine backend lock state on mount/focus.
+        window.addEventListener('admin-session-locked', handleSessionLocked);
+
+        return () => {
+            window.removeEventListener('admin-session-locked', handleSessionLocked);
+        };
     }, []);
 
     const lockSession = useCallback(async () => {

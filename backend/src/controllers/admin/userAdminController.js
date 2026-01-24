@@ -40,6 +40,12 @@ const getAllUsers = async (req, res) => {
             total,
             page,
             pages: Math.ceil(total / limit),
+            pagination: {
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+                total
+            },
             data: users,
         });
     } catch (error) {

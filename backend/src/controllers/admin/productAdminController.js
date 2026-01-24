@@ -224,6 +224,12 @@ const getAllProducts = async (req, res) => {
             total,
             page,
             pages: Math.ceil(total / limit),
+            pagination: {
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+                total
+            },
             data: products,
         });
     } catch (error) {

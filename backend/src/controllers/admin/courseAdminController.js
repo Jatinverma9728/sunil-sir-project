@@ -187,6 +187,12 @@ const getAllCourses = async (req, res) => {
             total,
             page,
             pages: Math.ceil(total / limit),
+            pagination: {
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+                total
+            },
             data: courses,
         });
     } catch (error) {

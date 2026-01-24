@@ -9,7 +9,9 @@
     "seed": "node src/scripts/seed.js",
     "build": "npm install --production",
     "postinstall": "echo '✅ Dependencies installed successfully'",
-    "test": "echo 'No tests configured yet'",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "lint": "echo 'No linting configured yet'"
   },
   "keywords": [
@@ -55,6 +57,9 @@
   },
   "devDependencies": {
     "@types/estree": "^1.0.8",
-    "nodemon": "^3.0.2"
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^7.2.2"
   }
 }
