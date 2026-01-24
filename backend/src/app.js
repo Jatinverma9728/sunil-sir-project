@@ -106,9 +106,18 @@ const createApp = () => {
 
     // CSRF Protection
     // Must be added AFTER body parser (if using body for token) and AFTER webhooks (to exclude them)
-    // We use cookie: true so the secret is stored in a cookie.
-    // The client needs to read the token from the /api/csrf-token endpoint and send it in headers.
-    const csrfProtection = csrf({ cookie: true });
+    // We use cookie-based CSRF with proper cross-origin settings for production
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    const csrfProtection = csrf({
+        cookie: {
+            key: '_csrf',
+            httpOnly: true,
+            secure: isProduction, // HTTPS only in production
+            sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-origin
+            maxAge: 3600 // 1 hour
+        }
+    });
 
     // Apply CSRF protection globally (webhooks are already handled above before this)
     app.use(csrfProtection);

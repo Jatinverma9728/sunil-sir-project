@@ -179,7 +179,8 @@ export class ApiClient {
      */
     private async request<T>(
         endpoint: string,
-        config: RequestConfig = {}
+        config: RequestConfig = {},
+        isRetryAfterCsrf: boolean = false
     ): Promise<ApiResponse<T>> {
         const {
             requiresAuth = false,
@@ -211,6 +212,20 @@ export class ApiClient {
                 });
 
                 if (!response.ok) {
+                    // Check if it's a CSRF error and we haven't retried yet
+                    if (response.status === 403 && !isRetryAfterCsrf) {
+                        try {
+                            const errorData = await response.clone().json();
+                            if (errorData.message && errorData.message.toLowerCase().includes('csrf')) {
+                                // Refetch CSRF token and retry once
+                                console.log('CSRF token invalid, refreshing and retrying...');
+                                await this.fetchCsrfToken();
+                                return this.request<T>(endpoint, config, true);
+                            }
+                        } catch {
+                            // If we can't parse JSON, continue with normal error handling
+                        }
+                    }
                     await this.handleError(response);
                 }
 
