@@ -36,9 +36,18 @@ export default function MyCoursesPage() {
     const fetchMyCourses = async () => {
         setLoading(true);
         try {
-            const cookies = document.cookie.split(';');
-            const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('auth_token='));
-            const token = tokenCookie ? tokenCookie.split('=')[1] : null;
+            // Try localStorage first, then cookies
+            let token = localStorage.getItem('token');
+            if (!token) {
+                const cookies = document.cookie.split(';');
+                const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('auth_token='));
+                token = tokenCookie ? tokenCookie.split('=')[1] : null;
+            }
+
+            if (!token) {
+                setCourses([]);
+                return;
+            }
 
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/my-courses`, {
                 headers: {
@@ -47,7 +56,21 @@ export default function MyCoursesPage() {
             });
             if (response.ok) {
                 const data = await response.json();
-                setCourses(data.courses || []);
+                // API returns array of enrollments with course and completionPercentage
+                const enrollments = data.data || [];
+                const transformedCourses = enrollments.map((enrollment: any) => ({
+                    _id: enrollment.course?._id || enrollment._id,
+                    title: enrollment.course?.title || 'Untitled Course',
+                    description: enrollment.course?.description || '',
+                    instructor: enrollment.course?.instructor?.name || 'Instructor',
+                    progress: Math.round(enrollment.completionPercentage || 0),
+                    lessons: enrollment.course?.lessons?.length || 0,
+                    completedLessons: enrollment.progress?.filter((p: any) => p.completed)?.length || 0,
+                    image: enrollment.course?.thumbnail,
+                    category: enrollment.course?.category || 'Other',
+                    duration: enrollment.course?.totalDuration || 0,
+                }));
+                setCourses(transformedCourses);
             } else {
                 setCourses([]);
             }

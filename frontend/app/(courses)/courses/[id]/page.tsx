@@ -67,114 +67,20 @@ export default function CourseDetailPage() {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/courses/${courseId}`);
             if (response.ok) {
                 const data = await response.json();
-                setCourse(data.data);
+                if (data.success && data.data) {
+                    setCourse(data.data);
+                } else {
+                    setCourse(null);
+                }
             } else {
-                setCourse(getMockCourse());
+                setCourse(null);
             }
         } catch (error) {
             console.error("Error fetching course:", error);
-            setCourse(getMockCourse());
+            setCourse(null);
         } finally {
             setLoading(false);
         }
-    };
-
-    const getMockCourse = (): Course => {
-        return {
-            _id: courseId,
-            title: "Complete Web Development Bootcamp 2025",
-            description: `Master web development from scratch with this comprehensive bootcamp. Learn HTML, CSS, JavaScript, React, Node.js, MongoDB, and deploy real-world projects.
-
-This course is designed to take you from zero to hero in web development. You'll build 15+ projects and gain practical experience with modern web technologies.`,
-            instructor: {
-                name: "John Doe",
-                title: "Senior Web Developer & Instructor",
-                bio: "John has over 10 years of experience in web development and has taught over 100,000 students worldwide. He specializes in React, Node.js, and modern JavaScript.",
-                rating: 4.8,
-                students: 125430,
-                courses: 12,
-            },
-            price: 49,
-            originalPrice: 199,
-            duration: 42,
-            rating: 4.9,
-            reviews: 12543,
-            students: 125430,
-            level: "Beginner",
-            category: "Development",
-            lessons: 320,
-            language: "English",
-            lastUpdated: "December 2024",
-            isPurchased: false,
-            whatYouLearn: [
-                "Build responsive websites with HTML5 and CSS3",
-                "Master JavaScript programming fundamentals",
-                "Create modern web apps with React and Next.js",
-                "Build server-side applications with Node.js and Express",
-                "Work with databases using MongoDB",
-                "Deploy applications to production",
-                "Implement authentication and authorization",
-                "Create RESTful APIs",
-            ],
-            requirements: [
-                "A computer with internet access",
-                "No prior programming experience required",
-                "Willingness to learn and practice",
-            ],
-            syllabus: [
-                {
-                    title: "Introduction to Web Development",
-                    lessons: 12,
-                    duration: "1.5 hours",
-                    lectures: [
-                        { title: "Welcome to the Course", duration: "5:30", isPreview: true },
-                        { title: "Course Overview and Roadmap", duration: "8:45", isPreview: true },
-                        { title: "Setting Up Your Development Environment", duration: "12:20" },
-                        { title: "Your First Webpage", duration: "10:15" },
-                    ],
-                },
-                {
-                    title: "HTML5 Fundamentals",
-                    lessons: 25,
-                    duration: "3.5 hours",
-                    lectures: [
-                        { title: "HTML Document Structure", duration: "8:30" },
-                        { title: "Text Elements and Formatting", duration: "12:15" },
-                        { title: "Links and Navigation", duration: "9:45" },
-                        { title: "Images and Media", duration: "11:20" },
-                    ],
-                },
-                {
-                    title: "CSS3 and Responsive Design",
-                    lessons: 30,
-                    duration: "4.2 hours",
-                    lectures: [
-                        { title: "CSS Selectors and Properties", duration: "10:30" },
-                        { title: "Box Model and Layout", duration: "14:20" },
-                        { title: "Flexbox Mastery", duration: "16:45" },
-                        { title: "CSS Grid", duration: "18:30" },
-                    ],
-                },
-                {
-                    title: "JavaScript Programming",
-                    lessons: 45,
-                    duration: "6.5 hours",
-                    lectures: [
-                        { title: "Variables and Data Types", duration: "12:30" },
-                        { title: "Functions and Scope", duration: "15:20" },
-                        { title: "Arrays and Objects", duration: "18:45" },
-                        { title: "DOM Manipulation", duration: "20:15" },
-                    ],
-                },
-            ],
-            features: [
-                "42 hours on-demand video",
-                "320 downloadable resources",
-                "Full lifetime access",
-                "Access on mobile and TV",
-                "Certificate of completion",
-            ],
-        };
     };
 
     const toggleSection = (index: number) => {
@@ -184,13 +90,23 @@ This course is designed to take you from zero to hero in web development. You'll
     };
 
     const handleEnroll = () => {
-        if (course?.isPurchased) {
-            router.push(`/my-courses/${courseId}`);
-        } else {
-            // Add to cart and redirect to checkout
-            router.push(`/checkout?course=${courseId}`);
+        if (!course) return;
+
+        // If already purchased, go to course
+        if (course.isPurchased) {
+            const lessons = Array.isArray(course.lessons) ? course.lessons : [];
+            if (lessons.length > 0) {
+                router.push(`/courses/${courseId}/lessons/${lessons[0]._id}`);
+            } else {
+                router.push(`/my-courses`);
+            }
+            return;
         }
+
+        // Redirect to course checkout page
+        router.push(`/checkout/course?course=${courseId}`);
     };
+
 
     if (loading) {
         return (
@@ -527,14 +443,24 @@ This course is designed to take you from zero to hero in web development. You'll
                                     <div className="space-y-3 mb-6">
                                         <button
                                             onClick={handleEnroll}
-                                            className="w-full py-4 bg-black text-white rounded-xl font-semibold text-lg hover:bg-gray-800 transition-colors"
+                                            className={`w-full py-4 rounded-xl font-semibold text-lg transition-colors flex items-center justify-center gap-2 ${course.isPurchased
+                                                    ? 'bg-green-600 hover:bg-green-700 text-white'
+                                                    : 'bg-black hover:bg-gray-800 text-white'
+                                                }`}
                                         >
-                                            {course.isPurchased ? "Go to Course" : "Enroll Now"}
+                                            {course.isPurchased ? (
+                                                "Go to Course"
+                                            ) : course.price === 0 ? (
+                                                "Enroll Free"
+                                            ) : (
+                                                "Enroll Now"
+                                            )}
                                         </button>
                                         <button className="w-full py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors">
                                             Add to Wishlist
                                         </button>
                                     </div>
+
 
                                     {/* Course Includes */}
                                     <div className="space-y-3 pt-6 border-t border-gray-200">

@@ -74,7 +74,13 @@ export const getCourse = async (id: string): Promise<{ success: boolean; data: C
     }
 };
 
-export const purchaseCourse = async (courseId: string, token?: string) => {
+interface ContactDetails {
+    name: string;
+    email: string;
+    phone: string;
+}
+
+export const purchaseCourse = async (courseId: string, token?: string, contactDetails?: ContactDetails) => {
     try {
         const headers: HeadersInit = {
             'Content-Type': 'application/json'
@@ -83,10 +89,10 @@ export const purchaseCourse = async (courseId: string, token?: string) => {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        // Fixed: Correct endpoint is /courses/:id/purchase, not /courses/purchase
         const response = await fetch(`${API_URL}/courses/${courseId}/purchase`, {
             method: 'POST',
             headers,
+            body: JSON.stringify({ contactDetails }),
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Failed to purchase course');
@@ -183,6 +189,39 @@ export const getMyCourses = async (token: string) => {
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Failed to fetch enrolled courses');
+        return data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Get enrollment progress for a specific course
+export const getEnrollmentProgress = async (courseId: string, token: string) => {
+    try {
+        const response = await fetch(`${API_URL}/courses/${courseId}/progress`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch course progress');
+        return data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Mark a lesson as complete
+export const markLessonComplete = async (courseId: string, lessonId: string, token: string) => {
+    try {
+        const response = await fetch(`${API_URL}/courses/${courseId}/lessons/${lessonId}/complete`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to mark lesson as complete');
         return data;
     } catch (error) {
         throw error;

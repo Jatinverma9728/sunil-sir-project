@@ -154,6 +154,7 @@ const getCourse = async (req, res) => {
  */
 const purchaseCourse = async (req, res) => {
     try {
+        const { contactDetails } = req.body;
         const course = await Course.findById(req.params.id);
 
         if (!course) {
@@ -170,10 +171,11 @@ const purchaseCourse = async (req, res) => {
             });
         }
 
-        // Check if already enrolled
+        // Check if already enrolled with completed payment
         const existingEnrollment = await Enrollment.findOne({
             user: req.user._id,
             course: course._id,
+            'paymentDetails.status': 'completed',
         });
 
         if (existingEnrollment) {
@@ -188,6 +190,12 @@ const purchaseCourse = async (req, res) => {
             const enrollment = await Enrollment.create({
                 user: req.user._id,
                 course: course._id,
+                contactDetails: contactDetails || {},
+                paymentDetails: {
+                    status: 'completed',
+                    amount: 0,
+                    paidAt: new Date(),
+                },
             });
 
             course.enrolledStudents += 1;
@@ -209,8 +217,29 @@ const purchaseCourse = async (req, res) => {
                 courseId: course._id.toString(),
                 userId: req.user._id.toString(),
                 courseTitle: course.title,
+                // Store contact details in notes for reference
+                contactName: contactDetails?.name || '',
+                contactEmail: contactDetails?.email || '',
+                contactPhone: contactDetails?.phone || '',
             }
         });
+
+        // Store pending enrollment with contact details
+        // This will be updated when payment is verified
+        await Enrollment.findOneAndUpdate(
+            { user: req.user._id, course: course._id },
+            {
+                user: req.user._id,
+                course: course._id,
+                contactDetails: contactDetails || {},
+                paymentDetails: {
+                    orderId: order.id,
+                    amount: course.price,
+                    status: 'pending',
+                },
+            },
+            { upsert: true, new: true }
+        );
 
         res.status(200).json({
             success: true,
@@ -266,31 +295,58 @@ const verifyCoursePurchase = async (req, res) => {
             });
         }
 
-        // Check if already enrolled (race condition protection)
-        const existingEnrollment = await Enrollment.findOne({
+        // Check for existing enrollment
+        let enrollment = await Enrollment.findOne({
             user: req.user._id,
             course: course._id,
         });
 
-        if (existingEnrollment) {
-            return res.status(200).json({
-                success: true,
-                message: 'Already enrolled',
-                data: existingEnrollment,
+        if (enrollment) {
+            // If already paid and completed, return success
+            if (enrollment.paymentDetails?.status === 'completed') {
+                return res.status(200).json({
+                    success: true,
+                    message: 'Already enrolled',
+                    data: enrollment,
+                });
+            }
+
+            // If pending, update it
+            enrollment.paymentDetails = {
+                orderId: razorpay_order_id,
+                paymentId: razorpay_payment_id,
+                amount: course.price,
+                status: 'completed',
+                paidAt: new Date(),
+            };
+            enrollment.completedAt = null; // Reset completion if re-enrolling? No, keep it.
+            // Ensure progress array exists
+            if (!enrollment.progress) enrollment.progress = [];
+
+            await enrollment.save();
+
+            // Increment for updated enrollment too (since it wasn't counted when pending)
+            course.enrolledStudents += 1;
+            await course.save();
+        } else {
+            // Create new enrollment (should rarely happen if purchase flow was followed)
+            enrollment = await Enrollment.create({
+                user: req.user._id,
+                course: course._id,
+                contactDetails: {}, // Should have been set in purchase step but fallback here
+                paymentDetails: {
+                    orderId: razorpay_order_id,
+                    paymentId: razorpay_payment_id,
+                    amount: course.price,
+                    status: 'completed',
+                    paidAt: new Date(),
+                },
+                progress: [],
             });
+
+            course.enrolledStudents += 1;
+            await course.save();
         }
-
-        // Create enrollment
-        const enrollment = await Enrollment.create({
-            user: req.user._id,
-            course: course._id,
-            paymentId: razorpay_payment_id,
-            orderId: razorpay_order_id,
-        });
-
-        // Increment enrolled students count
-        course.enrolledStudents += 1;
-        await course.save();
 
         res.status(201).json({
             success: true,
@@ -379,6 +435,157 @@ const getCategories = async (req, res) => {
     }
 };
 
+/**
+ * @desc    Mark a lesson as complete
+ * @route   POST /api/courses/:id/lessons/:lessonId/complete
+ * @access  Private
+ */
+const markLessonComplete = async (req, res) => {
+    try {
+        const { id: courseId, lessonId } = req.params;
+
+        // Find enrollment
+        const enrollment = await Enrollment.findOne({
+            user: req.user._id,
+            course: courseId,
+        });
+
+        if (!enrollment) {
+            return res.status(404).json({
+                success: false,
+                message: 'You are not enrolled in this course',
+            });
+        }
+
+        // Verify lesson exists in course
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                message: 'Course not found',
+            });
+        }
+
+        const lessonExists = course.lessons.some(l => l._id.toString() === lessonId);
+        if (!lessonExists) {
+            return res.status(404).json({
+                success: false,
+                message: 'Lesson not found in this course',
+            });
+        }
+
+        // Mark lesson as complete
+        await enrollment.markLessonComplete(lessonId);
+
+        // Calculate updated progress
+        const completionPercentage = await enrollment.getCompletionPercentage();
+
+        // Check if all lessons completed
+        if (completionPercentage === 100 && !enrollment.completedAt) {
+            enrollment.completedAt = new Date();
+            await enrollment.save();
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Lesson marked as complete',
+            data: {
+                lessonId,
+                completionPercentage,
+                isCoursCompleted: completionPercentage === 100,
+            },
+        });
+    } catch (error) {
+        console.error('Mark lesson complete error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error marking lesson as complete',
+            error: error.message,
+        });
+    }
+};
+
+/**
+ * @desc    Get enrollment progress for a specific course
+ * @route   GET /api/courses/:id/progress
+ * @access  Private
+ */
+const getEnrollmentProgress = async (req, res) => {
+    try {
+        const courseId = req.params.id;
+
+        const enrollment = await Enrollment.findOne({
+            user: req.user._id,
+            course: courseId,
+        });
+
+        if (!enrollment) {
+            return res.status(404).json({
+                success: false,
+                message: 'You are not enrolled in this course',
+            });
+        }
+
+        const course = await Course.findById(courseId).populate('instructor', 'name email');
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                message: 'Course not found',
+            });
+        }
+
+        const completionPercentage = await enrollment.getCompletionPercentage();
+
+        // Map lessons with completion status
+        const lessonsWithProgress = course.lessons.map(lesson => {
+            const progress = enrollment.progress.find(
+                p => p.lessonId.toString() === lesson._id.toString()
+            );
+            return {
+                _id: lesson._id,
+                title: lesson.title,
+                description: lesson.description,
+                videoUrl: lesson.videoUrl,
+                duration: lesson.duration,
+                order: lesson.order,
+                isFree: lesson.isFree,
+                resources: lesson.resources,
+                isCompleted: progress?.completed || false,
+                completedAt: progress?.completedAt || null,
+            };
+        });
+
+        res.status(200).json({
+            success: true,
+            data: {
+                course: {
+                    _id: course._id,
+                    title: course.title,
+                    instructor: course.instructor,
+                    thumbnail: course.thumbnail,
+                    totalLessons: course.lessons.length,
+                    totalDuration: course.totalDuration,
+                },
+                lessons: lessonsWithProgress,
+                progress: {
+                    completedLessons: enrollment.progress.filter(p => p.completed).length,
+                    totalLessons: course.lessons.length,
+                    completionPercentage,
+                    enrolledAt: enrollment.enrolledAt,
+                    completedAt: enrollment.completedAt,
+                },
+            },
+        });
+    } catch (error) {
+        console.error('Get enrollment progress error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching progress',
+            error: error.message,
+        });
+    }
+};
+
 module.exports = {
     getCourses,
     getCourse,
@@ -386,4 +593,6 @@ module.exports = {
     verifyCoursePurchase,
     getMyCourses,
     getCategories,
+    markLessonComplete,
+    getEnrollmentProgress,
 };

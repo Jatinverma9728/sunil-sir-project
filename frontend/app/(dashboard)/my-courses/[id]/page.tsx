@@ -3,29 +3,35 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import VideoPlayer from "@/components/course/VideoPlayer";
+import { getEnrollmentProgress, markLessonComplete as markLessonCompleteAPI } from "@/lib/api/courses";
 
 interface Lesson {
     _id: string;
     title: string;
-    duration: string;
+    description?: string;
+    duration: number;
     videoUrl?: string;
     isCompleted: boolean;
+    order: number;
+    resources?: { title: string; url: string; type: string }[];
 }
 
-interface Section {
+interface CourseData {
     _id: string;
     title: string;
-    lessons: Lesson[];
-}
-
-interface Course {
-    _id: string;
-    title: string;
-    instructor: string;
-    progress: number;
-    sections: Section[];
+    instructor: { name: string };
+    thumbnail?: string;
     totalLessons: number;
+    totalDuration: number;
+}
+
+interface ProgressData {
     completedLessons: number;
+    totalLessons: number;
+    completionPercentage: number;
+    enrolledAt: string;
+    completedAt?: string;
 }
 
 export default function CoursePlayerPage() {
@@ -33,32 +39,50 @@ export default function CoursePlayerPage() {
     const router = useRouter();
     const courseId = params.id as string;
 
-    const [course, setCourse] = useState<Course | null>(null);
+    const [course, setCourse] = useState<CourseData | null>(null);
+    const [lessons, setLessons] = useState<Lesson[]>([]);
+    const [progress, setProgress] = useState<ProgressData | null>(null);
     const [currentLesson, setCurrentLesson] = useState<Lesson | null>(null);
     const [loading, setLoading] = useState(true);
+    const [markingComplete, setMarkingComplete] = useState(false);
     const [notes, setNotes] = useState("");
     const [showNotes, setShowNotes] = useState(false);
-    const [expandedSections, setExpandedSections] = useState<string[]>([]);
+
+    const getToken = (): string | null => {
+        if (typeof document === "undefined") return null;
+
+        // Token is stored in cookie as 'auth_token'
+        const cookies = document.cookie.split(';');
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('auth_token='));
+
+        if (!tokenCookie) return null;
+        return tokenCookie.split('=')[1];
+    };
 
     useEffect(() => {
-        fetchCourse();
+        fetchCourseProgress();
     }, [courseId]);
 
-    const fetchCourse = async () => {
+    const fetchCourseProgress = async () => {
         setLoading(true);
         try {
-            // In production, fetch from API
-            const mockCourse = getMockCourse();
-            setCourse(mockCourse);
+            const token = getToken();
+            if (!token) {
+                router.push(`/login?redirect=/my-courses/${courseId}`);
+                return;
+            }
 
-            // Set first incomplete lesson or first lesson
-            const firstIncomplete = mockCourse.sections
-                .flatMap(s => s.lessons)
-                .find(l => !l.isCompleted);
-            setCurrentLesson(firstIncomplete || mockCourse.sections[0]?.lessons[0]);
+            const data = await getEnrollmentProgress(courseId, token);
 
-            // Expand all sections initially
-            setExpandedSections(mockCourse.sections.map(s => s._id));
+            if (data.success && data.data) {
+                setCourse(data.data.course);
+                setLessons(data.data.lessons);
+                setProgress(data.data.progress);
+
+                // Set first incomplete lesson or first lesson
+                const firstIncomplete = data.data.lessons.find((l: Lesson) => !l.isCompleted);
+                setCurrentLesson(firstIncomplete || data.data.lessons[0]);
+            }
         } catch (error) {
             console.error("Error fetching course:", error);
         } finally {
@@ -66,131 +90,91 @@ export default function CoursePlayerPage() {
         }
     };
 
-    const getMockCourse = (): Course => {
-        return {
-            _id: courseId,
-            title: "Complete Web Development Bootcamp 2025",
-            instructor: "John Doe",
-            progress: 35,
-            totalLessons: 45,
-            completedLessons: 16,
-            sections: [
-                {
-                    _id: "section-1",
-                    title: "Introduction to Web Development",
-                    lessons: [
-                        { _id: "1", title: "Welcome to the Course", duration: "5:30", isCompleted: true },
-                        { _id: "2", title: "Course Overview and Roadmap", duration: "8:45", isCompleted: true },
-                        { _id: "3", title: "Setting Up Development Environment", duration: "12:20", isCompleted: true },
-                        { _id: "4", title: "Your First Webpage", duration: "10:15", isCompleted: false },
-                    ],
-                },
-                {
-                    _id: "section-2",
-                    title: "HTML5 Fundamentals",
-                    lessons: [
-                        { _id: "5", title: "HTML Document Structure", duration: "8:30", isCompleted: false },
-                        { _id: "6", title: "Text Elements and Formatting", duration: "12:15", isCompleted: false },
-                        { _id: "7", title: "Links and Navigation", duration: "9:45", isCompleted: false },
-                        { _id: "8", title: "Images and Media", duration: "11:20", isCompleted: false },
-                    ],
-                },
-                {
-                    _id: "section-3",
-                    title: "CSS3 and Responsive Design",
-                    lessons: [
-                        { _id: "9", title: "CSS Selectors and Properties", duration: "10:30", isCompleted: false },
-                        { _id: "10", title: "Box Model and Layout", duration: "14:20", isCompleted: false },
-                        { _id: "11", title: "Flexbox Mastery", duration: "16:45", isCompleted: false },
-                        { _id: "12", title: "CSS Grid", duration: "18:30", isCompleted: false },
-                    ],
-                },
-            ],
-        };
-    };
+    const handleMarkComplete = async () => {
+        if (!currentLesson || markingComplete) return;
 
-    const toggleSection = (sectionId: string) => {
-        setExpandedSections((prev) =>
-            prev.includes(sectionId)
-                ? prev.filter((id) => id !== sectionId)
-                : [...prev, sectionId]
-        );
-    };
+        setMarkingComplete(true);
+        try {
+            const token = getToken();
+            if (!token) return;
 
-    const handleMarkComplete = () => {
-        if (!currentLesson || !course) return;
+            const result = await markLessonCompleteAPI(courseId, currentLesson._id, token);
 
-        // Update lesson completion
-        const updatedSections = course.sections.map((section) => ({
-            ...section,
-            lessons: section.lessons.map((lesson) =>
-                lesson._id === currentLesson._id
-                    ? { ...lesson, isCompleted: true }
-                    : lesson
-            ),
-        }));
+            if (result.success) {
+                // Update local state
+                setLessons(prev =>
+                    prev.map(l =>
+                        l._id === currentLesson._id
+                            ? { ...l, isCompleted: true }
+                            : l
+                    )
+                );
 
-        const completedCount = updatedSections
-            .flatMap((s) => s.lessons)
-            .filter((l) => l.isCompleted).length;
+                setProgress(prev => prev ? {
+                    ...prev,
+                    completedLessons: prev.completedLessons + 1,
+                    completionPercentage: result.data.completionPercentage,
+                } : null);
 
-        const progress = Math.round((completedCount / course.totalLessons) * 100);
+                setCurrentLesson({ ...currentLesson, isCompleted: true });
 
-        setCourse({
-            ...course,
-            sections: updatedSections,
-            completedLessons: completedCount,
-            progress,
-        });
-
-        setCurrentLesson({ ...currentLesson, isCompleted: true });
-
-        // Auto-advance to next lesson
-        const allLessons = updatedSections.flatMap((s) => s.lessons);
-        const currentIndex = allLessons.findIndex((l) => l._id === currentLesson._id);
-        if (currentIndex < allLessons.length - 1) {
-            setCurrentLesson(allLessons[currentIndex + 1]);
+                // Auto-advance to next incomplete lesson
+                const currentIndex = lessons.findIndex(l => l._id === currentLesson._id);
+                if (currentIndex < lessons.length - 1) {
+                    setCurrentLesson(lessons[currentIndex + 1]);
+                }
+            }
+        } catch (error) {
+            console.error("Error marking lesson complete:", error);
+        } finally {
+            setMarkingComplete(false);
         }
     };
 
     const handlePrevious = () => {
-        if (!course || !currentLesson) return;
-        const allLessons = course.sections.flatMap((s) => s.lessons);
-        const currentIndex = allLessons.findIndex((l) => l._id === currentLesson._id);
+        if (!lessons.length || !currentLesson) return;
+        const currentIndex = lessons.findIndex(l => l._id === currentLesson._id);
         if (currentIndex > 0) {
-            setCurrentLesson(allLessons[currentIndex - 1]);
+            setCurrentLesson(lessons[currentIndex - 1]);
         }
     };
 
     const handleNext = () => {
-        if (!course || !currentLesson) return;
-        const allLessons = course.sections.flatMap((s) => s.lessons);
-        const currentIndex = allLessons.findIndex((l) => l._id === currentLesson._id);
-        if (currentIndex < allLessons.length - 1) {
-            setCurrentLesson(allLessons[currentIndex + 1]);
+        if (!lessons.length || !currentLesson) return;
+        const currentIndex = lessons.findIndex(l => l._id === currentLesson._id);
+        if (currentIndex < lessons.length - 1) {
+            setCurrentLesson(lessons[currentIndex + 1]);
         }
     };
 
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-                <div className="text-white text-xl">Loading course...</div>
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+                    <p className="text-white">Loading course...</p>
+                </div>
             </div>
         );
     }
 
-    if (!course) {
+    if (!course || !lessons.length) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-gray-900">
                 <div className="text-center">
-                    <h1 className="text-3xl font-bold mb-4">Course not found</h1>
-                    <Link href="/my-courses" className="text-blue-600 hover:underline">
+                    <h1 className="text-3xl font-bold text-white mb-4">Course not found</h1>
+                    <p className="text-gray-400 mb-6">You may not be enrolled in this course.</p>
+                    <Link href="/my-courses" className="text-indigo-400 hover:underline">
                         Back to my courses
                     </Link>
                 </div>
             </div>
         );
     }
+
+    const currentIndex = lessons.findIndex(l => l._id === currentLesson?._id);
+    const isFirstLesson = currentIndex === 0;
+    const isLastLesson = currentIndex === lessons.length - 1;
 
     return (
         <div className="h-screen flex flex-col bg-gray-900">
@@ -205,58 +189,55 @@ export default function CoursePlayerPage() {
                     </Link>
                     <div>
                         <h1 className="font-bold text-lg line-clamp-1">{course.title}</h1>
-                        <p className="text-sm text-gray-400">by {course.instructor}</p>
+                        <p className="text-sm text-gray-400">by {course.instructor?.name || "Instructor"}</p>
                     </div>
                 </div>
 
                 {/* Progress */}
-                <div className="flex items-center gap-4">
-                    <div className="text-right">
-                        <p className="text-sm text-gray-400">Your progress</p>
-                        <p className="font-bold">
-                            {course.completedLessons}/{course.totalLessons} lessons
-                        </p>
-                    </div>
-                    <div className="w-32">
-                        <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm text-gray-400">{course.progress}%</span>
+                {progress && (
+                    <div className="flex items-center gap-4">
+                        <div className="text-right">
+                            <p className="text-sm text-gray-400">Your progress</p>
+                            <p className="font-bold">
+                                {progress.completedLessons}/{progress.totalLessons} lessons
+                            </p>
                         </div>
-                        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-[#C1FF72] transition-all duration-500"
-                                style={{ width: `${course.progress}%` }}
-                            ></div>
+                        <div className="w-32">
+                            <div className="flex items-center justify-between mb-1">
+                                <span className="text-sm text-gray-400">{Math.round(progress.completionPercentage)}%</span>
+                            </div>
+                            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-[#C1FF72] transition-all duration-500"
+                                    style={{ width: `${progress.completionPercentage}%` }}
+                                ></div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
 
             <div className="flex-1 flex overflow-hidden">
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col">
                     {/* Video Player */}
-                    <div className="bg-black aspect-video flex items-center justify-center">
-                        {currentLesson ? (
-                            <div className="w-full h-full flex flex-col items-center justify-center">
-                                <div className="text-white text-center mb-8">
-                                    <h2 className="text-3xl font-bold mb-4">{currentLesson.title}</h2>
-                                    <p className="text-gray-400 mb-2">Duration: {currentLesson.duration}</p>
-                                    {currentLesson.isCompleted && (
-                                        <span className="inline-block px-3 py-1 bg-green-500 text-white text-sm rounded-full">
-                                            ✓ Completed
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="w-32 h-32 bg-gray-800 rounded-full flex items-center justify-center">
-                                    <span className="text-6xl">▶️</span>
-                                </div>
-                                <p className="text-gray-500 mt-8">Video Player Placeholder</p>
-                                <p className="text-gray-600 text-sm">
-                                    In production: integrate Vimeo/YouTube/custom player
-                                </p>
-                            </div>
+                    <div className="bg-black">
+                        {currentLesson?.videoUrl ? (
+                            <VideoPlayer
+                                videoUrl={currentLesson.videoUrl}
+                                title={currentLesson.title}
+                                onComplete={handleMarkComplete}
+                            />
                         ) : (
-                            <p className="text-white">No lesson selected</p>
+                            <div className="aspect-video flex items-center justify-center">
+                                <div className="text-center text-white">
+                                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    <p className="text-lg">{currentLesson?.title || "Select a lesson"}</p>
+                                    <p className="text-gray-500 text-sm mt-2">No video available for this lesson</p>
+                                </div>
+                            </div>
                         )}
                     </div>
 
@@ -265,10 +246,7 @@ export default function CoursePlayerPage() {
                         <div className="flex items-center justify-between">
                             <button
                                 onClick={handlePrevious}
-                                disabled={
-                                    !currentLesson ||
-                                    course.sections[0].lessons[0]._id === currentLesson._id
-                                }
+                                disabled={isFirstLesson}
                                 className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 ← Previous
@@ -277,20 +255,29 @@ export default function CoursePlayerPage() {
                             {currentLesson && !currentLesson.isCompleted && (
                                 <button
                                     onClick={handleMarkComplete}
-                                    className="px-8 py-3 bg-[#C1FF72] text-black rounded-lg font-semibold hover:bg-[#b3f063] transition-colors"
+                                    disabled={markingComplete}
+                                    className="px-8 py-3 bg-[#C1FF72] text-black rounded-lg font-semibold hover:bg-[#b3f063] transition-colors disabled:opacity-70 flex items-center gap-2"
                                 >
-                                    ✓ Mark as Complete
+                                    {markingComplete ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        "✓ Mark as Complete"
+                                    )}
                                 </button>
+                            )}
+
+                            {currentLesson?.isCompleted && (
+                                <span className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold">
+                                    ✓ Completed
+                                </span>
                             )}
 
                             <button
                                 onClick={handleNext}
-                                disabled={
-                                    !currentLesson ||
-                                    course.sections[course.sections.length - 1].lessons[
-                                        course.sections[course.sections.length - 1].lessons.length - 1
-                                    ]._id === currentLesson._id
-                                }
+                                disabled={isLastLesson}
                                 className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Next →
@@ -298,14 +285,14 @@ export default function CoursePlayerPage() {
                         </div>
                     </div>
 
-                    {/* Tabs: Overview, Notes, Q&A */}
+                    {/* Tabs: Overview, Notes */}
                     <div className="bg-gray-800 border-t border-gray-700">
                         <div className="flex gap-1 px-6">
                             <button
                                 onClick={() => setShowNotes(false)}
                                 className={`px-6 py-3 font-medium transition-colors ${!showNotes
-                                        ? "text-white border-b-2 border-[#C1FF72]"
-                                        : "text-gray-400 hover:text-white"
+                                    ? "text-white border-b-2 border-[#C1FF72]"
+                                    : "text-gray-400 hover:text-white"
                                     }`}
                             >
                                 Overview
@@ -313,8 +300,8 @@ export default function CoursePlayerPage() {
                             <button
                                 onClick={() => setShowNotes(true)}
                                 className={`px-6 py-3 font-medium transition-colors ${showNotes
-                                        ? "text-white border-b-2 border-[#C1FF72]"
-                                        : "text-gray-400 hover:text-white"
+                                    ? "text-white border-b-2 border-[#C1FF72]"
+                                    : "text-gray-400 hover:text-white"
                                     }`}
                             >
                                 Notes
@@ -327,13 +314,16 @@ export default function CoursePlayerPage() {
                         {!showNotes ? (
                             <div className="max-w-4xl">
                                 <h3 className="text-2xl font-bold text-white mb-4">
-                                    About this lesson
+                                    {currentLesson?.title}
                                 </h3>
                                 <p className="text-gray-400 leading-relaxed">
-                                    In this lesson, you'll learn the fundamentals and best practices.
-                                    Follow along with the video and complete the exercises to reinforce
-                                    your understanding.
+                                    {currentLesson?.description || "No description available for this lesson."}
                                 </p>
+                                {currentLesson?.duration && (
+                                    <p className="text-gray-500 mt-4">
+                                        Duration: {currentLesson.duration} minutes
+                                    </p>
+                                )}
                             </div>
                         ) : (
                             <div className="max-w-4xl">
@@ -352,70 +342,49 @@ export default function CoursePlayerPage() {
                     </div>
                 </div>
 
-                {/* Sidebar - Curriculum */}
+                {/* Sidebar - Lesson List */}
                 <div className="w-96 bg-gray-800 border-l border-gray-700 overflow-y-auto">
                     <div className="p-6">
                         <h2 className="text-xl font-bold text-white mb-4">Course Content</h2>
 
-                        <div className="space-y-2">
-                            {course.sections.map((section) => (
-                                <div key={section._id} className="bg-gray-900 rounded-lg overflow-hidden">
-                                    <button
-                                        onClick={() => toggleSection(section._id)}
-                                        className="w-full flex items-center justify-between p-4 hover:bg-gray-800 transition-colors"
-                                    >
-                                        <div className="text-left">
-                                            <h3 className="font-semibold text-white text-sm">
-                                                {section.title}
-                                            </h3>
-                                            <p className="text-xs text-gray-400 mt-1">
-                                                {section.lessons.filter((l) => l.isCompleted).length}/
-                                                {section.lessons.length} completed
-                                            </p>
-                                        </div>
-                                        <span className="text-gray-400">
-                                            {expandedSections.includes(section._id) ? "▼" : "▶"}
-                                        </span>
-                                    </button>
-
-                                    {expandedSections.includes(section._id) && (
-                                        <div className="border-t border-gray-700">
-                                            {section.lessons.map((lesson) => (
-                                                <button
-                                                    key={lesson._id}
-                                                    onClick={() => setCurrentLesson(lesson)}
-                                                    className={`w-full flex items-center justify-between px-4 py-3 hover:bg-gray-800 transition-colors border-b border-gray-700 last:border-0 ${currentLesson?._id === lesson._id
-                                                            ? "bg-gray-800 border-l-4 border-[#C1FF72]"
-                                                            : ""
-                                                        }`}
-                                                >
-                                                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                        <div className="flex-shrink-0">
-                                                            {lesson.isCompleted ? (
-                                                                <span className="text-green-500">✓</span>
-                                                            ) : (
-                                                                <span className="text-gray-600">▶</span>
-                                                            )}
-                                                        </div>
-                                                        <div className="text-left min-w-0 flex-1">
-                                                            <p
-                                                                className={`text-sm line-clamp-2 ${lesson.isCompleted
-                                                                        ? "text-gray-400 line-through"
-                                                                        : "text-white"
-                                                                    }`}
-                                                            >
-                                                                {lesson.title}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <span className="text-xs text-gray-500 flex-shrink-0 ml-2">
-                                                        {lesson.duration}
-                                                    </span>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                        <div className="space-y-1">
+                            {lessons.map((lesson, index) => (
+                                <button
+                                    key={lesson._id}
+                                    onClick={() => setCurrentLesson(lesson)}
+                                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${currentLesson?._id === lesson._id
+                                        ? "bg-indigo-600/20 border-l-2 border-indigo-500"
+                                        : "hover:bg-gray-700"
+                                        }`}
+                                >
+                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${lesson.isCompleted
+                                        ? "bg-green-500"
+                                        : currentLesson?._id === lesson._id
+                                            ? "bg-indigo-500"
+                                            : "bg-gray-700"
+                                        }`}>
+                                        {lesson.isCompleted ? (
+                                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                            </svg>
+                                        ) : (
+                                            <span className="text-xs text-white font-medium">{index + 1}</span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 text-left min-w-0">
+                                        <p className={`text-sm line-clamp-2 ${lesson.isCompleted
+                                            ? "text-gray-400"
+                                            : currentLesson?._id === lesson._id
+                                                ? "text-white"
+                                                : "text-gray-300"
+                                            }`}>
+                                            {lesson.title}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-0.5">
+                                            {lesson.duration} min
+                                        </p>
+                                    </div>
+                                </button>
                             ))}
                         </div>
                     </div>

@@ -12,6 +12,38 @@ const enrollmentSchema = new mongoose.Schema(
             ref: 'Course',
             required: true,
         },
+        // Contact details for learner communication
+        contactDetails: {
+            name: {
+                type: String,
+                trim: true,
+            },
+            email: {
+                type: String,
+                trim: true,
+                lowercase: true,
+            },
+            phone: {
+                type: String,
+                trim: true,
+            },
+        },
+        // Payment details
+        paymentDetails: {
+            orderId: String,
+            paymentId: String,
+            amount: Number,
+            currency: {
+                type: String,
+                default: 'INR',
+            },
+            status: {
+                type: String,
+                enum: ['pending', 'completed', 'failed', 'refunded'],
+                default: 'pending',
+            },
+            paidAt: Date,
+        },
         progress: [
             {
                 lessonId: {

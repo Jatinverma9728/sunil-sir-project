@@ -179,8 +179,8 @@ export default function HeroBanner() {
                                         key={index}
                                         onClick={() => setCurrentSlide(index)}
                                         className={`h-1.5 sm:h-2 rounded-full transition-all duration-200 ease-out ${index === currentSlide
-                                                ? "w-6 sm:w-8 bg-white"
-                                                : "w-1.5 sm:w-2 bg-white/40 hover:bg-white/60"
+                                            ? "w-6 sm:w-8 bg-white"
+                                            : "w-1.5 sm:w-2 bg-white/40 hover:bg-white/60"
                                             }`}
                                         aria-label={`Go to slide ${index + 1}`}
                                     />
