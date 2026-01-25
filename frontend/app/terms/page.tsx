@@ -24,13 +24,13 @@ export default function TermsPage() {
                 <div className="prose prose-lg max-w-none">
                     <Section number="1" title="Agreement to Terms">
                         <p>
-                            By accessing and using Flash, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these terms, please discontinue use of our services immediately.
+                            By accessing and using North Tech Hub, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these terms, please discontinue use of our services immediately.
                         </p>
                     </Section>
 
                     <Section number="2" title="Use License">
                         <p>
-                            Permission is granted to temporarily download materials on Flash for personal, non-commercial use only. This is a license, not a transfer of title. Under this license, you may not:
+                            Permission is granted to temporarily download materials on North Tech Hub for personal, non-commercial use only. This is a license, not a transfer of title. Under this license, you may not:
                         </p>
                         <ul className="space-y-2 mt-4">
                             <ListItem>Modify or copy the materials</ListItem>
@@ -66,13 +66,13 @@ export default function TermsPage() {
 
                     <Section number="6" title="Intellectual Property">
                         <p>
-                            All content, features, and functionality are the exclusive property of Flash and its licensors. This includes but is not limited to text, graphics, logos, and software, protected by copyright, trademark, and other laws.
+                            All content, features, and functionality are the exclusive property of North Tech Hub and its licensors. This includes but is not limited to text, graphics, logos, and software, protected by copyright, trademark, and other laws.
                         </p>
                     </Section>
 
                     <Section number="7" title="Limitation of Liability">
                         <p>
-                            Flash and its suppliers shall not be liable for any damages arising from use or inability to use our services, including but not limited to loss of data, profits, or business interruption.
+                            North Tech Hub and its suppliers shall not be liable for any damages arising from use or inability to use our services, including but not limited to loss of data, profits, or business interruption.
                         </p>
                     </Section>
 

@@ -130,7 +130,7 @@ export default function VerifyEmailPage() {
                     {/* Header */}
                     <div className="mb-10">
                         <Link href="/" className="text-2xl font-semibold text-gray-900 tracking-tight">
-                            Flash<span className="text-gray-300">.</span>
+                            North Tech Hub<span className="text-gray-300">.</span>
                         </Link>
                     </div>
 
@@ -170,7 +170,7 @@ export default function VerifyEmailPage() {
                                     <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                     </svg>
-                                    Look for email from "noreply@flash.com"
+                                    Look for email from "noreply@northtechhub.com"
                                 </li>
                                 <li className="flex items-center gap-2">
                                     <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
@@ -238,7 +238,7 @@ export default function VerifyEmailPage() {
                     {/* Support Link */}
                     <div className="text-center space-y-3">
                         <p className="text-sm text-gray-500">
-                            <a href="mailto:support@flash.com" className="text-gray-900 hover:underline font-medium">
+                            <a href="mailto:support@northtechhub.com" className="text-gray-900 hover:underline font-medium">
                                 Contact Support
                             </a>
                             {" if you need help"}

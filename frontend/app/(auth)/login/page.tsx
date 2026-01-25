@@ -96,7 +96,7 @@ function LoginContent() {
                     {/* Header */}
                     <div className="mb-10">
                         <Link href="/" className="text-2xl font-semibold text-gray-900 tracking-tight">
-                            Flash<span className="text-gray-300">.</span>
+                            North Tech Hub<span className="text-gray-300">.</span>
                         </Link>
                     </div>
 
@@ -254,7 +254,7 @@ function LoginContent() {
                         Start your journey
                     </h2>
                     <p className="text-gray-400 text-lg max-w-md">
-                        Access premium products and exclusive courses with your Flash account.
+                        Access premium products and exclusive courses with your North Tech Hub account.
                     </p>
                 </div>
             </div>

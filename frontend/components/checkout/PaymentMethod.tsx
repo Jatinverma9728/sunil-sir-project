@@ -90,7 +90,7 @@ export default function PaymentMethod({
             key: razorpayKeyId,
             amount: Math.round(totalAmount * 100), // Amount in paise
             currency: "INR",
-            name: "Flash Store",
+            name: "North Tech Hub",
             description: "Order Payment",
             image: "/logo.png",
             order_id: razorpayOrderId,

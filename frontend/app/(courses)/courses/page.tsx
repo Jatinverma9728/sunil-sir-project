@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CourseCard from "@/components/courses/CourseCard";
 import { API_URL } from "@/lib/constants";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Interface matching the API response
 interface APICourse {
@@ -62,6 +63,7 @@ export default function CoursesPage() {
     const [courses, setCourses] = useState<Course[]>([]);
     const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
+    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
     // Filters
     const [searchQuery, setSearchQuery] = useState("");
@@ -103,8 +105,6 @@ export default function CoursesPage() {
             setLoading(false);
         }
     };
-
-
 
     useEffect(() => {
         applyFilters();
@@ -157,196 +157,267 @@ export default function CoursesPage() {
         router.push(`/courses/${courseId}`);
     };
 
+    // Shared Filter Content
+    const FilterContent = () => (
+        <div className="space-y-8">
+            {/* Search */}
+            <div>
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Search</h3>
+                <div className="relative">
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Keywords..."
+                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-gray-900 outline-none"
+                    />
+                    <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            {/* Categories */}
+            <div>
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Categories</h3>
+                <div className="space-y-2">
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                        <input
+                            type="radio"
+                            name="category"
+                            value="all"
+                            checked={selectedCategory === "all"}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className="hidden"
+                        />
+                        <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedCategory === "all" ? "border-gray-900" : "border-gray-300 group-hover:border-gray-400"}`}>
+                            {selectedCategory === "all" && <div className="w-2.5 h-2.5 rounded-full bg-gray-900" />}
+                        </span>
+                        <span className={`text-sm font-medium transition-colors ${selectedCategory === "all" ? "text-gray-900" : "text-gray-500 group-hover:text-gray-700"}`}>All Categories</span>
+                    </label>
+                    {categories.map((cat) => (
+                        <label key={cat} className="flex items-center gap-3 cursor-pointer group">
+                            <input
+                                type="radio"
+                                name="category"
+                                value={cat}
+                                checked={selectedCategory === cat}
+                                onChange={(e) => setSelectedCategory(e.target.value)}
+                                className="hidden"
+                            />
+                            <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedCategory === cat ? "border-gray-900" : "border-gray-300 group-hover:border-gray-400"}`}>
+                                {selectedCategory === cat && <div className="w-2.5 h-2.5 rounded-full bg-gray-900" />}
+                            </span>
+                            <span className={`text-sm font-medium transition-colors ${selectedCategory === cat ? "text-gray-900" : "text-gray-500 group-hover:text-gray-700"}`}>{cat}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            {/* Levels */}
+            <div>
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Level</h3>
+                <div className="space-y-2">
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                        <input
+                            type="radio"
+                            name="level"
+                            value="all"
+                            checked={selectedLevel === "all"}
+                            onChange={(e) => setSelectedLevel(e.target.value)}
+                            className="hidden"
+                        />
+                        <span className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${selectedLevel === "all" ? "border-gray-900 bg-gray-900 text-white" : "border-gray-300 group-hover:border-gray-400"}`}>
+                            {selectedLevel === "all" && <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                        </span>
+                        <span className={`text-sm font-medium transition-colors ${selectedLevel === "all" ? "text-gray-900" : "text-gray-500 group-hover:text-gray-700"}`}>All Levels</span>
+                    </label>
+                    {levels.map((level) => (
+                        <label key={level} className="flex items-center gap-3 cursor-pointer group">
+                            <input
+                                type="radio"
+                                name="level"
+                                value={level}
+                                checked={selectedLevel === level}
+                                onChange={(e) => setSelectedLevel(e.target.value)}
+                                className="hidden"
+                            />
+                            <span className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${selectedLevel === level ? "border-gray-900 bg-gray-900 text-white" : "border-gray-300 group-hover:border-gray-400"}`}>
+                                {selectedLevel === level && <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                            </span>
+                            <span className={`text-sm font-medium transition-colors ${selectedLevel === level ? "text-gray-900" : "text-gray-500 group-hover:text-gray-700"}`}>{level}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            {/* Price Range */}
+            <div>
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Price</h3>
+                    <span className="text-sm font-bold bg-gray-100 px-2 py-1 rounded-md">₹0 - ₹{priceRange[1]}</span>
+                </div>
+                <input
+                    type="range"
+                    min="0"
+                    max="10000"
+                    step="100"
+                    value={priceRange[1]}
+                    onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
+                    className="w-full accent-gray-900 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
+            </div>
+        </div>
+    );
+
     return (
         <div className="min-h-screen bg-white">
-            {/* Header */}
-            <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
-                {/* Decorative blurs */}
-                <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-violet-600/20 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+            {/* Minimal Dark Hero */}
+            <div className="bg-gray-900 text-white py-20 lg:py-24 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[128px] opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-600 rounded-full blur-[96px] opacity-20 translate-y-1/2 -translate-x-1/2"></div>
 
-                <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-20 lg:py-28 relative z-10">
-                    <p className="text-sm font-medium text-gray-400 uppercase tracking-[0.2em] mb-4">
-                        Online Learning
-                    </p>
-                    <h1 className="text-4xl lg:text-5xl font-medium mb-4 tracking-tight">Explore Courses</h1>
-                    <p className="text-xl text-gray-400 mb-10 max-w-2xl">
-                        Learn new skills and advance your career with expert-led courses
-                    </p>
-
-                    {/* Search Bar */}
+                <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 relative z-10">
                     <div className="max-w-2xl">
-                        <div className="relative">
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search for courses..."
-                                className="w-full pl-14 pr-4 py-4 rounded-2xl text-gray-900 text-base bg-white focus:ring-4 focus:ring-white/30 outline-none"
-                            />
-                            <svg
-                                className="absolute left-5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
+                        <h1 className="text-5xl lg:text-7xl font-bold mb-6 tracking-tight">
+                            Explore <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Knowledge.</span>
+                        </h1>
+                        <p className="text-lg text-gray-400 leading-relaxed max-w-lg">
+                            Master new skills with our expertly curated courses.
+                            From coding to design, find your next breakthrough.
+                        </p>
                     </div>
                 </div>
             </div>
 
             <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-12">
-                {/* Filters */}
-                <div className="bg-gray-50 rounded-3xl p-6 mb-10 border border-gray-100">
-                    <div className="grid md:grid-cols-4 gap-6">
-                        {/* Category Filter */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Category
-                            </label>
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all"
-                            >
-                                <option value="all">All Categories</option>
-                                {categories.map((cat) => (
-                                    <option key={cat} value={cat}>
-                                        {cat}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                <div className="lg:grid lg:grid-cols-4 gap-12">
 
-                        {/* Level Filter */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Level
-                            </label>
-                            <select
-                                value={selectedLevel}
-                                onChange={(e) => setSelectedLevel(e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all"
-                            >
-                                <option value="all">All Levels</option>
-                                {levels.map((level) => (
-                                    <option key={level} value={level}>
-                                        {level}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Price Range */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Max Price: <span className="font-semibold text-gray-900">₹{priceRange[1]}</span>
-                            </label>
-                            <input
-                                type="range"
-                                min="0"
-                                max="500"
-                                value={priceRange[1]}
-                                onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                                className="w-full accent-gray-900"
-                            />
-                        </div>
-
-                        {/* Sort */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Sort By
-                            </label>
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all"
-                            >
-                                <option value="popular">Most Popular</option>
-                                <option value="rating">Highest Rated</option>
-                                <option value="price-asc">Price: Low to High</option>
-                                <option value="price-desc">Price: High to Low</option>
-                                <option value="newest">Newest</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Results Info */}
-                <div className="flex justify-between items-center mb-8">
-                    <p className="text-gray-500">
-                        Showing <span className="font-semibold text-gray-900">{filteredCourses.length}</span> courses
-                    </p>
-                </div>
-
-                {/* Loading State */}
-                {loading && (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[...Array(6)].map((_, i) => (
-                            <div key={i} className="bg-white rounded-3xl border border-gray-100 p-4 animate-pulse">
-                                <div className="h-48 bg-gray-100 rounded-2xl mb-4"></div>
-                                <div className="h-4 bg-gray-100 rounded w-1/4 mb-3"></div>
-                                <div className="h-5 bg-gray-100 rounded w-full mb-2"></div>
-                                <div className="h-5 bg-gray-100 rounded w-3/4 mb-4"></div>
-                                <div className="h-4 bg-gray-100 rounded w-1/2"></div>
+                    {/* Desktop Sidebar */}
+                    <aside className="hidden lg:block lg:col-span-1">
+                        <div className="sticky top-24">
+                            <div className="pb-6 border-b border-gray-100 mb-6">
+                                <h2 className="text-xl font-bold text-gray-900">Filters</h2>
                             </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Empty State */}
-                {!loading && filteredCourses.length === 0 && (
-                    <div className="text-center py-20">
-                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
+                            <FilterContent />
                         </div>
-                        <h3 className="text-2xl font-medium text-gray-900 mb-2">
-                            No courses found
-                        </h3>
-                        <p className="text-gray-500 mb-6">
-                            Try adjusting your filters or search query
-                        </p>
-                    </div>
-                )}
+                    </aside>
 
-                {/* Courses Grid */}
-                {!loading && filteredCourses.length > 0 && (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredCourses.map((course) => (
-                            <CourseCard key={course._id} course={course} onEnroll={handleEnroll} />
-                        ))}
-                    </div>
-                )}
+                    {/* Main Content */}
+                    <div className="lg:col-span-3">
+                        {/* Top Bar */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                            <p className="text-gray-500 font-medium">
+                                Showing <span className="text-gray-900 font-bold">{filteredCourses.length}</span> results
+                            </p>
 
-                {/* Why Learn With Us */}
-                <div className="mt-20 bg-gray-50 rounded-3xl p-10 lg:p-14">
-                    <h2 className="text-3xl font-medium text-gray-900 mb-10 text-center tracking-tight">
-                        Why Learn With Us?
-                    </h2>
-                    <div className="grid md:grid-cols-4 gap-8">
-                        {[
-                            { icon: "M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z", title: "Expert Instructors", desc: "Learn from industry professionals" },
-                            { icon: "M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z", title: "Learn Anywhere", desc: "Access on mobile, tablet & desktop" },
-                            { icon: "M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z", title: "Certificates", desc: "Earn certificates upon completion" },
-                            { icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z", title: "Lifetime Access", desc: "Learn at your own pace, forever" },
-                        ].map((item, i) => (
-                            <div key={i} className="text-center group">
-                                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-gray-900 transition-colors">
-                                    <svg className="w-8 h-8 text-gray-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
-                                    </svg>
-                                </div>
-                                <h3 className="font-medium text-gray-900 mb-1">{item.title}</h3>
-                                <p className="text-sm text-gray-500">{item.desc}</p>
+                            <div className="flex items-center gap-4">
+                                <button
+                                    className="lg:hidden px-4 py-2 bg-gray-100 rounded-lg text-sm font-bold text-gray-900"
+                                    onClick={() => setMobileFiltersOpen(true)}
+                                >
+                                    Filters
+                                </button>
+
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="bg-transparent text-sm font-bold text-gray-900 border-none outline-none cursor-pointer focus:ring-0 text-right pr-8"
+                                >
+                                    <option value="popular">Most Popular</option>
+                                    <option value="rating">Highest Rated</option>
+                                    <option value="price-asc">Price: Low to High</option>
+                                    <option value="price-desc">Price: High to Low</option>
+                                    <option value="newest">Newest</option>
+                                </select>
                             </div>
-                        ))}
+                        </div>
+
+                        {/* Course Grid */}
+                        {loading ? (
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {[...Array(6)].map((_, i) => (
+                                    <div key={i} className="bg-gray-50 rounded-3xl h-[400px] animate-pulse" />
+                                ))}
+                            </div>
+                        ) : filteredCourses.length > 0 ? (
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <AnimatePresence>
+                                    {filteredCourses.map((course) => (
+                                        <motion.div
+                                            key={course._id}
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.95 }}
+                                            layout
+                                        >
+                                            <CourseCard course={course} onEnroll={handleEnroll} />
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            </div>
+                        ) : (
+                            <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                                <p className="text-gray-500 font-medium">No courses found matching your criteria.</p>
+                                <button
+                                    onClick={() => {
+                                        setSearchQuery("");
+                                        setSelectedCategory("all");
+                                        setSelectedLevel("all");
+                                        setPriceRange([0, 10000]);
+                                    }}
+                                    className="mt-4 text-sm font-bold text-gray-900 underline"
+                                >
+                                    Clear all filters
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Filter Drawer */}
+            <AnimatePresence>
+                {mobileFiltersOpen && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 z-50 lg:hidden"
+                            onClick={() => setMobileFiltersOpen(false)}
+                        />
+                        <motion.div
+                            initial={{ x: "100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "100%" }}
+                            className="fixed inset-y-0 right-0 w-full max-w-xs bg-white z-50 p-6 overflow-y-auto lg:hidden"
+                        >
+                            <div className="flex items-center justify-between mb-8">
+                                <h2 className="text-xl font-bold text-gray-900">Filters</h2>
+                                <button
+                                    onClick={() => setMobileFiltersOpen(false)}
+                                    className="p-2 hover:bg-gray-100 rounded-full"
+                                >
+                                    <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <FilterContent />
+                            <div className="mt-8 pt-6 border-t border-gray-100">
+                                <button
+                                    onClick={() => setMobileFiltersOpen(false)}
+                                    className="w-full py-4 bg-gray-900 text-white font-bold rounded-xl"
+                                >
+                                    Show {filteredCourses.length} Results
+                                </button>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

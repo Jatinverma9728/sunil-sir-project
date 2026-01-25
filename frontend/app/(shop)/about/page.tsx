@@ -2,215 +2,208 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 export default function AboutPage() {
-    const [hoveredValue, setHoveredValue] = useState<number | null>(null);
+    const fadeIn = {
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.6 }
+    };
 
     const stats = [
         { number: "50K+", label: "Happy Customers" },
         { number: "10K+", label: "Products Sold" },
         { number: "500+", label: "Courses Delivered" },
-        { number: "99%", label: "Satisfaction Rate" },
+        { number: "4.9", label: "Average Rating" },
     ];
 
     const values = [
         {
-            icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
-            title: "Quality First",
-            description: "We source only the finest products and create courses with industry experts.",
+            title: "Innovation First",
+            description: "We constantly push boundaries to bring you the latest in tech and education.",
+            color: "bg-blue-50 text-blue-600"
         },
         {
-            icon: "M13 10V3L4 14h7v7l9-11h-7z",
-            title: "Innovation",
-            description: "Constantly evolving to bring you the latest technology and learning experiences.",
+            title: "Community Driven",
+            description: "Built by learners for learners. We grow together with our community.",
+            color: "bg-purple-50 text-purple-600"
         },
         {
-            icon: "M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
-            title: "Sustainability",
-            description: "Committed to eco-friendly practices and responsible business operations.",
+            title: "Premium Quality",
+            description: "Every product and course is rigorously tested to meet our high standards.",
+            color: "bg-green-50 text-green-600"
         },
         {
-            icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
-            title: "Customer Focus",
-            description: "Your success is our priority. We're here to support you every step of the way.",
+            title: "Transparency",
+            description: "No hidden fees, no confusing terms. Just honest business.",
+            color: "bg-orange-50 text-orange-600"
         },
     ];
 
     const team = [
         { name: "Alex Johnson", role: "Founder & CEO", initials: "AJ" },
-        { name: "Sarah Chen", role: "Head of Products", initials: "SC" },
-        { name: "Michael Park", role: "Lead Designer", initials: "MP" },
-        { name: "Emily Davis", role: "Customer Success", initials: "ED" },
+        { name: "Sarah Chen", role: "Head of Education", initials: "SC" },
+        { name: "Michael Park", role: "Product Lead", initials: "MP" },
+        { name: "Emily Davis", role: "Community Manager", initials: "ED" },
     ];
 
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section */}
-            <section className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
-                {/* Decorative elements */}
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-white/5 rounded-full blur-3xl"></div>
+            <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+                <div className="absolute inset-0 -z-10">
+                    <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-blue-50 to-transparent rounded-bl-full opacity-50" />
+                    <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-purple-50 to-transparent rounded-tr-full opacity-50" />
+                </div>
 
-                <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-24 lg:py-32 relative z-10">
-                    <div className="max-w-3xl">
-                        <span className="inline-block text-xs font-medium text-gray-400 uppercase tracking-[0.2em] mb-6 border border-gray-700 px-4 py-2 rounded-full">
-                            About Flash
+                <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 text-center">
+                    <motion.div
+                        initial="initial"
+                        animate="animate"
+                        variants={fadeIn}
+                    >
+                        <span className="inline-block px-4 py-1.5 rounded-full bg-gray-900 text-white text-sm font-medium tracking-wide mb-8">
+                            EST. 2020
                         </span>
-                        <h1 className="text-4xl lg:text-6xl font-medium mb-6 tracking-tight">
-                            Empowering Your Digital Journey
+                        <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-8 tracking-tight">
+                            We Are <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">North Tech Hub.</span>
                         </h1>
-                        <p className="text-xl text-gray-400 leading-relaxed">
-                            We're on a mission to make premium technology and education accessible to everyone.
-                            From cutting-edge gadgets to transformative courses, we're here to help you thrive.
+                        <p className="text-xl lg:text-2xl text-gray-500 max-w-3xl mx-auto leading-relaxed">
+                            Bridging the gap between premium technology and transformative education.
+                            We believe in empowering your digital journey.
                         </p>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* Stats Section - Floating Cards */}
+            <section className="py-12">
+                <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                        {stats.map((stat, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: i * 0.1 }}
+                                className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-shadow text-center"
+                            >
+                                <div className="text-4xl lg:text-5xl font-bold text-gray-900 mb-2">
+                                    {stat.number}
+                                </div>
+                                <div className="text-sm font-medium text-gray-500 bg-gray-50 inline-block px-3 py-1 rounded-lg">
+                                    {stat.label}
+                                </div>
+                            </motion.div>
+                        ))}
                     </div>
                 </div>
             </section>
 
-            {/* Stats Section */}
+            {/* Image/Video Break */}
             <section className="py-20">
                 <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8">
-                    <div className="bg-white rounded-3xl border border-gray-100 shadow-lg p-10 lg:p-14 -mt-20 relative z-20">
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-                            {stats.map((stat, i) => (
-                                <div key={i} className="text-center group">
-                                    <div className="text-4xl lg:text-5xl font-medium text-gray-900 mb-2 tracking-tight group-hover:scale-110 transition-transform">
-                                        {stat.number}
+                    <motion.div
+                        initial={{ scale: 0.95, opacity: 0 }}
+                        whileInView={{ scale: 1, opacity: 1 }}
+                        viewport={{ once: true }}
+                        className="relative rounded-[3rem] overflow-hidden aspect-[21/9] bg-gray-900"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+                            <div className="text-center text-white px-4">
+                                <h3 className="text-3xl font-bold mb-4">Our Methodology</h3>
+                                <p className="text-gray-400 max-w-xl mx-auto text-lg">
+                                    We combine cutting-edge hardware with expert knowledge to create a complete ecosystem for growth.
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* Values Grid */}
+            <section className="py-20 bg-gray-50">
+                <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <div>
+                            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
+                                Built on Trust & <br />
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Innovation</span>
+                            </h2>
+                            <p className="text-lg text-gray-500 leading-relaxed mb-8">
+                                We started with a simple idea: technology shouldn't be complicated, and education shouldn't be boring.
+                                By blending these two worlds, we created a platform that adapts to your needs.
+                            </p>
+                            <Link
+                                href="/contact"
+                                className="inline-flex items-center justify-center px-8 py-4 bg-gray-900 text-white font-medium rounded-full hover:bg-black transition-colors"
+                            >
+                                Get in Touch
+                            </Link>
+                        </div>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            {values.map((value, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: i * 0.1 }}
+                                    className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:-translate-y-1 transition-transform"
+                                >
+                                    <div className={`w-12 h-12 rounded-xl ${value.color} flex items-center justify-center mb-4`}>
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
                                     </div>
-                                    <div className="text-gray-500">{stat.label}</div>
-                                </div>
+                                    <h3 className="text-lg font-bold text-gray-900 mb-2">{value.title}</h3>
+                                    <p className="text-gray-500 text-sm leading-relaxed">
+                                        {value.description}
+                                    </p>
+                                </motion.div>
                             ))}
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Story Section */}
-            <section className="py-20 bg-gray-50">
-                <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8">
-                    <div className="grid lg:grid-cols-2 gap-16 items-center">
-                        <div>
-                            <p className="text-sm font-medium text-gray-400 uppercase tracking-[0.2em] mb-4">Our Story</p>
-                            <h2 className="text-3xl lg:text-4xl font-medium text-gray-900 tracking-tight mb-6">
-                                From a Simple Idea to a Global Platform
-                            </h2>
-                            <div className="space-y-4 text-gray-500 leading-relaxed">
-                                <p>
-                                    Flash was born from a simple belief: everyone deserves access to quality technology
-                                    and education. What started in 2020 as a small online store has grown into a
-                                    comprehensive platform serving thousands worldwide.
-                                </p>
-                                <p>
-                                    We carefully curate every product and develop courses with industry experts to
-                                    ensure you get the best. Our team works tirelessly to find innovative solutions
-                                    that make your life easier.
-                                </p>
-                                <p>
-                                    Today, Flash stands as a testament to what's possible when passion meets purpose.
-                                    We're not just a marketplace—we're a community of learners, creators, and dreamers.
-                                </p>
-                            </div>
-                        </div>
-                        <div className="relative">
-                            <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-50 rounded-3xl flex items-center justify-center overflow-hidden">
-                                <div className="text-center">
-                                    <div className="w-32 h-32 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                        </svg>
-                                    </div>
-                                    <p className="text-lg font-medium text-gray-900">Growing Together</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Values Section */}
-            <section className="py-24 bg-white">
-                <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <p className="text-sm font-medium text-gray-400 uppercase tracking-[0.2em] mb-4">Our Values</p>
-                        <h2 className="text-3xl lg:text-4xl font-medium text-gray-900 tracking-tight">
-                            What We Stand For
-                        </h2>
-                    </div>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {values.map((value, i) => (
-                            <div
-                                key={i}
-                                onMouseEnter={() => setHoveredValue(i)}
-                                onMouseLeave={() => setHoveredValue(null)}
-                                className={`
-                                    rounded-3xl p-8 text-center transition-all duration-500
-                                    ${hoveredValue === i
-                                        ? 'bg-gray-900 text-white -translate-y-2 shadow-2xl'
-                                        : 'bg-gray-50 text-gray-900'
-                                    }
-                                `}
-                            >
-                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-colors ${hoveredValue === i ? 'bg-white/20' : 'bg-gray-200'}`}>
-                                    <svg className={`w-8 h-8 ${hoveredValue === i ? 'text-white' : 'text-gray-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={value.icon} />
-                                    </svg>
-                                </div>
-                                <h3 className="text-lg font-medium mb-3">{value.title}</h3>
-                                <p className={hoveredValue === i ? 'text-gray-300' : 'text-gray-500'}>{value.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
             {/* Team Section */}
-            <section className="py-24 bg-gray-50">
+            <section className="py-24">
                 <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <p className="text-sm font-medium text-gray-400 uppercase tracking-[0.2em] mb-4">Our Team</p>
-                        <h2 className="text-3xl lg:text-4xl font-medium text-gray-900 tracking-tight">
-                            Meet the People Behind Flash
-                        </h2>
+                        <h2 className="text-4xl font-bold text-gray-900 mb-4">Meet The Team</h2>
+                        <p className="text-gray-500">The creative minds behind the platform.</p>
                     </div>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {team.map((member, i) => (
-                            <div key={i} className="bg-white rounded-3xl p-8 text-center border border-gray-100 hover:shadow-xl hover:-translate-y-2 transition-all duration-500 group">
-                                <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mx-auto mb-5 flex items-center justify-center text-2xl font-medium text-gray-600 group-hover:bg-gray-900 group-hover:text-white transition-all">
-                                    {member.initials}
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                className="group relative overflow-hidden rounded-3xl"
+                            >
+                                <div className="aspect-[4/5] bg-gray-100 relative">
+                                    {/* Placeholder for real team images */}
+                                    <div className="absolute inset-0 flex items-center justify-center text-4xl font-bold text-gray-300">
+                                        {member.initials}
+                                    </div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                 </div>
-                                <h3 className="text-lg font-medium text-gray-900">{member.name}</h3>
-                                <p className="text-gray-500 text-sm">{member.role}</p>
-                            </div>
+
+                                <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                    <h3 className="text-xl font-bold text-white mb-1 drop-shadow-md group-hover:text-white transition-colors">
+                                        {member.name}
+                                    </h3>
+                                    <p className="text-gray-300 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                                        {member.role}
+                                    </p>
+                                </div>
+                            </motion.div>
                         ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA Section */}
-            <section className="py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 right-0 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl"></div>
-
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-                    <h2 className="text-3xl lg:text-5xl font-medium text-white mb-6 tracking-tight">
-                        Ready to Start Your Journey?
-                    </h2>
-                    <p className="text-xl text-gray-400 mb-10">
-                        Explore our curated collection of products and courses.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Link
-                            href="/products"
-                            className="px-8 py-4 bg-white text-gray-900 font-medium rounded-full hover:bg-gray-100 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
-                        >
-                            Shop Products
-                        </Link>
-                        <Link
-                            href="/courses"
-                            className="px-8 py-4 bg-white/10 text-white font-medium rounded-full hover:bg-white/20 transition-all border border-white/20"
-                        >
-                            Browse Courses
-                        </Link>
                     </div>
                 </div>
             </section>

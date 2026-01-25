@@ -8,6 +8,7 @@ import { OffersProvider } from "@/lib/hooks/useOffers";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/home/Footer";
 import AnnouncementBar from "@/components/AnnouncementBar";
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import "../src/styles/globals.css";
 
 // Playful Tech Fonts
@@ -26,7 +27,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Flash - Premium E-Commerce & Courses",
+  title: "North Tech Hub - Premium E-Commerce & Courses",
   description: "Your destination for premium gadgets and online learning",
 };
 
@@ -52,6 +53,7 @@ export default function RootLayout({
                     {children}
                   </main>
                   <Footer />
+                  <WhatsAppButton />
                 </OffersProvider>
               </WishlistProvider>
             </CartProvider>

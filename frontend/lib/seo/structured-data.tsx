@@ -22,7 +22,7 @@ export function generateProductSchema(product: {
         image: product.images.map((img) => img.url),
         brand: {
             "@type": "Brand",
-            name: product.brand || "Flash",
+            name: product.brand || "North Tech Hub",
         },
         offers: {
             "@type": "Offer",
@@ -73,7 +73,7 @@ export function generateCourseSchema(course: {
         description: course.description,
         provider: {
             "@type": "Organization",
-            name: "Flash Learn",
+            name: "North Tech Hub Learn",
             sameAs: process.env.NEXT_PUBLIC_SITE_URL,
         },
         instructor: {
@@ -118,7 +118,7 @@ export function generateOrganizationSchema() {
     return {
         "@context": "https://schema.org",
         "@type": "Organization",
-        name: "Flash",
+        name: "North Tech Hub",
         description: "Your destination for premium gadgets and online learning",
         url: process.env.NEXT_PUBLIC_SITE_URL,
         logo: `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`,

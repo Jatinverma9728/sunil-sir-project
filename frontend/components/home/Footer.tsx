@@ -37,7 +37,7 @@ export default function Footer() {
                     <div className="lg:col-span-2">
                         <Link href="/" className="inline-block group">
                             <h3 className="text-3xl font-semibold text-gray-900 mb-1 tracking-tight">
-                                Flash<span className="text-gray-300 group-hover:text-gray-900 transition-colors">.</span>
+                                North Tech Hub<span className="text-gray-300 group-hover:text-gray-900 transition-colors">.</span>
                             </h3>
                         </Link>
                         <p className="text-gray-500 text-base leading-relaxed mt-5 max-w-sm">
@@ -137,7 +137,7 @@ export default function Footer() {
                 <div className="pt-10 border-t border-gray-200">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                         <p className="text-gray-400 text-sm">
-                            © {currentYear} Flash. All rights reserved.
+                            © {currentYear} North Tech Hub. All rights reserved.
                         </p>
 
                         <div className="flex gap-8 text-sm">

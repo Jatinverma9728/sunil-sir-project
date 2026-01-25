@@ -122,7 +122,7 @@ export default function RegisterPage() {
 
                 <div className="relative z-10 text-center">
                     <h2 className="text-4xl font-medium text-white mb-4 tracking-tight">
-                        Join Flash today
+                        Join North Tech Hub today
                     </h2>
                     <p className="text-gray-400 text-lg max-w-md">
                         Create an account to unlock exclusive products, courses, and special offers.
@@ -136,7 +136,7 @@ export default function RegisterPage() {
                     {/* Header */}
                     <div className="mb-10">
                         <Link href="/" className="text-2xl font-semibold text-gray-900 tracking-tight">
-                            Flash<span className="text-gray-300">.</span>
+                            North Tech Hub<span className="text-gray-300">.</span>
                         </Link>
                     </div>
 

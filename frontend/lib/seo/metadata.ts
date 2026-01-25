@@ -16,13 +16,13 @@ export function generateProductMetadata(product: {
     const reviewCount = product.rating?.count || 0;
 
     return {
-        title: `${product.title} | Flash Shop`,
+        title: `${product.title} | North Tech Hub Shop`,
         description: product.description.substring(0, 160), // Google preview is ~160 chars
         keywords: [
             product.title,
             product.category,
             "buy online",
-            "flash shop",
+            "north tech hub shop",
             "electronics",
             "gadgets",
         ],
@@ -38,7 +38,7 @@ export function generateProductMetadata(product: {
                     alt: product.title,
                 },
             ],
-            siteName: "Flash Shop",
+            siteName: "North Tech Hub Shop",
         },
         twitter: {
             card: "summary_large_image",
@@ -71,7 +71,7 @@ export function generateCourseMetadata(course: {
     const imageUrl = course.thumbnail || "/placeholder-course.png";
 
     return {
-        title: `${course.title} - Online Course | Flash Learn`,
+        title: `${course.title} - Online Course | North Tech Hub Learn`,
         description: course.description.substring(0, 160),
         keywords: [
             course.title,
@@ -79,7 +79,7 @@ export function generateCourseMetadata(course: {
             "learn",
             course.instructor.name,
             course.level || "all levels",
-            "flash learn",
+            "north tech hub learn",
         ],
         openGraph: {
             title: course.title,
@@ -93,7 +93,7 @@ export function generateCourseMetadata(course: {
                     alt: course.title,
                 },
             ],
-            siteName: "Flash Learn",
+            siteName: "North Tech Hub Learn",
         },
         twitter: {
             card: "summary_large_image",
@@ -114,14 +114,14 @@ export function generateCategoryMetadata(
     const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
 
     return {
-        title: `${categoryTitle} - Shop ${productCount}+ Products | Flash`,
+        title: `${categoryTitle} - Shop ${productCount}+ Products | North Tech Hub`,
         description: `Browse ${productCount}+ ${categoryTitle.toLowerCase()} products. Find the best deals on electronics, gadgets, and more. Free shipping on orders over ₹50.`,
-        keywords: [category, "buy", "shop", "online", "flash", "deals"],
+        keywords: [category, "buy", "shop", "online", "north tech hub", "deals"],
         openGraph: {
             title: `${categoryTitle} Products`,
             description: `Shop ${productCount}+ ${categoryTitle.toLowerCase()} products`,
             type: "website",
-            siteName: "Flash",
+            siteName: "North Tech Hub",
         },
         twitter: {
             card: "summary",
