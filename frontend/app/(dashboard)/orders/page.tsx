@@ -212,48 +212,63 @@ function OrdersContent() {
                 ) : (
                     <div className="space-y-4">
                         {orders.map((order) => (
-                            <div key={order._id} className="bg-white rounded-2xl p-6 hover:shadow-lg transition-all">
-                                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-                                    <div>
-                                        <div className="flex items-center gap-3 mb-1">
-                                            <span className="font-mono text-sm text-gray-900">#{order._id.slice(-8).toUpperCase()}</span>
-                                            <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize border ${getStatusColor(order.orderStatus)}`}>
-                                                {order.orderStatus}
-                                            </span>
+                            <Link href={`/orders/${order._id}`} key={order._id} className="block group">
+                                <div className="bg-white rounded-3xl p-8 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+                                        <div>
+                                            <div className="flex items-center gap-4 mb-2">
+                                                <span className="font-mono text-sm font-medium text-gray-900">#{order._id.slice(-8).toUpperCase()}</span>
+                                                <span className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase ${getStatusColor(order.orderStatus)}`}>
+                                                    {order.orderStatus}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-gray-500">
+                                                Placed on {new Date(order.createdAt).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}
+                                            </p>
                                         </div>
-                                        <p className="text-sm text-gray-500">
-                                            {new Date(order.createdAt).toLocaleDateString('en-US', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric'
-                                            })}
-                                        </p>
+                                        <div className="mt-4 md:mt-0 text-right">
+                                            <p className="text-2xl font-light text-gray-900 group-hover:text-amber-600 transition-colors">₹{order.totalPrice?.toFixed(2)}</p>
+                                            <div className="flex items-center gap-2 justify-end text-xs text-gray-400 mt-1">
+                                                <span>{order.orderItems?.length} items</span>
+                                                <span>•</span>
+                                                <span className="capitalize">{order.paymentInfo?.method}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="mt-4 md:mt-0 text-right">
-                                        <p className="text-2xl font-light text-gray-900">₹{order.totalPrice?.toFixed(2)}</p>
-                                        <p className="text-xs text-gray-500">{order.orderItems?.length} items</p>
-                                    </div>
-                                </div>
 
-                                <div className="border-t border-gray-100 pt-4">
-                                    <div className="flex items-center gap-3 overflow-x-auto pb-2">
-                                        {order.orderItems?.slice(0, 4).map((item, idx) => (
-                                            <div key={idx} className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                                                {item.image ? (
-                                                    <img src={item.image} alt={item.title} className="w-full h-full object-cover rounded-xl" />
-                                                ) : (
-                                                    <span className="text-2xl opacity-40">📦</span>
+                                    <div className="border-t border-gray-50 pt-6">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3 overflow-x-auto">
+                                                {order.orderItems?.slice(0, 4).map((item, idx) => (
+                                                    <div key={idx} className="w-14 h-14 bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 border border-gray-100">
+                                                        {item.image ? (
+                                                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <span className="text-xl opacity-30">📦</span>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                                {order.orderItems?.length > 4 && (
+                                                    <div className="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-medium text-gray-500 border border-gray-100">
+                                                        +{order.orderItems.length - 4}
+                                                    </div>
                                                 )}
                                             </div>
-                                        ))}
-                                        {order.orderItems?.length > 4 && (
-                                            <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 text-sm text-gray-500">
-                                                +{order.orderItems.length - 4}
+
+                                            <div className="hidden md:flex items-center text-sm font-medium text-gray-900 group-hover:translate-x-1 transition-transform">
+                                                View Details
+                                                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                </svg>
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 )}

@@ -446,6 +446,23 @@ const updateOrderStatus = async (req, res) => {
             order.cancellationReason = req.body.reason || 'Cancelled by admin';
         }
 
+        // Add to tracking history
+        const { location, message, carrier, trackingId, trackingUrl } = req.body;
+
+        if (carrier) order.trackingDetails.carrier = carrier;
+        if (trackingId) order.trackingDetails.trackingId = trackingId;
+        if (trackingUrl) order.trackingDetails.trackingUrl = trackingUrl;
+
+        order.trackingDetails.history.push({
+            status: status === 'shipped' ? 'shipped' :
+                status === 'delivered' ? 'delivered' :
+                    status === 'processing' ? 'processing' :
+                        status === 'cancelled' ? 'cancelled' : 'pending', // Map to enum or use status directly if it matches
+            location: location || 'Warehouse',
+            message: message || `Order status updated to ${status}`,
+            timestamp: Date.now()
+        });
+
         await order.save();
 
         res.status(200).json({

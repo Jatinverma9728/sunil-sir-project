@@ -128,6 +128,25 @@ const orderSchema = new mongoose.Schema(
         cancellationReason: {
             type: String,
         },
+        trackingDetails: {
+            carrier: String,
+            trackingId: String,
+            trackingUrl: String,
+            history: [
+                {
+                    status: {
+                        type: String,
+                        enum: ['pending', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled'],
+                    },
+                    location: String,
+                    message: String,
+                    timestamp: {
+                        type: Date,
+                        default: Date.now,
+                    },
+                },
+            ],
+        },
     },
     {
         timestamps: true,
