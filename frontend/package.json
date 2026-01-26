@@ -27,7 +27,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/dompurify": "^3.0.5",
-    "@types/node": "^20",
+    "@types/node": "^20.19.30",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",

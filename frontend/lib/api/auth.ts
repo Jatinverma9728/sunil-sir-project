@@ -14,6 +14,19 @@ export interface RegisterData {
     password: string;
 }
 
+export interface Address {
+    _id?: string;
+    fullName: string;
+    phone: string;
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+    isDefault: boolean;
+    type: 'Home' | 'Work' | 'Other';
+}
+
 export interface User {
     id: string;
     name: string;
@@ -21,6 +34,8 @@ export interface User {
     role: string;
     avatar?: string;
     isEmailVerified?: boolean;
+    addresses?: Address[];
+    phone?: string;
 }
 
 export interface AuthResponse {
@@ -123,3 +138,26 @@ export const removeAuthToken = (): void => {
 export const isAuthenticated = (): boolean => {
     return !!getAuthToken();
 };
+
+/**
+ * Add new address
+ */
+export const addAddress = async (address: Omit<Address, '_id'>): Promise<{ success: boolean; data: Address[] }> => {
+    return apiClient.post<Address[]>('/auth/profile/address', address, true) as Promise<{ success: boolean; data: Address[] }>;
+};
+
+/**
+ * Update address
+ */
+export const updateAddress = async (id: string, address: Partial<Address>): Promise<{ success: boolean; data: Address[] }> => {
+    return apiClient.put<Address[]>(`/auth/profile/address/${id}`, address, true) as Promise<{ success: boolean; data: Address[] }>;
+};
+
+/**
+ * Delete address
+ */
+export const deleteAddress = async (id: string): Promise<{ success: boolean; data: Address[] }> => {
+    return apiClient.delete<Address[]>(`/auth/profile/address/${id}`, true) as Promise<{ success: boolean; data: Address[] }>;
+};
+
+

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 
-const { register, login, getProfile, updateProfile, googleCallback } = require('../controllers/authController');
+const { register, login, getProfile, updateProfile, googleCallback, addAddress, updateAddress, deleteAddress } = require('../controllers/authController');
 const { forgotPassword, verifyResetOTP, resetPassword } = require('../controllers/passwordController');
 const { protect } = require('../middlewares/authMiddleware');
 
@@ -55,5 +55,10 @@ router.get(
     }),
     googleCallback
 );
+
+// Address Management Routes
+router.post('/profile/address', protect, addAddress);
+router.put('/profile/address/:id', protect, updateAddress);
+router.delete('/profile/address/:id', protect, deleteAddress);
 
 module.exports = router;

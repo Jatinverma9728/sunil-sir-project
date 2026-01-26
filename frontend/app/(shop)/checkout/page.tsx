@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/context/CartContext";
 import { useAuth } from "@/lib/context/AuthContext";
-import { getAuthToken, apiClient } from "@/lib/api/auth";
+import { getAuthToken } from "@/lib/api/auth";
 import AddressForm from "@/components/checkout/AddressForm";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import PaymentMethod from "@/components/checkout/PaymentMethod";
 import { useToast } from "@/components/ui/Toast";
+import { orderApi, Order } from "@/lib/api/orders";
 
 interface Address {
     fullName: string;
@@ -22,21 +23,14 @@ interface Address {
 }
 
 interface OrderData {
-    order: {
-        _id: string;
-        orderItems: any[];
-        totalPrice: number;
-        paymentInfo: {
-            razorpayOrderId: string;
-        };
-    };
+    order: Order;
     razorpayOrderId: string;
     razorpayKeyId: string;
 }
 
 export default function CheckoutPage() {
     const router = useRouter();
-    const { items, getTotalPrice, clearCart, getCartTotal, appliedCoupon } = useCart();
+    const { items, getCartTotal, clearCart, appliedCoupon } = useCart();
     const { user, loading: authLoading } = useAuth();
     const toast = useToast();
 
@@ -85,7 +79,6 @@ export default function CheckoutPage() {
         setIsProcessing(true);
 
         try {
-
             const token = getAuthToken();
 
             if (!token) {
@@ -123,9 +116,9 @@ export default function CheckoutPage() {
 
             console.log("Creating order:", orderPayload);
 
-            const result = await apiClient.post<any>('/orders', orderPayload, true);
+            const result = await orderApi.createOrder(orderPayload);
 
-            if (!result.success) {
+            if (!result.success || !result.data) {
                 throw new Error(result.message || 'Failed to create order');
             }
 
@@ -142,6 +135,7 @@ export default function CheckoutPage() {
             window.scrollTo({ top: 0, behavior: "smooth" });
 
         } catch (error: any) {
+
             console.error("Order creation error:", error);
             setError(error.message || "Failed to create order. Please try again.");
             toast.error(error.message || "Failed to create order");
@@ -167,14 +161,13 @@ export default function CheckoutPage() {
 
         try {
             console.log("Verifying payment for order:", orderData.order._id);
-            const token = getAuthToken();
 
             // Verify payment on backend
-            const verifyResult = await apiClient.post<any>(`/orders/${orderData.order._id}/verify`, {
+            const verifyResult = await orderApi.verifyPayment(orderData.order._id, {
                 razorpayOrderId: response.razorpay_order_id,
                 razorpayPaymentId: response.razorpay_payment_id,
                 razorpaySignature: response.razorpay_signature,
-            }, true);
+            });
 
             console.log("Payment verification result:", verifyResult);
 

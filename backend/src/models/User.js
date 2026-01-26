@@ -80,13 +80,20 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: '',
         },
-        address: {
-            street: { type: String, default: '' },
-            city: { type: String, default: '' },
-            state: { type: String, default: '' },
-            zipCode: { type: String, default: '' },
-            country: { type: String, default: '' },
-        },
+        addresses: [{
+            fullName: { type: String, required: true },
+            phone: { type: String, required: true },
+            street: { type: String, required: true },
+            city: { type: String, required: true },
+            state: { type: String, required: true },
+            zipCode: { type: String, required: true },
+            country: { type: String, default: 'India' },
+            isDefault: { type: Boolean, default: false },
+            type: { type: String, enum: ['Home', 'Work', 'Other'], default: 'Home' }
+        }],
+        // Keep legacy address field for backward compatibility if needed, or deprecate it. 
+        // For now, removing it as we are migrating.
+        // address: { ... } -> Removed
         loginAttempts: {
             type: Number,
             default: 0,

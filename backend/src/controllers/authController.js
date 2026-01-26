@@ -98,7 +98,8 @@ const register = async (req, res) => {
                     email: user.email,
                     isEmailVerified: user.isEmailVerified,
                     phone: user.phone,
-                    address: user.address,
+                    phone: user.phone,
+                    addresses: user.addresses, // Updated
                     role: user.role,
                 },
                 token,
@@ -253,7 +254,8 @@ const getProfile = async (req, res) => {
                     role: user.role,
                     avatar: user.avatar,
                     phone: user.phone,
-                    address: user.address,
+                    phone: user.phone,
+                    addresses: user.addresses, // Updated
                     createdAt: user.createdAt,
                 },
             },
@@ -290,12 +292,7 @@ const updateProfile = async (req, res) => {
         if (name) user.name = name;
         if (avatar) user.avatar = avatar;
         if (req.body.phone) user.phone = req.body.phone;
-        if (req.body.address) {
-            user.address = {
-                ...user.address,
-                ...req.body.address
-            };
-        }
+        // Address update removed from here - use specific address endpoints
 
         await user.save();
 
@@ -348,10 +345,155 @@ const googleCallback = async (req, res) => {
     }
 };
 
+
+
+/**
+ * @desc    Add new address
+ * @route   POST /api/auth/profile/address
+ * @access  Private
+ */
+const addAddress = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        const { fullName, phone, street, city, state, zipCode, country, type, isDefault } = req.body;
+
+        const newAddress = {
+            fullName,
+            phone,
+            street,
+            city,
+            state,
+            zipCode,
+            country,
+            type,
+            isDefault: isDefault || false
+        };
+
+        if (isDefault) {
+            // Unset other default addresses
+            user.addresses.forEach(addr => addr.isDefault = false);
+        } else if (user.addresses.length === 0) {
+            // First address is default by default
+            newAddress.isDefault = true;
+        }
+
+        user.addresses.push(newAddress);
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Address added successfully',
+            data: user.addresses
+        });
+    } catch (error) {
+        console.error('Add address error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error adding address',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * @desc    Update address
+ * @route   PUT /api/auth/profile/address/:id
+ * @access  Private
+ */
+const updateAddress = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        const addressId = req.params.id;
+        const updates = req.body;
+
+        const addressIndex = user.addresses.findIndex(addr => addr._id.toString() === addressId);
+
+        if (addressIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                message: 'Address not found'
+            });
+        }
+
+        if (updates.isDefault) {
+            user.addresses.forEach(addr => addr.isDefault = false);
+        }
+
+        // Apply updates
+        Object.keys(updates).forEach(key => {
+            if (key !== '_id') { // Prevent ID update
+                user.addresses[addressIndex][key] = updates[key];
+            }
+        });
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Address updated successfully',
+            data: user.addresses
+        });
+    } catch (error) {
+        console.error('Update address error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating address',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * @desc    Delete address
+ * @route   DELETE /api/auth/profile/address/:id
+ * @access  Private
+ */
+const deleteAddress = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        const addressId = req.params.id;
+
+        const addressIndex = user.addresses.findIndex(addr => addr._id.toString() === addressId);
+
+        if (addressIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                message: 'Address not found'
+            });
+        }
+
+        const wasDefault = user.addresses[addressIndex].isDefault;
+        user.addresses.splice(addressIndex, 1);
+
+        // If we deleted default and there are other addresses, make the first one default
+        if (wasDefault && user.addresses.length > 0) {
+            user.addresses[0].isDefault = true;
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Address deleted successfully',
+            data: user.addresses
+        });
+    } catch (error) {
+        console.error('Delete address error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting address',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     register,
     login,
     getProfile,
     updateProfile,
     googleCallback,
+    addAddress,
+    updateAddress,
+    deleteAddress
 };
