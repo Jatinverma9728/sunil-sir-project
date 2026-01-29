@@ -26,7 +26,7 @@ export default function VideoPlayer({
     const [playbackRate, setPlaybackRate] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const containerRef = useRef<HTMLDivElement>(null);
-    const controlsTimeoutRef = useRef<NodeJS.Timeout>();
+    const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Check if URL is YouTube
     const isYouTube = videoUrl?.includes('youtube.com') || videoUrl?.includes('youtu.be');

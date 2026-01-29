@@ -19,7 +19,7 @@ export default function GoogleButton({ onLoading, text = "Continue with Google" 
         <button
             onClick={handleGoogleLogin}
             type="button"
-            className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md group"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white border border-gray-200 rounded-xl font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 hover:-translate-y-0.5 mb-1 active:scale-[0.98] group"
         >
             {/* Google Logo SVG */}
             <svg

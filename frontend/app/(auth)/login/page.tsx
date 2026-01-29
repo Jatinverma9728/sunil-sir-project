@@ -1,19 +1,185 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useToast } from "@/components/ui/Toast";
 import GoogleButton from "@/components/auth/GoogleButton";
+import { Eye, EyeOff } from "lucide-react";
 
-// Inner component that uses useSearchParams
+// --- Enums / Types ---
+
+interface PupilProps {
+    size?: number;
+    maxDistance?: number;
+    pupilColor?: string;
+    forceLookX?: number;
+    forceLookY?: number;
+}
+
+const Pupil = ({
+    size = 12,
+    maxDistance = 5,
+    pupilColor = "black",
+    forceLookX,
+    forceLookY
+}: PupilProps) => {
+    const [mouseX, setMouseX] = useState<number>(0);
+    const [mouseY, setMouseY] = useState<number>(0);
+    const pupilRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            setMouseX(e.clientX);
+            setMouseY(e.clientY);
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+
+        return () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+        };
+    }, []);
+
+    const calculatePupilPosition = () => {
+        if (!pupilRef.current) return { x: 0, y: 0 };
+
+        if (forceLookX !== undefined && forceLookY !== undefined) {
+            return { x: forceLookX, y: forceLookY };
+        }
+
+        const pupil = pupilRef.current.getBoundingClientRect();
+        const pupilCenterX = pupil.left + pupil.width / 2;
+        const pupilCenterY = pupil.top + pupil.height / 2;
+
+        const deltaX = mouseX - pupilCenterX;
+        const deltaY = mouseY - pupilCenterY;
+        const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), maxDistance);
+
+        const angle = Math.atan2(deltaY, deltaX);
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+
+        return { x, y };
+    };
+
+    const pupilPosition = calculatePupilPosition();
+
+    return (
+        <div
+            ref={pupilRef}
+            className="rounded-full"
+            style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                backgroundColor: pupilColor,
+                transform: `translate(${pupilPosition.x}px, ${pupilPosition.y}px)`,
+                transition: 'transform 0.1s ease-out',
+            }}
+        />
+    );
+};
+
+interface EyeBallProps {
+    size?: number;
+    pupilSize?: number;
+    maxDistance?: number;
+    eyeColor?: string;
+    pupilColor?: string;
+    isBlinking?: boolean;
+    forceLookX?: number;
+    forceLookY?: number;
+}
+
+const EyeBall = ({
+    size = 48,
+    pupilSize = 16,
+    maxDistance = 10,
+    eyeColor = "white",
+    pupilColor = "black",
+    isBlinking = false,
+    forceLookX,
+    forceLookY
+}: EyeBallProps) => {
+    const [mouseX, setMouseX] = useState<number>(0);
+    const [mouseY, setMouseY] = useState<number>(0);
+    const eyeRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            setMouseX(e.clientX);
+            setMouseY(e.clientY);
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+
+        return () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+        };
+    }, []);
+
+    const calculatePupilPosition = () => {
+        if (!eyeRef.current) return { x: 0, y: 0 };
+
+        if (forceLookX !== undefined && forceLookY !== undefined) {
+            return { x: forceLookX, y: forceLookY };
+        }
+
+        const eye = eyeRef.current.getBoundingClientRect();
+        const eyeCenterX = eye.left + eye.width / 2;
+        const eyeCenterY = eye.top + eye.height / 2;
+
+        const deltaX = mouseX - eyeCenterX;
+        const deltaY = mouseY - eyeCenterY;
+        const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), maxDistance);
+
+        const angle = Math.atan2(deltaY, deltaX);
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+
+        return { x, y };
+    };
+
+    const pupilPosition = calculatePupilPosition();
+
+    return (
+        <div
+            ref={eyeRef}
+            className="rounded-full flex items-center justify-center transition-all duration-150"
+            style={{
+                width: `${size}px`,
+                height: isBlinking ? '2px' : `${size}px`,
+                backgroundColor: eyeColor,
+                overflow: 'hidden',
+            }}
+        >
+            {!isBlinking && (
+                <div
+                    className="rounded-full"
+                    style={{
+                        width: `${pupilSize}px`,
+                        height: `${pupilSize}px`,
+                        backgroundColor: pupilColor,
+                        transform: `translate(${pupilPosition.x}px, ${pupilPosition.y}px)`,
+                        transition: 'transform 0.1s ease-out',
+                    }}
+                />
+            )}
+        </div>
+    );
+};
+
+// --- Main Component ---
+
 function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { login } = useAuth();
     const toast = useToast();
 
+    // Form State
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -23,13 +189,128 @@ function LoginContent() {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
+    // Animation State
+    const [mouseX, setMouseX] = useState<number>(0);
+    const [mouseY, setMouseY] = useState<number>(0);
+    const [isPurpleBlinking, setIsPurpleBlinking] = useState(false);
+    const [isBlackBlinking, setIsBlackBlinking] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
+    const [isLookingAtEachOther, setIsLookingAtEachOther] = useState(false);
+    const [isPurplePeeking, setIsPurplePeeking] = useState(false);
+
+    // Static scene reference to avoid jitter from moving characters
+    const sceneRef = useRef<HTMLDivElement>(null);
+
+    // --- Animation Effects ---
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            setMouseX(e.clientX);
+            setMouseY(e.clientY);
+        };
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => window.removeEventListener("mousemove", handleMouseMove);
+    }, []);
+
+    // Blinking effect for purple character
+    useEffect(() => {
+        const getRandomBlinkInterval = () => Math.random() * 4000 + 3000;
+        const scheduleBlink = () => {
+            const blinkTimeout = setTimeout(() => {
+                setIsPurpleBlinking(true);
+                setTimeout(() => {
+                    setIsPurpleBlinking(false);
+                    scheduleBlink();
+                }, 150);
+            }, getRandomBlinkInterval());
+            return blinkTimeout;
+        };
+        const timeout = scheduleBlink();
+        return () => clearTimeout(timeout);
+    }, []);
+
+    // Blinking effect for black character
+    useEffect(() => {
+        const getRandomBlinkInterval = () => Math.random() * 4000 + 3000;
+        const scheduleBlink = () => {
+            const blinkTimeout = setTimeout(() => {
+                setIsBlackBlinking(true);
+                setTimeout(() => {
+                    setIsBlackBlinking(false);
+                    scheduleBlink();
+                }, 150);
+            }, getRandomBlinkInterval());
+            return blinkTimeout;
+        };
+        const timeout = scheduleBlink();
+        return () => clearTimeout(timeout);
+    }, []);
+
+    // Looking at each other animation when typing starts
+    useEffect(() => {
+        if (isTyping) {
+            setIsLookingAtEachOther(true);
+            const timer = setTimeout(() => {
+                setIsLookingAtEachOther(false);
+            }, 800);
+            return () => clearTimeout(timer);
+        } else {
+            setIsLookingAtEachOther(false);
+        }
+    }, [isTyping]);
+
+    // Purple sneaky peeking animation when typing password and it's visible
+    useEffect(() => {
+        if (formData.password.length > 0 && showPassword) {
+            const schedulePeek = () => {
+                const peekInterval = setTimeout(() => {
+                    setIsPurplePeeking(true);
+                    setTimeout(() => {
+                        setIsPurplePeeking(false);
+                    }, 800);
+                }, Math.random() * 3000 + 2000);
+                return peekInterval;
+            };
+            const firstPeek = schedulePeek();
+            return () => clearTimeout(firstPeek);
+        } else {
+            setIsPurplePeeking(false);
+        }
+    }, [formData.password, showPassword, isPurplePeeking]);
+
+    // Calculate position based on STATIC scene anchors relative to the container
+    // This prevents the feedback loop where moving the character changes its own rect
+    const calculatePosition = (offsetX: number, width: number, offsetY: number) => {
+        if (!sceneRef.current) return { faceX: 0, faceY: 0, bodySkew: 0 };
+
+        const sceneRect = sceneRef.current.getBoundingClientRect();
+
+        // Calculate the static center of the character relative to the viewport
+        const centerX = sceneRect.left + offsetX + (width / 2);
+        const centerY = sceneRect.top + offsetY; // Approximate 'face' height area
+
+        const deltaX = mouseX - centerX;
+        const deltaY = mouseY - centerY;
+
+        const faceX = Math.max(-15, Math.min(15, deltaX / 20));
+        const faceY = Math.max(-10, Math.min(10, deltaY / 30));
+        const bodySkew = Math.max(-6, Math.min(6, -deltaX / 120));
+
+        return { faceX, faceY, bodySkew };
+    };
+
+    // Define static positions (must match the style left/top values)
+    const purplePos = calculatePosition(70, 180, 150);
+    const blackPos = calculatePosition(240, 120, 200);
+    const yellowPos = calculatePosition(310, 140, 250);
+    const orangePos = calculatePosition(0, 240, 300);
+
+    // --- Form Handlers ---
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
-
         if (errors[name as keyof typeof errors]) {
             setErrors((prev) => ({ ...prev, [name]: undefined, general: undefined }));
         }
@@ -37,51 +318,36 @@ function LoginContent() {
 
     const validateForm = (): boolean => {
         const newErrors: { email?: string; password?: string } = {};
-
         if (!formData.email.trim()) {
             newErrors.email = "Email is required";
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = "Invalid email format";
         }
-
         if (!formData.password) {
             newErrors.password = "Password is required";
         } else if (formData.password.length < 6) {
             newErrors.password = "Password must be at least 6 characters";
         }
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!validateForm()) return;
-
         setLoading(true);
         setErrors({});
-
         try {
             await login(formData.email, formData.password, formData.rememberMe);
-
             toast.success(formData.rememberMe ? "Login successful! You'll stay signed in for 30 days" : "Login successful! Welcome back");
-
             const redirectTo = searchParams.get("redirect") || "/";
             setTimeout(() => router.push(redirectTo), 500);
         } catch (error: any) {
             console.error("Login error:", error);
-
             const errorMessage = error.message || "An error occurred during login";
-
-            if (errorMessage.includes("email")) {
-                setErrors({ email: errorMessage });
-            } else if (errorMessage.includes("password")) {
-                setErrors({ password: errorMessage });
-            } else {
-                setErrors({ general: errorMessage });
-            }
-
+            if (errorMessage.includes("email")) setErrors({ email: errorMessage });
+            else if (errorMessage.includes("password")) setErrors({ password: errorMessage });
+            else setErrors({ general: errorMessage });
             toast.error(errorMessage);
         } finally {
             setLoading(false);
@@ -89,110 +355,108 @@ function LoginContent() {
     };
 
     return (
-        <div className="min-h-screen bg-white flex">
-            {/* Left - Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-                <div className="w-full max-w-md">
-                    {/* Header */}
-                    <div className="mb-10">
-                        <Link href="/" className="text-2xl font-semibold text-gray-900 tracking-tight">
-                            North Tech Hub<span className="text-gray-300">.</span>
-                        </Link>
-                    </div>
+        <div className="min-h-screen bg-gray-50/50 flex text-gray-900 font-sans selection:bg-indigo-500/30 relative overflow-hidden">
+            {/* Dot Pattern Background */}
+            <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none"></div>
 
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-medium text-gray-900 mb-2 tracking-tight">Welcome back</h1>
+            {/* Left - Form */}
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                className="w-full lg:w-1/2 flex items-center justify-center p-8 relative z-20"
+            >
+                <div className="w-full max-w-md space-y-8 bg-white/80 backdrop-blur-xl p-8 rounded-3xl border border-white/20 shadow-xl shadow-gray-200/50">
+                    {/* Header */}
+                    <div className="space-y-2">
+                        <Link href="/" className="inline-block mb-6 group">
+                            <span className="text-2xl font-bold tracking-tight text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                North Tech Hub<span className="text-indigo-600">.</span>
+                            </span>
+                        </Link>
+                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">Welcome back</h1>
                         <p className="text-gray-500">Sign in to your account to continue</p>
                     </div>
 
                     {/* Error Alert */}
                     {errors.general && (
-                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl">
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="p-4 bg-red-50 border border-red-100 rounded-xl shadow-sm"
+                        >
                             <p className="text-sm text-red-600 flex items-center gap-2">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                {errors.general}
+                                <span className="font-bold">!</span> {errors.general}
                             </p>
-                        </div>
+                        </motion.div>
                     )}
 
                     {/* Form */}
-                    <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Email */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Email
-                            </label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className={`w-full px-4 py-3.5 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-gray-200 focus:border-gray-300 focus:bg-white transition-all ${errors.email ? "border-red-300 bg-red-50" : "border-gray-200"}`}
-                                placeholder="you@example.com"
-                                disabled={loading}
-                            />
-                            {errors.email && (
-                                <p className="mt-2 text-sm text-red-600">{errors.email}</p>
-                            )}
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700">Email</label>
+                            <div className="relative group">
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    onFocus={() => setIsTyping(true)}
+                                    onBlur={() => setIsTyping(false)}
+                                    className={`w-full px-4 py-3.5 bg-gray-50 border rounded-xl text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all duration-300 ${errors.email ? "border-red-300 bg-red-50" : "border-gray-200 hover:border-gray-300"}`}
+                                    placeholder="you@example.com"
+                                    disabled={loading}
+                                />
+                            </div>
+                            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
                         </div>
 
                         {/* Password */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Password
-                            </label>
-                            <div className="relative">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700">Password</label>
+                            <div className="relative group">
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     name="password"
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className={`w-full px-4 py-3.5 pr-12 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-gray-200 focus:border-gray-300 focus:bg-white transition-all ${errors.password ? "border-red-300 bg-red-50" : "border-gray-200"}`}
+                                    onFocus={() => setIsTyping(true)}
+                                    onBlur={() => setIsTyping(false)}
+                                    className={`w-full px-4 py-3.5 pr-12 bg-gray-50 border rounded-xl text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all duration-300 ${errors.password ? "border-red-300 bg-red-50" : "border-gray-200 hover:border-gray-300"}`}
                                     placeholder="••••••••"
                                     disabled={loading}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors bg-transparent p-1 rounded-full hover:bg-gray-100"
                                     disabled={loading}
                                 >
                                     {showPassword ? (
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                        </svg>
+                                        <EyeOff className="w-5 h-5" />
                                     ) : (
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
+                                        <Eye className="w-5 h-5" />
                                     )}
                                 </button>
                             </div>
-                            {errors.password && (
-                                <p className="mt-2 text-sm text-red-600">{errors.password}</p>
-                            )}
+                            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
                         </div>
 
-                        {/* Remember Me & Forgot Password */}
+                        {/* Remember & Forgot */}
                         <div className="flex items-center justify-between">
-                            <label className="flex items-center gap-2 cursor-pointer">
+                            <label className="flex items-center gap-2 cursor-pointer group">
                                 <input
                                     type="checkbox"
                                     name="rememberMe"
                                     checked={formData.rememberMe}
                                     onChange={handleChange}
-                                    className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-200"
+                                    className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-offset-0 focus:ring-2 focus:ring-indigo-500 transition-colors"
                                     disabled={loading}
                                 />
-                                <span className="text-sm text-gray-600">Remember me</span>
+                                <span className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors">Remember me</span>
                             </label>
-                            <Link
-                                href="/forgot-password"
-                                className="text-sm text-gray-900 hover:underline font-medium"
-                            >
+                            <Link href="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-700 transition-colors hover:underline font-medium">
                                 Forgot password?
                             </Link>
                         </div>
@@ -201,7 +465,7 @@ function LoginContent() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-4 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-all duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-lg"
+                            className="w-full py-4 bg-[#0A0A0A] text-white rounded-xl font-bold text-lg hover:bg-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-xl hover:shadow-gray-300/50"
                         >
                             {loading ? (
                                 <>
@@ -209,7 +473,7 @@ function LoginContent() {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    Signing in...
+                                    <span>Signing in...</span>
                                 </>
                             ) : (
                                 "Sign In"
@@ -217,47 +481,209 @@ function LoginContent() {
                         </button>
                     </form>
 
-                    {/* OR Divider */}
-                    <div className="relative my-6">
+                    {/* Divider */}
+                    <div className="relative">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-gray-200"></div>
                         </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-white text-gray-500">Or continue with</span>
+                        <div className="relative flex justify-center text-xs uppercase tracking-widest">
+                            <span className="px-4 bg-white text-gray-400">Or continue with</span>
                         </div>
                     </div>
 
-                    {/* Google OAuth */}
+                    {/* Google Button */}
                     <GoogleButton />
 
                     {/* Sign Up Link */}
-                    <p className="mt-8 text-center text-sm text-gray-500">
+                    <p className="text-center text-sm text-gray-500">
                         Don't have an account?{" "}
-                        <Link
-                            href="/register"
-                            className="text-gray-900 hover:underline font-medium"
-                        >
+                        <Link href="/register" className="text-gray-900 font-semibold hover:text-indigo-600 transition-colors hover:underline">
                             Create account
                         </Link>
                     </p>
                 </div>
-            </div>
+            </motion.div>
 
-            {/* Right - Decorative */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 items-center justify-center p-12 relative overflow-hidden">
-                {/* Decorative elements */}
-                <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-white/5 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+            {/* Right - Interactive Characters */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+                className="hidden lg:flex lg:w-1/2 bg-[#0A0A0A] relative overflow-hidden items-end justify-center"
+            >
+                {/* Abstract Background Shapes */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
 
-                <div className="relative z-10 text-center">
-                    <h2 className="text-4xl font-medium text-white mb-4 tracking-tight">
-                        Start your journey
-                    </h2>
-                    <p className="text-gray-400 text-lg max-w-md">
-                        Access premium products and exclusive courses with your North Tech Hub account.
-                    </p>
+                {/* Character Scene Container with ref for STABLE measurements */}
+                <div ref={sceneRef} className="relative z-10 w-[550px] h-[400px] mt-20">
+
+                    {/* Purple tall rectangle character - Back layer */}
+                    <div
+                        className="absolute bottom-0 transition-all duration-700 ease-in-out shadow-2xl"
+                        style={{
+                            left: '70px',
+                            width: '180px',
+                            height: (isTyping || (formData.password.length > 0 && !showPassword)) ? '440px' : '400px',
+                            backgroundColor: '#6C3FF5',
+                            borderRadius: '10px 10px 0 0',
+                            zIndex: 1,
+                            transform: (formData.password.length > 0 && showPassword)
+                                ? `skewX(0deg)`
+                                : (isTyping || (formData.password.length > 0 && !showPassword))
+                                    ? `skewX(${(purplePos.bodySkew || 0) - 12}deg) translateX(40px)`
+                                    : `skewX(${purplePos.bodySkew || 0}deg)`,
+                            transformOrigin: 'bottom center',
+                        }}
+                    >
+                        {/* Eyes */}
+                        <div
+                            className="absolute flex gap-8 transition-all duration-700 ease-in-out"
+                            style={{
+                                left: (formData.password.length > 0 && showPassword) ? `${20}px` : isLookingAtEachOther ? `${55}px` : `${45 + purplePos.faceX}px`,
+                                top: (formData.password.length > 0 && showPassword) ? `${35}px` : isLookingAtEachOther ? `${65}px` : `${40 + purplePos.faceY}px`,
+                            }}
+                        >
+                            <EyeBall
+                                size={18}
+                                pupilSize={7}
+                                maxDistance={5}
+                                eyeColor="white"
+                                pupilColor="#2D2D2D"
+                                isBlinking={isPurpleBlinking}
+                                forceLookX={(formData.password.length > 0 && showPassword) ? (isPurplePeeking ? 4 : -4) : isLookingAtEachOther ? 3 : undefined}
+                                forceLookY={(formData.password.length > 0 && showPassword) ? (isPurplePeeking ? 5 : -4) : isLookingAtEachOther ? 4 : undefined}
+                            />
+                            <EyeBall
+                                size={18}
+                                pupilSize={7}
+                                maxDistance={5}
+                                eyeColor="white"
+                                pupilColor="#2D2D2D"
+                                isBlinking={isPurpleBlinking}
+                                forceLookX={(formData.password.length > 0 && showPassword) ? (isPurplePeeking ? 4 : -4) : isLookingAtEachOther ? 3 : undefined}
+                                forceLookY={(formData.password.length > 0 && showPassword) ? (isPurplePeeking ? 5 : -4) : isLookingAtEachOther ? 4 : undefined}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Black tall rectangle character - Middle layer */}
+                    <div
+                        className="absolute bottom-0 transition-all duration-700 ease-in-out shadow-2xl"
+                        style={{
+                            left: '240px',
+                            width: '120px',
+                            height: '310px',
+                            backgroundColor: '#2D2D2D',
+                            borderRadius: '8px 8px 0 0',
+                            zIndex: 2,
+                            transform: (formData.password.length > 0 && showPassword)
+                                ? `skewX(0deg)`
+                                : isLookingAtEachOther
+                                    ? `skewX(${(blackPos.bodySkew || 0) * 1.5 + 10}deg) translateX(20px)`
+                                    : (isTyping || (formData.password.length > 0 && !showPassword))
+                                        ? `skewX(${(blackPos.bodySkew || 0) * 1.5}deg)`
+                                        : `skewX(${blackPos.bodySkew || 0}deg)`,
+                            transformOrigin: 'bottom center',
+                        }}
+                    >
+                        {/* Eyes */}
+                        <div
+                            className="absolute flex gap-6 transition-all duration-700 ease-in-out"
+                            style={{
+                                left: (formData.password.length > 0 && showPassword) ? `${10}px` : isLookingAtEachOther ? `${32}px` : `${26 + blackPos.faceX}px`,
+                                top: (formData.password.length > 0 && showPassword) ? `${28}px` : isLookingAtEachOther ? `${12}px` : `${32 + blackPos.faceY}px`,
+                            }}
+                        >
+                            <EyeBall
+                                size={16}
+                                pupilSize={6}
+                                maxDistance={4}
+                                eyeColor="white"
+                                pupilColor="#2D2D2D"
+                                isBlinking={isBlackBlinking}
+                                forceLookX={(formData.password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? 0 : undefined}
+                                forceLookY={(formData.password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? -4 : undefined}
+                            />
+                            <EyeBall
+                                size={16}
+                                pupilSize={6}
+                                maxDistance={4}
+                                eyeColor="white"
+                                pupilColor="#2D2D2D"
+                                isBlinking={isBlackBlinking}
+                                forceLookX={(formData.password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? 0 : undefined}
+                                forceLookY={(formData.password.length > 0 && showPassword) ? -4 : isLookingAtEachOther ? -4 : undefined}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Orange semi-circle character - Front left */}
+                    <div
+                        className="absolute bottom-0 transition-all duration-700 ease-in-out shadow-2xl"
+                        style={{
+                            left: '0px',
+                            width: '240px',
+                            height: '200px',
+                            zIndex: 3,
+                            backgroundColor: '#FF9B6B',
+                            borderRadius: '120px 120px 0 0',
+                            transform: (formData.password.length > 0 && showPassword) ? `skewX(0deg)` : `skewX(${orangePos.bodySkew || 0}deg)`,
+                            transformOrigin: 'bottom center',
+                        }}
+                    >
+                        {/* Eyes - just pupils, no white */}
+                        <div
+                            className="absolute flex gap-8 transition-all duration-200 ease-out"
+                            style={{
+                                left: (formData.password.length > 0 && showPassword) ? `${50}px` : `${82 + (orangePos.faceX || 0)}px`,
+                                top: (formData.password.length > 0 && showPassword) ? `${85}px` : `${90 + (orangePos.faceY || 0)}px`,
+                            }}
+                        >
+                            <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(formData.password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(formData.password.length > 0 && showPassword) ? -4 : undefined} />
+                            <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(formData.password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(formData.password.length > 0 && showPassword) ? -4 : undefined} />
+                        </div>
+                    </div>
+
+                    {/* Yellow tall rectangle character - Front right */}
+                    <div
+                        className="absolute bottom-0 transition-all duration-700 ease-in-out shadow-2xl"
+                        style={{
+                            left: '310px',
+                            width: '140px',
+                            height: '230px',
+                            backgroundColor: '#E8D754',
+                            borderRadius: '70px 70px 0 0',
+                            zIndex: 4,
+                            transform: (formData.password.length > 0 && showPassword) ? `skewX(0deg)` : `skewX(${yellowPos.bodySkew || 0}deg)`,
+                            transformOrigin: 'bottom center',
+                        }}
+                    >
+                        {/* Eyes - just pupils, no white */}
+                        <div
+                            className="absolute flex gap-6 transition-all duration-200 ease-out"
+                            style={{
+                                left: (formData.password.length > 0 && showPassword) ? `${20}px` : `${52 + (yellowPos.faceX || 0)}px`,
+                                top: (formData.password.length > 0 && showPassword) ? `${35}px` : `${40 + (yellowPos.faceY || 0)}px`,
+                            }}
+                        >
+                            <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(formData.password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(formData.password.length > 0 && showPassword) ? -4 : undefined} />
+                            <Pupil size={12} maxDistance={5} pupilColor="#2D2D2D" forceLookX={(formData.password.length > 0 && showPassword) ? -5 : undefined} forceLookY={(formData.password.length > 0 && showPassword) ? -4 : undefined} />
+                        </div>
+                        {/* Horizontal line for mouth */}
+                        <div
+                            className="absolute w-20 h-[4px] bg-[#2D2D2D] rounded-full transition-all duration-200 ease-out"
+                            style={{
+                                left: (formData.password.length > 0 && showPassword) ? `${10}px` : `${40 + (yellowPos.faceX || 0)}px`,
+                                top: (formData.password.length > 0 && showPassword) ? `${88}px` : `${88 + (yellowPos.faceY || 0)}px`,
+                            }}
+                        />
+                    </div>
                 </div>
-            </div>
+
+                {/* Grid Overlay */}
+                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03]"></div>
+            </motion.div>
         </div>
     );
 }
@@ -266,8 +692,8 @@ function LoginContent() {
 export default function LoginPage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-white flex items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            <div className="min-h-screen bg-[#030303] flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
             </div>
         }>
             <LoginContent />
