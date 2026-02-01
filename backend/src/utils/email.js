@@ -4,6 +4,10 @@ const nodemailer = require('nodemailer');
  * Create email transporter
  */
 const createTransporter = () => {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+        console.warn('⚠️ EMAIL_USER or EMAIL_PASSWORD is not defined in .env');
+        throw new Error('Email credentials missing');
+    }
     return nodemailer.createTransport({
         service: 'gmail',
         auth: {

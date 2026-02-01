@@ -272,15 +272,8 @@ const verifyPayment = async (req, res) => {
         order.paymentInfo.status = 'completed';
         order.orderStatus = 'processing';
 
-        console.log('Reducing stock...');
-        // Reduce product stock
-        for (const item of order.orderItems) {
-            const product = await Product.findById(item.product);
-            if (product) {
-                product.stock -= item.quantity;
-                await product.save();
-            }
-        }
+        // Stock update removed - handled in createOrder atomically
+        console.log('Stock already deducted in createOrder');
 
         console.log('Updating coupon...');
         // Update usage count for coupon

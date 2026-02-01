@@ -159,20 +159,21 @@ export default function ProductDetailPage() {
             {/* Breadcrumb Navigation */}
             <nav className="bg-gray-50 border-b border-gray-200" aria-label="Breadcrumb">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-                    <ol className="flex items-center gap-2 text-sm text-gray-600">
+                    <ol className="flex items-center gap-2 text-sm text-gray-600 overflow-x-auto whitespace-nowrap pb-1">
                         <li><Link href="/" className="hover:text-blue-600 hover:underline">Home</Link></li>
                         <li aria-hidden="true">›</li>
                         <li><Link href="/products" className="hover:text-blue-600 hover:underline">Products</Link></li>
                         <li aria-hidden="true">›</li>
                         <li><Link href={`/products?category=${product.category}`} className="hover:text-blue-600 hover:underline">{product.category}</Link></li>
                         <li aria-hidden="true">›</li>
-                        <li className="text-gray-900 truncate" aria-current="page">{product.title.substring(0, 50)}</li>
+                        <li className="text-gray-900 truncate max-w-[200px] sm:max-w-none" aria-current="page">{product.title.substring(0, 50)}</li>
                     </ol>
                 </div>
             </nav>
 
-            <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div className="grid lg:grid-cols-[auto_minmax(400px,600px)_1fr] gap-3">
+            <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+                {/* Mobile: single column, Tablet: stacked, Desktop: 3-column */}
+                <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr_1fr] gap-6 lg:gap-8">
                     {/* Left: Vertical Thumbnails */}
                     {images.length > 1 && (
                         <aside className="hidden lg:block" aria-label="Product image thumbnails">
@@ -197,7 +198,7 @@ export default function ProductDetailPage() {
                     )}
 
                     {/* Center: Main Image */}
-                    <div className="lg:max-w-xl">
+                    <div className="w-full lg:max-w-xl">
                         <div className="sticky top-6">
                             <div className="bg-white border border-gray-200 p-6 lg:p-10 relative" role="img" aria-label="Main product image">
                                 <div className="aspect-square relative">
@@ -266,12 +267,12 @@ export default function ProductDetailPage() {
                                 </div>
                             )}
 
-                            {/* Action Buttons */}
-                            <div className="flex gap-3 mt-6">
+                            {/* Action Buttons - Mobile friendly */}
+                            <div className="flex flex-col sm:flex-row gap-3 mt-6">
                                 <button
                                     onClick={handleAddToCart}
                                     disabled={!product.inStock || adding}
-                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                     aria-label={adding ? "Adding to cart" : "Add to cart"}
                                 >
                                     {adding ? (
@@ -287,7 +288,7 @@ export default function ProductDetailPage() {
                                 <button
                                     onClick={handleBuyNow}
                                     disabled={!product.inStock}
-                                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-full shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                     aria-label="Buy now and proceed to checkout"
                                 >
                                     BUY NOW
@@ -297,7 +298,7 @@ export default function ProductDetailPage() {
                     </div>
 
                     {/* Right: Product Info */}
-                    <div className="lg:col-start-3 space-y-5">
+                    <div className="space-y-5">
                         {/* Brand */}
                         {product.brand && (
                             <div>
@@ -309,7 +310,7 @@ export default function ProductDetailPage() {
 
                         {/* Title */}
                         <div>
-                            <h1 className="text-2xl font-semibold text-gray-900 leading-tight">
+                            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-tight">
                                 {product.title}
                             </h1>
                         </div>
@@ -336,8 +337,8 @@ export default function ProductDetailPage() {
                                     </span>
                                 </div>
                             )}
-                            <div className="flex items-baseline gap-4 mb-2">
-                                <span className="text-4xl font-semibold text-gray-900" aria-label={`Price: ${product.price} rupees`}>
+                            <div className="flex flex-wrap items-baseline gap-2 sm:gap-4 mb-2">
+                                <span className="text-2xl sm:text-4xl font-semibold text-gray-900" aria-label={`Price: ${product.price} rupees`}>
                                     ₹{product.price.toLocaleString('en-IN')}
                                 </span>
                                 {product.originalPrice && (
@@ -536,13 +537,13 @@ export default function ProductDetailPage() {
                             <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
                                 <h2 id="specifications-heading" className="text-lg font-semibold text-gray-900">Technical Specifications</h2>
                             </div>
-                            <div className="px-6 py-5">
-                                <table className="w-full">
+                            <div className="px-4 sm:px-6 py-5 overflow-x-auto">
+                                <table className="w-full min-w-[300px]">
                                     <tbody>
                                         {product.specifications.map((spec, i) => (
                                             <tr key={i} className="border-b border-gray-100 last:border-0">
-                                                <th scope="row" className="py-3 pr-4 font-semibold text-gray-700 w-1/3 text-left">{spec.label}</th>
-                                                <td className="py-3 text-gray-900">{spec.value}</td>
+                                                <th scope="row" className="py-3 pr-4 font-semibold text-gray-700 w-1/3 text-left text-sm sm:text-base">{spec.label}</th>
+                                                <td className="py-3 text-gray-900 text-sm sm:text-base">{spec.value}</td>
                                             </tr>
                                         ))}
                                     </tbody>

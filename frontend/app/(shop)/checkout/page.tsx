@@ -184,7 +184,7 @@ export default function CheckoutPage() {
             // Clear cart and redirect
             await clearCart(); // Await clearCart in case it async fails
             toast.success("Payment successful! Your order has been placed.");
-            router.push('/order-success');
+            router.push(`/order-success?orderId=${orderData.order._id}`);
 
         } catch (error: any) {
             console.error("Payment verification error:", error);
@@ -212,7 +212,7 @@ export default function CheckoutPage() {
         sessionStorage.setItem('lastOrder', JSON.stringify(orderData.order));
         clearCart();
         toast.success("Order placed successfully! Pay on delivery.");
-        router.push('/order-success');
+        router.push(`/order-success?orderId=${orderData.order._id}`);
     };
 
     return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -40,31 +40,53 @@ interface OrderData {
 
 export default function OrderSuccessPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [order, setOrder] = useState<OrderData | null>(null);
     const [loading, setLoading] = useState(true);
     const [recommendations, setRecommendations] = useState<Product[]>([]);
 
     useEffect(() => {
-        // Try to get order from sessionStorage
-        const storedOrder = sessionStorage.getItem('lastOrder');
-        if (storedOrder) {
-            try {
-                const parsedOrder = JSON.parse(storedOrder);
-                setOrder(parsedOrder);
-                // Clear it after reading to prevent showing valid data on refresh if undesired,
-                // but keeping it until they leave might be better UX. 
-                // Let's clear it to prevent stale state issues like in cart.
-                sessionStorage.removeItem('lastOrder');
+        const loadOrder = async () => {
+            let orderData: OrderData | null = null;
+            let orderId: string | null = null;
 
-                // Fetch fresh order data from server to ensure we have the latest payment status/ID
-                apiClient.get<OrderData>(`/orders/${parsedOrder._id}`, true)
-                    .then((res) => {
-                        if (res.data) {
-                            console.log("Refreshed order data:", res.data);
-                            setOrder(res.data);
-                        }
-                    })
-                    .catch((err) => console.error("Failed to refresh order:", err));
+            // Try to get order from sessionStorage first
+            const storedOrder = sessionStorage.getItem('lastOrder');
+            if (storedOrder) {
+                try {
+                    orderData = JSON.parse(storedOrder);
+                    orderId = orderData?._id || null;
+                    console.log("Loaded order from sessionStorage:", orderId);
+                } catch (e) {
+                    console.error("Failed to parse stored order:", e);
+                }
+            }
+
+            // Fallback: try to get orderId from URL params
+            if (!orderId) {
+                orderId = searchParams.get('orderId');
+                console.log("Got orderId from URL params:", orderId);
+            }
+
+            // If we have an orderId, fetch fresh data from server
+            if (orderId) {
+                try {
+                    const response = await apiClient.get<OrderData>(`/orders/${orderId}`, true);
+                    if (response.success && response.data) {
+                        console.log("Fetched fresh order data:", response.data);
+                        orderData = response.data;
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch order from server:", err);
+                    // Keep using sessionStorage data if fetch fails
+                }
+            }
+
+            // Set the order data
+            if (orderData) {
+                setOrder(orderData);
+                // Only clear sessionStorage after successfully loading order
+                sessionStorage.removeItem('lastOrder');
 
                 // Trigger confetti
                 const end = Date.now() + 3 * 1000;
@@ -90,17 +112,17 @@ export default function OrderSuccessPage() {
                         requestAnimationFrame(frame);
                     }
                 }());
-
-            } catch (e) {
-                console.error("Failed to parse order:", e);
             }
-        }
-        setLoading(false);
+
+            setLoading(false);
+        };
+
+        loadOrder();
 
         // Fetch Recommendations
         const fetchRecommendations = async () => {
             try {
-                const response = await getProducts({ limit: 4 }); // Fetch 4 random/latest products
+                const response = await getProducts({ limit: 4 });
                 if (response.success) {
                     setRecommendations(response.data);
                 }
@@ -109,7 +131,7 @@ export default function OrderSuccessPage() {
             }
         };
         fetchRecommendations();
-    }, []);
+    }, [searchParams]);
 
     const handlePrint = () => {
         window.print();

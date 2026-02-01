@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/lib/context/WishlistContext";
 import { useCart } from "@/lib/context/CartContext";
@@ -23,11 +24,13 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onAddToCart, index = 0 }: ProductCardProps) {
+    const router = useRouter();
     const { isInWishlist, toggleWishlist } = useWishlist();
     const { addToCart } = useCart();
     const { getProductOffer } = useOffers();
     const [isHovered, setIsHovered] = useState(false);
     const [isAdding, setIsAdding] = useState(false);
+    const [isBuying, setIsBuying] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const isWishlisted = isInWishlist(product._id);
 
@@ -72,7 +75,7 @@ export default function ProductCard({ product, onAddToCart, index = 0 }: Product
         toggleWishlist(wishlistProduct);
     };
 
-    const handleBuyNow = async (e: React.MouseEvent) => {
+    const handleAddToCart = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -92,6 +95,20 @@ export default function ProductCard({ product, onAddToCart, index = 0 }: Product
 
         // Hide success after animation
         setTimeout(() => setShowSuccess(false), 2000);
+    };
+
+    const handleBuyNow = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        setIsBuying(true);
+
+        // Add to cart first
+        addToCart(product, 1);
+
+        // Small delay for visual feedback then redirect to checkout
+        await new Promise(resolve => setTimeout(resolve, 300));
+        router.push('/checkout');
     };
 
     // Dynamic tag logic with new badge system
@@ -261,13 +278,15 @@ export default function ProductCard({ product, onAddToCart, index = 0 }: Product
                         )}
                     </div>
 
-                    {/* Add to Cart Button - Smooth States */}
-                    <div className="relative">
+                    {/* Action Buttons - Add to Cart & Buy Now */}
+                    <div className="flex items-center gap-2">
+                        {/* Add to Cart Button */}
                         <button
-                            onClick={handleBuyNow}
+                            onClick={handleAddToCart}
                             disabled={!isInStock || isAdding}
+                            title="Add to Cart"
                             className={`
-                                w-11 h-11 sm:w-12 sm:h-12 min-w-[44px] min-h-[44px]
+                                w-10 h-10 sm:w-11 sm:h-11 min-w-[40px] min-h-[40px]
                                 rounded-full flex items-center justify-center 
                                 transition-all duration-200 ease-out relative overflow-hidden
                                 hover:scale-105 active:scale-95
@@ -275,32 +294,63 @@ export default function ProductCard({ product, onAddToCart, index = 0 }: Product
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                     : isAdding
                                         ? 'bg-primary-electric text-white shadow-md'
-                                        : isHovered
-                                            ? 'bg-primary-electric text-white shadow-md'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-primary-electric hover:text-white hover:shadow-md'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-primary-electric hover:text-white hover:shadow-md'
                                 }
                             `}
                         >
                             <div className={`transition-opacity duration-200 ${isAdding ? 'opacity-60' : 'opacity-100'}`}>
                                 {isAdding ? (
-                                    <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                 ) : showSuccess ? (
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
                                 ) : isInStock ? (
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                     </svg>
                                 ) : (
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 )}
                             </div>
+                        </button>
+
+                        {/* Buy Now Button */}
+                        <button
+                            onClick={handleBuyNow}
+                            disabled={!isInStock || isBuying}
+                            className={`
+                                px-4 py-2 h-10 sm:h-11
+                                rounded-full flex items-center justify-center gap-1.5
+                                text-sm font-semibold
+                                transition-all duration-200 ease-out
+                                hover:scale-105 active:scale-95
+                                ${!isInStock
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : isBuying
+                                        ? 'bg-gray-900 text-white shadow-md'
+                                        : 'bg-gray-900 text-white hover:bg-gray-800 shadow-sm hover:shadow-md'
+                                }
+                            `}
+                        >
+                            {isBuying ? (
+                                <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            ) : (
+                                <>
+                                    <span>Buy Now</span>
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>

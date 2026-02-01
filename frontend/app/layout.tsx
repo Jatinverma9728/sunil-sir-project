@@ -9,6 +9,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/home/Footer";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import PageTransition from "@/components/ui/PageTransition";
 import "../src/styles/globals.css";
 
 // Playful Tech Fonts
@@ -50,7 +51,9 @@ export default function RootLayout({
                     <Navbar />
                   </header>
                   <main className="flex-grow">
-                    {children}
+                    <PageTransition>
+                      {children}
+                    </PageTransition>
                   </main>
                   <Footer />
                   <WhatsAppButton />
