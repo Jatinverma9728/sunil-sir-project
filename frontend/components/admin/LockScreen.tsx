@@ -10,6 +10,8 @@ export const LockScreen = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    console.log('LockScreen render - isLocked:', isLocked);
+
     if (!isLocked) return null;
 
     const handleSubmit = async (e: React.FormEvent) => {

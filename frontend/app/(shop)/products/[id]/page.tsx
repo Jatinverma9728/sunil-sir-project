@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useCart } from "@/lib/context/CartContext";
 import { useWishlist } from "@/lib/context/WishlistContext";
 import ReviewSection from "@/components/products/ReviewSection";
+import ImageZoom from "@/components/products/ImageZoom";
 
 interface Product {
     _id: string;
@@ -203,14 +204,26 @@ export default function ProductDetailPage() {
                             <div className="bg-white border border-gray-200 p-6 lg:p-10 relative" role="img" aria-label="Main product image">
                                 <div className="aspect-square relative">
                                     {images.length > 0 ? (
-                                        <Image
-                                            src={images[selectedImage]}
-                                            alt={`${product.title} - Main product image ${selectedImage + 1} of ${images.length}`}
-                                            fill
-                                            className="object-contain"
-                                            priority
-                                            sizes="(max-width: 1024px) 100vw, 600px"
-                                        />
+                                        <>
+                                            {/* Desktop: ImageZoom with magnification popup */}
+                                            <div className="hidden lg:block w-full h-full">
+                                                <ImageZoom
+                                                    src={images[selectedImage]}
+                                                    alt={`${product.title} - Main product image ${selectedImage + 1} of ${images.length}`}
+                                                />
+                                            </div>
+                                            {/* Mobile/Tablet: Regular image without zoom */}
+                                            <div className="lg:hidden w-full h-full relative">
+                                                <Image
+                                                    src={images[selectedImage]}
+                                                    alt={`${product.title} - Main product image ${selectedImage + 1} of ${images.length}`}
+                                                    fill
+                                                    className="object-contain"
+                                                    priority
+                                                    sizes="100vw"
+                                                />
+                                            </div>
+                                        </>
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center bg-gray-50">
                                             <span className="text-4xl text-gray-300" aria-label="No image available">📦</span>
