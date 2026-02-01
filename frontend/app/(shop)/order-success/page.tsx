@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -38,7 +38,7 @@ interface OrderData {
     discountPrice?: number;
 }
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [order, setOrder] = useState<OrderData | null>(null);
@@ -426,5 +426,21 @@ export default function OrderSuccessPage() {
 
             </div>
         </div>
+    );
+}
+
+// Wrapper with Suspense for useSearchParams
+export default function OrderSuccessPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading order details...</p>
+                </div>
+            </div>
+        }>
+            <OrderSuccessContent />
+        </Suspense>
     );
 }

@@ -51,7 +51,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
         }
     }, [pathname]);
 
-    // Simple slide variants
+    // Simple slide variants with proper typing
     const slideVariants = {
         enter: (dir: number) => ({
             x: dir > 0 ? "100%" : "-100%",
@@ -61,7 +61,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
             x: 0,
             opacity: 1,
             transition: {
-                x: { type: "tween", duration: 0.25, ease: [0.25, 0.1, 0.25, 1] },
+                x: { type: "tween" as const, duration: 0.25, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] },
                 opacity: { duration: 0.2 },
             },
         },
@@ -69,7 +69,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
             x: dir > 0 ? "-30%" : "30%",
             opacity: 0,
             transition: {
-                x: { type: "tween", duration: 0.2, ease: "easeIn" },
+                x: { type: "tween" as const, duration: 0.2, ease: "easeIn" as const },
                 opacity: { duration: 0.15 },
             },
         }),
