@@ -28,46 +28,57 @@ export interface DashboardStats {
 
 export const getAdminDashboardStats = async (): Promise<{ success: boolean; data?: DashboardStats; message?: string }> => {
     try {
+        console.log("Starting dashboard stats fetch...");
+
         // Fetch order stats
         const orderStatsRes = await apiClient.get<any>('/admin/orders/stats', true);
+        console.log("Order stats raw response:", orderStatsRes);
         const orderStats = orderStatsRes;
 
         // Fetch products count
         const productsRes = await apiClient.get<any>('/admin/products?limit=1', true);
+        console.log("Products raw response:", productsRes);
         const productsData = productsRes;
 
         // Fetch users count
         const usersRes = await apiClient.get<any>('/admin/users?limit=1', true);
+        console.log("Users raw response:", usersRes);
         const usersData = usersRes;
 
         // Fetch courses count
         const coursesRes = await apiClient.get<any>('/admin/courses?limit=1', true);
+        console.log("Courses raw response:", coursesRes);
         const coursesData = coursesRes;
 
         // Fetch recent orders
         const recentOrdersRes = await apiClient.get<{ data: Order[] }>('/admin/orders?limit=5', true);
+        console.log("Recent orders raw response:", recentOrdersRes);
         const recentOrdersData = recentOrdersRes;
+
+        const dashboardData = {
+            totalRevenue: orderStats.data?.totalRevenue || 0,
+            totalOrders: orderStats.data?.totalOrders || 0,
+            totalProducts: (productsData as any).total || (productsData as any).count || (productsData as any).pagination?.total || 0,
+            totalUsers: (usersData as any).total || (usersData as any).count || (usersData as any).pagination?.total || 0,
+            totalCourses: (coursesData as any).total || (coursesData as any).count || (coursesData as any).pagination?.total || 0,
+            pendingOrders: orderStats.data?.pendingOrders || 0,
+            recentOrders: (recentOrdersData.data as any)?.data || recentOrdersData.data || [] as Order[],
+            // Enhanced stats from backend
+            todayOrders: orderStats.data?.todayOrders || 0,
+            todayRevenue: orderStats.data?.todayRevenue || 0,
+            averageOrderValue: orderStats.data?.averageOrderValue || 0,
+            revenueGrowth: orderStats.data?.revenueGrowth || 0,
+            weekRevenue: orderStats.data?.weekRevenue || 0,
+            monthRevenue: orderStats.data?.monthRevenue || 0,
+            chartData: orderStats.data?.chartData || [],
+            statusDistribution: orderStats.data?.statusDistribution || [],
+        };
+
+        console.log("Final dashboard data:", dashboardData);
 
         return {
             success: true,
-            data: {
-                totalRevenue: orderStats.data?.totalRevenue || 0,
-                totalOrders: orderStats.data?.totalOrders || 0,
-                totalProducts: (productsData as any).total || (productsData as any).count || 0,
-                totalUsers: (usersData as any).total || (usersData as any).count || 0,
-                totalCourses: (coursesData as any).total || (coursesData as any).count || 0,
-                pendingOrders: orderStats.data?.pendingOrders || 0,
-                recentOrders: recentOrdersData.data?.data || [],
-                // Enhanced stats from backend
-                todayOrders: orderStats.data?.todayOrders || 0,
-                todayRevenue: orderStats.data?.todayRevenue || 0,
-                averageOrderValue: orderStats.data?.averageOrderValue || 0,
-                revenueGrowth: orderStats.data?.revenueGrowth || 0,
-                weekRevenue: orderStats.data?.weekRevenue || 0,
-                monthRevenue: orderStats.data?.monthRevenue || 0,
-                chartData: orderStats.data?.chartData || [],
-                statusDistribution: orderStats.data?.statusDistribution || [],
-            },
+            data: dashboardData,
         };
     } catch (error) {
         console.error('Error fetching dashboard stats:', error);

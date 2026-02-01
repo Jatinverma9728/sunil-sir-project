@@ -56,16 +56,30 @@ export class ApiClient {
     }
 
     public async fetchCsrfToken() {
+        const startTime = Date.now();
         try {
+            // Add 5 second timeout to prevent blocking
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+
             const response = await fetch(`${this.baseURL}/csrf-token`, {
-                credentials: 'include'
+                credentials: 'include',
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
+
             if (response.ok) {
                 const data = await response.json();
                 this.csrfToken = data.csrfToken;
+                console.log(`⏱️ CSRF token fetched in ${Date.now() - startTime}ms`);
             }
-        } catch (error) {
-            console.error('Error fetching CSRF token:', error);
+        } catch (error: any) {
+            if (error.name === 'AbortError') {
+                console.warn(`⏱️ CSRF token fetch timed out after ${Date.now() - startTime}ms`);
+            } else {
+                console.error('Error fetching CSRF token:', error);
+            }
         }
     }
 

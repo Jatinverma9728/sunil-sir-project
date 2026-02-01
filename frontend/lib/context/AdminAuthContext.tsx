@@ -31,15 +31,20 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
 
         const checkStatus = async () => {
             try {
-                const res = await apiClient.get<any>('/admin/auth/status');
+                const res = await apiClient.get<any>('/admin/auth/status', true);
                 // Check res.data.status because we wrapped it in data object in backend
                 if (res.success && res.data?.status === 'locked') {
                     setIsLocked(true);
                 }
             } catch (error: any) {
                 // If 423 is returned, it means locked
-                if (error.response?.status === 423) {
+                // ApiError stores status directly, not in response.status
+                if (error.status === 423 || error.response?.status === 423) {
                     setIsLocked(true);
+                }
+                // Log other errors for debugging
+                else if (error.status !== 401 && error.status !== 403) {
+                    console.error('Admin auth status check failed:', error);
                 }
             }
         };
@@ -64,7 +69,7 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
     const lockSession = useCallback(async () => {
         setIsLocked(true);
         try {
-            await apiClient.post('/admin/auth/lock', {});
+            await apiClient.post('/admin/auth/lock', {}, true);
         } catch (error) {
             console.error("Failed to lock backend:", error);
         }
@@ -111,19 +116,23 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
 
     const unlockSession = async (password: string) => {
         try {
-            const res = await apiClient.post<any>('/admin/auth/unlock', { password });
+            const res = await apiClient.post<any>('/admin/auth/unlock', { password }, true);
             if (res.success) {
                 setIsLocked(false);
                 resetTimer();
+            } else {
+                throw new Error(res.message || 'Failed to unlock');
             }
         } catch (error: any) {
-            throw new Error(error.response?.data?.message || 'Failed to unlock');
+            // Get error message from ApiError or response
+            const message = error.message || error.response?.data?.message || 'Failed to unlock';
+            throw new Error(message);
         }
     };
 
     const logout = async () => {
         try {
-            await apiClient.post('/admin/auth/logout', {});
+            await apiClient.post('/admin/auth/logout', {}, true);
             // Redirect to login
             window.location.href = '/login';
         } catch (error) {

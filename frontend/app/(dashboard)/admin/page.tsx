@@ -144,8 +144,10 @@ export default function AdminDashboard() {
 
     const fetchDashboardData = async () => {
         setLoading(true);
+        console.log("Fetching admin dashboard data...");
         try {
             const result = await getAdminDashboardStats();
+            console.log("Dashboard stats result:", result);
             if (result.success && result.data) {
                 setStats({
                     totalRevenue: result.data.totalRevenue,
@@ -201,6 +203,8 @@ export default function AdminDashboard() {
                     ].filter(s => s.value > 0);
                     setStatusDistribution(statusData);
                 }
+            } else {
+                console.error("Dashboard stats failed:", result.message || "No data returned");
             }
         } catch (error) {
             console.error("Error fetching dashboard:", error);

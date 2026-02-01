@@ -18,10 +18,14 @@ const { sendOrderConfirmationEmail } = require('../utils/email');
  * @access  Private
  */
 const createOrder = async (req, res) => {
+    const startTime = Date.now();
+    const logTime = (step) => console.log(`⏱️ [${Date.now() - startTime}ms] ${step}`);
+
     console.log('--- Create Order Request Started ---');
+    logTime('START');
+
     try {
         console.log('User:', req.user ? req.user._id : 'No User');
-        console.log('Body:', JSON.stringify(req.body, null, 2));
 
         const {
             orderItems,
@@ -48,14 +52,24 @@ const createOrder = async (req, res) => {
             });
         }
 
+        logTime('Validation complete');
+
         // Verify product availability and calculate prices server-side
-        console.log('Verifying products...');
+        // OPTIMIZED: Fetch all products in parallel instead of sequentially
+        console.log('Verifying products (parallel fetch)...');
+        const productIds = orderItems.map(item => item.product);
+        const products = await Product.find({ _id: { $in: productIds } });
+
+        // Create a map for quick lookup
+        const productMap = new Map();
+        products.forEach(p => productMap.set(p._id.toString(), p));
+
         let calculatedItemsPrice = 0;
         const verifiedOrderItems = [];
+        const stockUpdates = []; // Batch stock updates
 
         for (const item of orderItems) {
-            console.log(`Checking product: ${item.product}`);
-            const product = await Product.findById(item.product);
+            const product = productMap.get(item.product.toString() || item.product);
 
             if (!product) {
                 console.log(`Product not found: ${item.product}`);
@@ -93,13 +107,26 @@ const createOrder = async (req, res) => {
                 image: product.images?.[0]?.url || item.image,
             });
 
-            // Decrement stock atomically
-            await Product.findByIdAndUpdate(
-                item.product,
-                { $inc: { stock: -item.quantity } },
-                { new: true }
-            );
+            // Queue stock update instead of executing immediately
+            stockUpdates.push({
+                productId: item.product,
+                quantity: item.quantity
+            });
         }
+
+        logTime('Product validation loop complete');
+
+        // OPTIMIZED: Execute all stock updates in parallel
+        console.log('Updating stock (parallel)...');
+        await Promise.all(stockUpdates.map(update =>
+            Product.findByIdAndUpdate(
+                update.productId,
+                { $inc: { stock: -update.quantity } },
+                { new: true }
+            )
+        ));
+
+        logTime('Stock updates complete');
 
         console.log('Products verified. Calculated Items Price:', calculatedItemsPrice);
 
@@ -150,6 +177,8 @@ const createOrder = async (req, res) => {
             }
         }
 
+        logTime('Coupon validation complete');
+
         const taxableAmount = Math.max(0, calculatedItemsPrice - calculatedDiscount);
         const calculatedTaxPrice = Math.round(taxableAmount * 0.10 * 100) / 100; // 10% GST
         const calculatedShippingPrice = calculatedItemsPrice > 999 ? 0 : 99; // Free shipping over 999
@@ -166,10 +195,10 @@ const createOrder = async (req, res) => {
         // Create Razorpay order with verified total
         let razorpayOrder = null;
         if (paymentMethod === 'razorpay') {
-            console.log('Creating Razorpay order...');
+            logTime('Creating Razorpay order...');
             try {
                 razorpayOrder = await createRazorpayOrder(calculatedTotalPrice);
-                console.log('Razorpay order created:', razorpayOrder.id);
+                logTime('Razorpay order created: ' + razorpayOrder.id);
             } catch (rpError) {
                 console.error('Razorpay Error:', rpError);
                 throw new Error('Payment gateway initialization failed');
@@ -177,7 +206,7 @@ const createOrder = async (req, res) => {
         }
 
         // Create order with server-calculated prices
-        console.log('Saving order to DB...');
+        logTime('Saving order to DB...');
         const order = await Order.create({
             user: req.user._id,
             orderItems: verifiedOrderItems,
@@ -195,7 +224,7 @@ const createOrder = async (req, res) => {
             coupon: appliedCoupon
         });
 
-        console.log('Order saved successfully:', order._id);
+        logTime('Order saved: ' + order._id);
 
         res.status(201).json({
             success: true,
