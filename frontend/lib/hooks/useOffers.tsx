@@ -9,6 +9,7 @@ interface OfferPrice {
     discountPercent: number;
     offerName: string;
     offerType: string;
+    endDate?: string;
 }
 
 interface OffersContextType {
@@ -46,7 +47,10 @@ export function OffersProvider({ children }: { children: ReactNode }) {
 
     // Get the best applicable offer for a product
     const getProductOffer = useCallback((productId: string, category: string, originalPrice: number): OfferPrice | null => {
+        console.log('[getProductOffer] Called with:', { productId, category, originalPrice, offersCount: offers.length });
+
         if (!offers.length) {
+            console.log('[getProductOffer] No offers available');
             return null;
         }
 
@@ -120,6 +124,7 @@ export function OffersProvider({ children }: { children: ReactNode }) {
             discountPercent,
             offerName: bestOffer.name,
             offerType: bestOffer.type,
+            endDate: bestOffer.endDate,
         };
     }, [offers]);
 

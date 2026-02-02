@@ -10,7 +10,7 @@ const getCart = async (req, res) => {
     try {
         let cart = await Cart.findOne({ user: req.user._id }).populate({
             path: 'items.product',
-            select: 'title price image stock images' // Select needed fields
+            select: 'title price image stock images category' // Select needed fields
         });
 
         if (!cart) {
@@ -93,7 +93,7 @@ const addToCart = async (req, res) => {
         // Populate for return
         await cart.populate({
             path: 'items.product',
-            select: 'title price image stock images'
+            select: 'title price image stock images category'
         });
 
         res.status(200).json({
@@ -141,7 +141,7 @@ const updateCartItem = async (req, res) => {
 
             await cart.populate({
                 path: 'items.product',
-                select: 'title price image stock images'
+                select: 'title price image stock images category'
             });
 
             res.status(200).json({
@@ -184,7 +184,7 @@ const removeCartItem = async (req, res) => {
 
         await cart.populate({
             path: 'items.product',
-            select: 'title price image stock images'
+            select: 'title price image stock images category'
         });
 
         res.status(200).json({
@@ -290,7 +290,7 @@ const syncCart = async (req, res) => {
 
         await cart.populate({
             path: 'items.product',
-            select: 'title price image stock images'
+            select: 'title price image stock images category'
         });
 
         res.status(200).json({

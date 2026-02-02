@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/lib/context/CartContext";
 import { useWishlist } from "@/lib/context/WishlistContext";
+import { useOffers } from "@/lib/hooks/useOffers";
 import ReviewSection from "@/components/products/ReviewSection";
 import ImageZoom from "@/components/products/ImageZoom";
 
@@ -33,6 +34,7 @@ export default function ProductDetailPage() {
     const router = useRouter();
     const { addToCart } = useCart();
     const { isInWishlist, toggleWishlist } = useWishlist();
+    const { getProductOffer, loading: offersLoading } = useOffers();
     const productId = params.id as string;
 
     const [product, setProduct] = useState<Product | null>(null);
@@ -83,6 +85,13 @@ export default function ProductDetailPage() {
         }
     };
 
+    // Get active offer for this product - pass productId, category, and price
+    const activeOffer = product ? getProductOffer(product._id, product.category, product.price) : null;
+
+    // Use the offer's calculated prices directly - useOffers hook already does the calculation
+    const finalPrice = activeOffer ? activeOffer.discountedPrice : (product?.price ?? 0);
+    const displayOriginalPrice = activeOffer ? activeOffer.originalPrice : product?.originalPrice;
+
     const getRating = () => {
         if (!product?.rating) return { avg: 0, count: 0 };
         if (typeof product.rating === "number") return { avg: product.rating, count: product.reviews || 0 };
@@ -92,14 +101,30 @@ export default function ProductDetailPage() {
     const handleAddToCart = async () => {
         if (!product?.inStock) return;
         setAdding(true);
-        addToCart(product, quantity);
+
+        // Create product with offer price if applicable
+        const productForCart = {
+            ...product,
+            price: finalPrice,
+            originalPrice: displayOriginalPrice || product.price,
+        };
+
+        addToCart(productForCart, quantity);
         await new Promise((r) => setTimeout(r, 500));
         setAdding(false);
     };
 
     const handleBuyNow = () => {
         if (!product?.inStock) return;
-        addToCart(product, quantity);
+
+        // Create product with offer price if applicable
+        const productForCart = {
+            ...product,
+            price: finalPrice,
+            originalPrice: displayOriginalPrice || product.price,
+        };
+
+        addToCart(productForCart, quantity);
         router.push("/checkout");
     };
 
@@ -152,8 +177,8 @@ export default function ProductDetailPage() {
 
     const { avg, count } = getRating();
     const images = (product.images || []).map((img) => (typeof img === "string" ? img : img.url));
-    const discount = product.originalPrice ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
-    const savings = product.originalPrice ? product.originalPrice - product.price : 0;
+    const discount = displayOriginalPrice ? Math.round((1 - finalPrice / displayOriginalPrice) * 100) : 0;
+    const savings = displayOriginalPrice ? displayOriginalPrice - finalPrice : 0;
 
     return (
         <div className="min-h-screen bg-white">
@@ -343,7 +368,17 @@ export default function ProductDetailPage() {
 
                         {/* Price Section */}
                         <div className="pb-6 border-b border-gray-200">
-                            {discount > 0 && (
+                            {activeOffer && (
+                                <div className="mb-3 flex flex-wrap gap-2">
+                                    <span className="bg-gradient-to-r from-rose-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 inline-block shadow-sm rounded-sm">
+                                        🔥 {activeOffer.offerName}
+                                    </span>
+                                    <span className="bg-green-600 text-white text-xs font-bold px-3 py-1.5 inline-block shadow-sm">
+                                        {discount}% OFF
+                                    </span>
+                                </div>
+                            )}
+                            {!activeOffer && discount > 0 && (
                                 <div className="mb-3">
                                     <span className="bg-green-600 text-white text-xs font-bold px-3 py-1.5 inline-block shadow-sm">
                                         Special Price
@@ -351,13 +386,13 @@ export default function ProductDetailPage() {
                                 </div>
                             )}
                             <div className="flex flex-wrap items-baseline gap-2 sm:gap-4 mb-2">
-                                <span className="text-2xl sm:text-4xl font-semibold text-gray-900" aria-label={`Price: ${product.price} rupees`}>
-                                    ₹{product.price.toLocaleString('en-IN')}
+                                <span className="text-2xl sm:text-4xl font-semibold text-gray-900" aria-label={`Price: ${finalPrice} rupees`}>
+                                    ₹{finalPrice.toLocaleString('en-IN')}
                                 </span>
-                                {product.originalPrice && (
+                                {displayOriginalPrice && displayOriginalPrice > finalPrice && (
                                     <>
-                                        <span className="text-xl text-gray-400 line-through" aria-label={`Original price: ${product.originalPrice} rupees`}>
-                                            ₹{product.originalPrice.toLocaleString('en-IN')}
+                                        <span className="text-xl text-gray-400 line-through" aria-label={`Original price: ${displayOriginalPrice} rupees`}>
+                                            ₹{displayOriginalPrice.toLocaleString('en-IN')}
                                         </span>
                                         <span className="text-lg text-green-600 font-semibold" aria-label={`${discount} percent discount`}>
                                             {discount}% off
@@ -368,6 +403,12 @@ export default function ProductDetailPage() {
                             {savings > 0 && (
                                 <p className="text-green-700 font-semibold text-sm">
                                     You Save: ₹{savings.toLocaleString('en-IN')} ({discount}%)
+                                </p>
+                            )}
+                            {activeOffer && activeOffer.endDate && (
+                                <p className="text-rose-600 font-medium text-sm mt-2 flex items-center gap-1">
+                                    <span>⏰</span>
+                                    <span>Offer ends: {new Date(activeOffer.endDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                                 </p>
                             )}
                             <p className="text-sm text-gray-600 mt-2">Inclusive of all taxes</p>

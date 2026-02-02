@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useOffers } from "@/lib/hooks/useOffers";
 
 interface CartItemProps {
     item: {
@@ -21,7 +22,21 @@ interface CartItemProps {
 
 export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
     const { product, quantity } = item;
-    const itemTotal = product.price * quantity;
+    const { getProductOffer } = useOffers();
+
+    // Check for active offer on this product
+    const activeOffer = getProductOffer(product._id, product.category || '', product.price);
+
+    // Debug logging
+    console.log('[CartItem] Product:', product._id, 'Category:', product.category, 'Price:', product.price);
+    console.log('[CartItem] Active Offer:', activeOffer);
+
+    // Use offer price if available, otherwise use product price
+    const displayPrice = activeOffer ? activeOffer.discountedPrice : product.price;
+    const originalPrice = activeOffer ? activeOffer.originalPrice : product.price;
+    const hasDiscount = activeOffer && activeOffer.discountedPrice < activeOffer.originalPrice;
+
+    const itemTotal = displayPrice * quantity;
     const productImage = product.images?.[0]?.url || product.image;
     const [isHovered, setIsHovered] = useState(false);
 
@@ -40,7 +55,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
             {/* Product Image */}
             <Link
                 href={`/products/${product._id}`}
-                className="w-full sm:w-28 h-32 sm:h-28 bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden group"
+                className="w-full sm:w-28 h-32 sm:h-28 bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden group relative"
             >
                 {productImage ? (
                     <img
@@ -51,6 +66,12 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                 ) : (
                     <span className="text-4xl opacity-30">📦</span>
                 )}
+                {/* Offer Badge */}
+                {hasDiscount && (
+                    <span className="absolute top-2 left-2 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        {activeOffer.discountPercent}% OFF
+                    </span>
+                )}
             </Link>
 
             {/* Product Info */}
@@ -59,10 +80,17 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                     <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">{product.category}</p>
                 )}
                 <Link href={`/products/${product._id}`}>
-                    <h3 className="text-base font-medium text-gray-900 hover:text-gray-600 transition-colors line-clamp-2 mb-3">
+                    <h3 className="text-base font-medium text-gray-900 hover:text-gray-600 transition-colors line-clamp-2 mb-2">
                         {product.title}
                     </h3>
                 </Link>
+
+                {/* Offer Name Badge */}
+                {hasDiscount && (
+                    <span className="inline-block text-xs text-rose-600 font-medium mb-2">
+                        🔥 {activeOffer.offerName}
+                    </span>
+                )}
 
                 {/* Quantity Controls and Price on Mobile */}
                 <div className="flex items-center justify-between sm:justify-start gap-4">
@@ -92,6 +120,11 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                         <p className="text-lg font-semibold text-gray-900">
                             ₹{itemTotal.toFixed(2)}
                         </p>
+                        {hasDiscount && (
+                            <p className="text-xs text-gray-400 line-through">
+                                ₹{(originalPrice * quantity).toFixed(2)}
+                            </p>
+                        )}
                     </div>
 
                     {/* Remove Button */}
@@ -111,9 +144,20 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                 <p className="text-xl font-semibold text-gray-900">
                     ₹{itemTotal.toFixed(2)}
                 </p>
-                <p className="text-sm text-gray-400">
-                    ₹{product.price.toFixed(2)} each
-                </p>
+                {hasDiscount ? (
+                    <>
+                        <p className="text-sm text-gray-400 line-through">
+                            ₹{originalPrice.toFixed(2)} each
+                        </p>
+                        <p className="text-sm text-green-600 font-medium">
+                            ₹{displayPrice.toFixed(2)} each
+                        </p>
+                    </>
+                ) : (
+                    <p className="text-sm text-gray-400">
+                        ₹{displayPrice.toFixed(2)} each
+                    </p>
+                )}
             </div>
         </div>
     );

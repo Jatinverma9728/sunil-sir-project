@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/context/CartContext";
+import { useOffers } from "@/lib/hooks/useOffers";
 import CartItem from "@/components/cart/CartItem";
 import { validateCoupon } from "@/lib/api/promotions";
 
@@ -15,20 +16,48 @@ export default function CartPage() {
         appliedCoupon,
         applyCoupon,
         removeCoupon,
-        getCartTotal
     } = useCart();
+
+    const { getProductOffer } = useOffers();
 
     // Local state for input field only
     const [localCouponCode, setLocalCouponCode] = useState("");
     const [couponLoading, setCouponLoading] = useState(false);
     const [couponError, setCouponError] = useState("");
 
-    // Get centralized calculations
-    const { subtotal, timezone_offset_discount, tax, shipping, total, discount } = getCartTotal() as any;
-    // Note: getCartTotal returns discount, mapped here for convenience if needed, 
-    // but we can just use the destructured values.
-    // Let's rely on the object returned by getCartTotal directly.
-    const cartTotals = getCartTotal();
+    // Calculate offer-aware cart totals
+    const cartTotals = useMemo(() => {
+        let subtotal = 0;
+        let originalSubtotal = 0;
+
+        items.forEach((item) => {
+            const offer = getProductOffer(item.product._id, item.product.category || '', item.product.price);
+            const itemPrice = offer ? offer.discountedPrice : item.product.price;
+            const originalPrice = offer ? offer.originalPrice : item.product.price;
+
+            subtotal += itemPrice * item.quantity;
+            originalSubtotal += originalPrice * item.quantity;
+        });
+
+        const couponDiscount = appliedCoupon?.discount || 0;
+        const shipping = subtotal > 999 ? 0 : 99;
+        const taxableAmount = Math.max(0, subtotal - couponDiscount);
+        const tax = taxableAmount * 0.1; // 10% tax
+        const total = taxableAmount + tax + shipping;
+        const offerSavings = originalSubtotal - subtotal;
+
+        return {
+            subtotal,
+            originalSubtotal,
+            shipping,
+            tax,
+            discount: couponDiscount,
+            total: Math.max(0, total),
+            offerSavings,
+        };
+    }, [items, appliedCoupon, getProductOffer]);
+
+    const { subtotal, originalSubtotal, shipping, tax, total, offerSavings } = cartTotals;
 
     const handleApplyCoupon = async () => {
         if (!localCouponCode.trim()) return;
@@ -130,8 +159,25 @@ export default function CartPage() {
                             <div className="space-y-4 mb-6 pb-6 border-b border-gray-200">
                                 <div className="flex justify-between text-gray-600">
                                     <span>Subtotal</span>
-                                    <span className="font-medium text-gray-900">₹{subtotal.toFixed(2)}</span>
+                                    <div className="text-right">
+                                        {offerSavings > 0 && (
+                                            <span className="text-sm text-gray-400 line-through mr-2">
+                                                ₹{originalSubtotal.toFixed(2)}
+                                            </span>
+                                        )}
+                                        <span className="font-medium text-gray-900">₹{subtotal.toFixed(2)}</span>
+                                    </div>
                                 </div>
+
+                                {/* Offer Savings */}
+                                {offerSavings > 0 && (
+                                    <div className="flex justify-between text-green-600 bg-green-50 p-3 rounded-xl">
+                                        <span className="flex items-center gap-2">
+                                            🔥 Offer Savings
+                                        </span>
+                                        <span className="font-semibold">-₹{offerSavings.toFixed(2)}</span>
+                                    </div>
+                                )}
 
                                 <div className="flex justify-between text-gray-600">
                                     <span>Shipping</span>

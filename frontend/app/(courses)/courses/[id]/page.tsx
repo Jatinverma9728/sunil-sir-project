@@ -378,7 +378,7 @@ export default function CourseDetailPage() {
                             <div className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
                                 <h2 className="text-xl font-bold text-gray-900 mb-6">Requirements</h2>
                                 <ul className="space-y-3">
-                                    {course.requirements.map((req: string, index: number) => (
+                                    {(course.requirements || []).map((req: string, index: number) => (
                                         <li key={index} className="flex items-start gap-3 text-gray-700">
                                             <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0" />
                                             <span>{req}</span>
@@ -504,8 +504,8 @@ export default function CourseDetailPage() {
                                         <button
                                             onClick={handleEnroll}
                                             className={`w-full py-3.5 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${course.isPurchased
-                                                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                                                    : 'bg-slate-900 hover:bg-slate-800 text-white'
+                                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                                : 'bg-slate-900 hover:bg-slate-800 text-white'
                                                 }`}
                                         >
                                             {course.isPurchased ? (
@@ -534,7 +534,7 @@ export default function CourseDetailPage() {
                                         <div className="pt-6 border-t border-gray-200">
                                             <h3 className="font-semibold text-gray-900 mb-4">This course includes:</h3>
                                             <ul className="space-y-3">
-                                                {course.features.map((feature: string, index: number) => (
+                                                {(course.features || []).map((feature: string, index: number) => (
                                                     <li key={index} className="flex items-center gap-3 text-sm text-gray-600">
                                                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
