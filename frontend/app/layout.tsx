@@ -30,6 +30,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "North Tech Hub - Premium E-Commerce & Courses",
   description: "Your destination for premium gadgets and online learning",
+  verification: {
+    google: "7-4VbfmDLvUFQPoat9HrYsB5gmLumofe21Jk4aejiR0",
+  },
 };
 
 export default function RootLayout({
