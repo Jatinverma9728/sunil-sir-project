@@ -24,15 +24,13 @@ const forgotPassword = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (!user) {
-            // Don't reveal if user exists for security
-            return res.status(200).json({
-                success: true,
-                message: 'If an account exists with this email, an OTP has been sent',
+            return res.status(404).json({
+                success: false,
+                message: 'No account found with this email address',
             });
         }
 
         // Rate limiting: Allow new OTP every 2 minutes
-        /*
         if (user.lastOTPSent && Date.now() - user.lastOTPSent < 2 * 60 * 1000) { // 2 minutes
             const waitTime = Math.ceil((2 * 60 * 1000 - (Date.now() - user.lastOTPSent)) / 1000);
             return res.status(429).json({
@@ -40,7 +38,6 @@ const forgotPassword = async (req, res) => {
                 message: `Please wait ${waitTime} seconds before requesting another OTP`,
             });
         }
-        */
 
         // Generate 6-digit OTP securely
         const otp = crypto.randomInt(100000, 1000000).toString();
@@ -92,6 +89,9 @@ const forgotPassword = async (req, res) => {
  * @route   POST /api/auth/verify-reset-otp
  * @access  Public
  */
+// @desc    Verify OTP for password reset
+// @route   POST /api/auth/verify-reset-otp
+// @access  Public
 const verifyResetOTP = async (req, res) => {
     try {
         const { email, otp } = req.body;
@@ -131,7 +131,6 @@ const verifyResetOTP = async (req, res) => {
 
         // Check OTP purpose
         if (user.otpPurpose !== 'password-reset') {
-            console.log('DEBUG: Invalid OTP Purpose:', user.otpPurpose);
             return res.status(400).json({
                 success: false,
                 message: 'Invalid OTP',
@@ -140,14 +139,6 @@ const verifyResetOTP = async (req, res) => {
 
         // Verify OTP
         const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
-
-        console.log('DEBUG: Verifying OTP');
-        console.log('DEBUG: Email (req):', email);
-        console.log('DEBUG: Email (user):', user.email);
-        console.log('DEBUG: OTP (input):', otp);
-        console.log('DEBUG: OTP Hash (input):', hashedOtp);
-        console.log('DEBUG: OTP Hash (db):', user.otp);
-        console.log('DEBUG: Match?', user.otp === hashedOtp);
 
         if (user.otp !== hashedOtp) {
             // Increment attempts
@@ -168,7 +159,7 @@ const verifyResetOTP = async (req, res) => {
         user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
         user.otp = undefined;
         user.otpExpires = undefined;
-        user.otpPurpose = null;
+        user.otpPurpose = undefined;
         user.otpAttempts = 0;
         await user.save({ validateBeforeSave: false });
 

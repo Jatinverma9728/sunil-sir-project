@@ -389,7 +389,7 @@ function OrderSuccessContent() {
                             <Link href="/products" className="block w-full py-4 px-6 bg-[#C1FF72] text-black font-bold rounded-xl text-center hover:bg-[#b5fc5e] transition-colors shadow-lg shadow-green-100 hover:shadow-xl">
                                 Continue Shopping
                             </Link>
-                            <Link href="/account/orders" className="block w-full py-4 px-6 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-center hover:bg-gray-50 transition-colors">
+                            <Link href={`/orders/${order._id}`} className="block w-full py-4 px-6 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-center hover:bg-gray-50 transition-colors">
                                 Track Order
                             </Link>
                         </motion.div>

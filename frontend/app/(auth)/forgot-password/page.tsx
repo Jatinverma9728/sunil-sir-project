@@ -143,6 +143,22 @@ export default function ForgotPasswordPage() {
         }
     };
 
+    const getPasswordStrength = (password: string) => {
+        if (!password) return { strength: 0, label: "", color: "" };
+
+        let strength = 0;
+        if (password.length >= 6) strength++;
+        if (password.length >= 10) strength++;
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+        if (/\d/.test(password)) strength++;
+        if (/[^a-zA-Z\d]/.test(password)) strength++;
+
+        const labels = ["", "Weak", "Fair", "Good", "Strong"];
+        const colors = ["", "bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-green-500"];
+
+        return { strength, label: labels[strength] || "", color: colors[strength] || "" };
+    };
+
     return (
         <div className="min-h-screen bg-gray-50/50 flex items-center justify-center p-4 relative overflow-hidden font-sans text-gray-900 selection:bg-indigo-500/30">
             {/* Dot Pattern Background */}
@@ -328,8 +344,8 @@ export default function ForgotPasswordPage() {
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">New Password</label>
+                                                <div className="space-y-2">
+                                                    <label className="block text-sm font-medium text-gray-700">New Password</label>
                                                     <div className="relative group">
                                                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
                                                         <input
@@ -351,10 +367,25 @@ export default function ForgotPasswordPage() {
                                                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                                         </button>
                                                     </div>
+
+                                                    {/* Password Strength Meter */}
+                                                    {formData.password && (
+                                                        <div className="space-y-1 pt-1">
+                                                            <div className="flex gap-1 h-1">
+                                                                {[1, 2, 3, 4].map((i) => (
+                                                                    <div
+                                                                        key={i}
+                                                                        className={`flex-1 rounded-full transition-colors ${i <= getPasswordStrength(formData.password).strength ? getPasswordStrength(formData.password).color : "bg-gray-100"}`}
+                                                                    ></div>
+                                                                ))}
+                                                            </div>
+                                                            <p className="text-[10px] text-gray-500 text-right">{getPasswordStrength(formData.password).label}</p>
+                                                        </div>
+                                                    )}
                                                 </div>
 
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm</label>
+                                                <div className="space-y-2">
+                                                    <label className="block text-sm font-medium text-gray-700">Confirm</label>
                                                     <div className="relative group">
                                                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
                                                         <input

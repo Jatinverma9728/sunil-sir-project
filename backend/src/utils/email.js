@@ -575,7 +575,7 @@ const sendOrderConfirmationEmail = async (to, order, name = 'Customer') => {
 
                             <!-- CTA Button -->
                             <div style="text-align: center; margin: 32px 0;">
-                                <a href="${process.env.FRONTEND_URL || '#'}/orders" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
+                                <a href="${process.env.FRONTEND_URL || '#'}/orders/${order._id}" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
                                     Track Your Order →
                                 </a>
                             </div>
@@ -692,7 +692,7 @@ const sendShippingUpdateEmail = async (to, order, name = 'Customer', trackingInf
 
                             <!-- CTA Button -->
                             <div style="text-align: center; margin: 32px 0;">
-                                <a href="${process.env.FRONTEND_URL || '#'}/orders" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
+                                <a href="${process.env.FRONTEND_URL || '#'}/orders/${order._id}" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
                                     Track Your Order →
                                 </a>
                             </div>
