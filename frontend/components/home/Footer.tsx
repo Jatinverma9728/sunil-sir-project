@@ -213,7 +213,7 @@ export default function Footer() {
                     <div className="flex items-center gap-6">
                         {/* Premium Averiq Badge */}
                         <motion.a
-                            href="https://averiq.vercel.app"
+                            href="https://northtechhub.in"
                             target="_blank"
                             rel="noopener noreferrer"
                             whileHover={{ scale: 1.05 }}
