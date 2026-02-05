@@ -44,7 +44,6 @@ const sendVerificationEmail = async (req, res) => {
     const verification = await EmailVerification.create({
       user: user._id,
       email: user.email,
-      token,
       tokenHash,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     });
@@ -87,11 +86,17 @@ const verifyEmail = async (req, res) => {
       });
     }
 
+    // Hash the token to find the record
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
     // Find verification record
     const verification = await EmailVerification.findOne({
-      token,
+      tokenHash: hashedToken,
       isUsed: false,
-    }).select('+tokenHash');
+    });
 
     if (!verification) {
       return res.status(400).json({
@@ -106,18 +111,6 @@ const verifyEmail = async (req, res) => {
         success: false,
         message: 'Verification token has expired',
         expiredAt: verification.expiresAt,
-      });
-    }
-
-    // Verify token hash
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
-    if (hashedToken !== verification.tokenHash) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid verification token',
       });
     }
 
@@ -214,7 +207,6 @@ const resendVerificationEmail = async (req, res) => {
     await EmailVerification.create({
       user: user._id,
       email: user.email,
-      token,
       tokenHash,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     });

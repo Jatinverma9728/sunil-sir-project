@@ -25,12 +25,8 @@ const emailVerificationSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Plain token (for display in email link)
-    token: {
-      type: String,
-      required: true,
-      unique: true,
-    },
+    // Plain token removed for security
+    // Use tokenHash for lookup
 
     // Hashed token (for secure storage)
     tokenHash: {

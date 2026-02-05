@@ -9,14 +9,16 @@ const { sendOTPEmail, sendPasswordResetConfirmation } = require('../utils/email'
  */
 const forgotPassword = async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email: rawEmail } = req.body;
 
-        if (!email) {
+        if (!rawEmail) {
             return res.status(400).json({
                 success: false,
                 message: 'Please provide an email address',
             });
         }
+
+        const email = rawEmail.toLowerCase();
 
         // Find user
         const user = await User.findOne({ email });
@@ -30,6 +32,7 @@ const forgotPassword = async (req, res) => {
         }
 
         // Rate limiting: Allow new OTP every 2 minutes
+        /*
         if (user.lastOTPSent && Date.now() - user.lastOTPSent < 2 * 60 * 1000) { // 2 minutes
             const waitTime = Math.ceil((2 * 60 * 1000 - (Date.now() - user.lastOTPSent)) / 1000);
             return res.status(429).json({
@@ -37,9 +40,10 @@ const forgotPassword = async (req, res) => {
                 message: `Please wait ${waitTime} seconds before requesting another OTP`,
             });
         }
+        */
 
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        // Generate 6-digit OTP securely
+        const otp = crypto.randomInt(100000, 1000000).toString();
 
         // Hash OTP for security
         const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
@@ -100,7 +104,7 @@ const verifyResetOTP = async (req, res) => {
         }
 
         // Find user
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: email.toLowerCase() });
 
         if (!user) {
             return res.status(400).json({
@@ -127,6 +131,7 @@ const verifyResetOTP = async (req, res) => {
 
         // Check OTP purpose
         if (user.otpPurpose !== 'password-reset') {
+            console.log('DEBUG: Invalid OTP Purpose:', user.otpPurpose);
             return res.status(400).json({
                 success: false,
                 message: 'Invalid OTP',
@@ -135,6 +140,14 @@ const verifyResetOTP = async (req, res) => {
 
         // Verify OTP
         const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+
+        console.log('DEBUG: Verifying OTP');
+        console.log('DEBUG: Email (req):', email);
+        console.log('DEBUG: Email (user):', user.email);
+        console.log('DEBUG: OTP (input):', otp);
+        console.log('DEBUG: OTP Hash (input):', hashedOtp);
+        console.log('DEBUG: OTP Hash (db):', user.otp);
+        console.log('DEBUG: Match?', user.otp === hashedOtp);
 
         if (user.otp !== hashedOtp) {
             // Increment attempts
