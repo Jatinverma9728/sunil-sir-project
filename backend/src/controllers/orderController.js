@@ -321,17 +321,14 @@ const verifyPayment = async (req, res) => {
         await order.save();
         console.log('Order saved.');
 
-        // Send order confirmation email
-        try {
-            const user = await User.findById(req.user._id);
-            if (user && user.email) {
-                console.log('📧 Sending order confirmation email to:', user.email);
-                await sendOrderConfirmationEmail(user.email, order, user.name);
-                console.log('✅ Order confirmation email sent successfully');
-            }
-        } catch (emailError) {
-            console.error('❌ Failed to send order confirmation email:', emailError.message);
-            // Don't throw - email failure shouldn't affect order processing
+        // Send order confirmation email (Async - Fire and Forget)
+        // OPTIMIZED: Don't wait for email to send before responding to client
+        // User is already in req.user from auth middleware, no need to fetch again
+        if (req.user && req.user.email) {
+            console.log('📧 Queuing order confirmation email for:', req.user.email);
+            sendOrderConfirmationEmail(req.user.email, order, req.user.name)
+                .then(() => console.log('✅ Order confirmation email sent successfully'))
+                .catch(err => console.error('❌ Failed to send order confirmation email:', err.message));
         }
 
         res.status(200).json({
