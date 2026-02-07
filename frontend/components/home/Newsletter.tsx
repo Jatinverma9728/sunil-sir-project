@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { subscribeToNewsletter } from "@/lib/api/newsletter";
 
 export default function Newsletter() {
     const [email, setEmail] = useState("");
@@ -17,17 +18,30 @@ export default function Newsletter() {
         }
 
         setStatus("loading");
+        setMessage("");
 
-        setTimeout(() => {
-            setStatus("success");
-            setMessage("Thank you for subscribing!");
-            setEmail("");
+        try {
+            const response = await subscribeToNewsletter(email);
 
-            setTimeout(() => {
-                setStatus("idle");
-                setMessage("");
-            }, 3000);
-        }, 1000);
+            if (response.success) {
+                setStatus("success");
+                // Backend returns message at root level, not in data
+                setMessage(response.message || response.data?.message || "Thank you for subscribing!");
+                setEmail("");
+
+                // Reset after 5 seconds
+                setTimeout(() => {
+                    setStatus("idle");
+                    setMessage("");
+                }, 5000);
+            } else {
+                setStatus("error");
+                setMessage(response.message || response.error || "Subscription failed. Please try again.");
+            }
+        } catch (error: any) {
+            setStatus("error");
+            setMessage(error.message || "An error occurred. Please try again.");
+        }
     };
 
     return (

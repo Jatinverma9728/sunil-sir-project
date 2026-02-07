@@ -450,6 +450,38 @@ const canReview = async (req, res) => {
     }
 };
 
+/**
+ * @desc    Get top rated reviews for testimonials
+ * @route   GET /api/reviews/testimonials
+ * @access  Public
+ */
+const getTopReviews = async (req, res) => {
+    try {
+        const reviews = await Review.find({
+            rating: { $gte: 3.5 },
+            // Assuming isApproved is a field based on getProductReviews usage
+            isApproved: true
+        })
+            .populate('user', 'name avatar')
+            .populate('product', 'title') // Optional: might want to link to product
+            .sort({ rating: -1, createdAt: -1 })
+            .limit(20);
+
+        res.status(200).json({
+            success: true,
+            count: reviews.length,
+            data: reviews,
+        });
+    } catch (error) {
+        console.error('Get top reviews error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching testimonials',
+            error: error.message,
+        });
+    }
+};
+
 module.exports = {
     getProductReviews,
     createReview,
@@ -458,4 +490,5 @@ module.exports = {
     markHelpful,
     getMyReviews,
     canReview,
+    getTopReviews,
 };

@@ -8,10 +8,13 @@ const {
     markHelpful,
     getMyReviews,
     canReview,
+    getTopReviews,
 } = require('../controllers/reviewController');
 const { protect } = require('../middlewares/authMiddleware');
 
 // Public routes
+console.log('Mounting /testimonials route');
+router.get('/testimonials', getTopReviews);
 router.get('/product/:productId', getProductReviews);
 
 // Protected routes (require authentication)

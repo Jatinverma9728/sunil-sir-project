@@ -271,4 +271,23 @@ export const getMyReviews = async (params?: {
     }
 };
 
+/**
+ * Get testimonials (top rated reviews)
+ */
+export const getTestimonials = async (): Promise<ReviewsResponse> => {
+    try {
+        const response = await fetch(`${API_URL}/reviews/testimonials`);
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Failed to fetch testimonials');
+        }
+
+        return result;
+    } catch (error) {
+        console.error('Error fetching testimonials:', error);
+        throw error;
+    }
+};
+
 export type { Review, ReviewStats, ReviewsResponse, SingleReviewResponse, CanReviewResponse, HelpfulResponse };

@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 interface TrackingHistory {
     status: string;
     location?: string;
@@ -12,126 +10,125 @@ interface TrackingHistory {
 interface OrderTrackerProps {
     currentStatus: string;
     trackingHistory?: TrackingHistory[];
+    estimatedDelivery?: string;
 }
 
 const steps = [
-    { id: "pending", label: "Order Placed", icon: "📝" },
-    { id: "processing", label: "Processing", icon: "⚙️" },
-    { id: "shipped", label: "Shipped", icon: "🚚" },
-    { id: "out_for_delivery", label: "Out for Delivery", icon: "🛵" },
-    { id: "delivered", label: "Delivered", icon: "🎉" },
+    { id: "pending", label: "Order Confirmed" },
+    { id: "shipped", label: "Shipped" },
+    { id: "out_for_delivery", label: "Out For Delivery" },
+    { id: "delivered", label: "Delivered" },
 ];
 
-export default function OrderTracker({ currentStatus, trackingHistory }: OrderTrackerProps) {
-    // Determine active step index
-    // Map status strings to indices
+export default function OrderTracker({ currentStatus, trackingHistory, estimatedDelivery }: OrderTrackerProps) {
     const statusMap: { [key: string]: number } = {
         'pending': 0,
-        'processing': 1,
-        'shipped': 2,
-        'out_for_delivery': 3,
-        'delivered': 4,
+        'processing': 0,
+        'shipped': 1,
+        'out_for_delivery': 2,
+        'delivered': 3,
         'cancelled': -1
     };
 
-    let currentStepIndex = statusMap[currentStatus.toLowerCase()] ?? 0;
+    const currentStepIndex = statusMap[currentStatus.toLowerCase()] ?? 0;
+
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const day = date.getDate();
+        const month = date.toLocaleDateString('en-US', { month: 'short' });
+        return `${weekday}, ${day}th ${month}`;
+    };
+
+    // Get date for each step from history
+    const getStepDate = (stepId: string, index: number) => {
+        const historyItem = trackingHistory?.find(h =>
+            h.status.toLowerCase().includes(stepId.replace('_', ' ')) ||
+            h.status.toLowerCase() === stepId
+        );
+
+        if (historyItem) {
+            return formatDate(historyItem.timestamp);
+        }
+
+        // For delivered step, show expected date
+        if (stepId === 'delivered' && estimatedDelivery) {
+            return `Expected by, ${formatDate(estimatedDelivery)}`;
+        }
+
+        return '';
+    };
+
+    // Cancelled state
     if (currentStatus.toLowerCase() === 'cancelled') {
         return (
-            <div className="bg-red-50 border border-red-100 rounded-2xl p-6 text-center">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">❌</span>
+            <div className="bg-red-50 border border-red-100 rounded-lg p-6 text-center">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </div>
-                <h3 className="text-lg font-medium text-red-700 mb-2">Order Cancelled</h3>
-                <p className="text-red-500 text-sm">This order has been cancelled.</p>
+                <h3 className="text-base font-medium text-red-700">Order Cancelled</h3>
             </div>
         );
     }
 
     return (
-        <div className="w-full py-8">
+        <div className="w-full py-4">
+            {/* Horizontal Timeline */}
             <div className="relative">
-                {/* Progress Bar Background */}
-                <div className="absolute top-8 left-0 w-full h-1 bg-gray-100 rounded-full -z-10" />
+                {/* Progress Line Background */}
+                <div className="absolute top-3 left-0 right-0 h-0.5 bg-gray-200" style={{ left: '12.5%', right: '12.5%' }} />
 
-                {/* Active Progress Bar */}
-                <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(currentStepIndex / (steps.length - 1)) * 100}%` }}
-                    transition={{ duration: 0.8, ease: "easeInOut" }}
-                    className="absolute top-8 left-0 h-1 bg-green-500 rounded-full -z-10"
+                {/* Active Progress Line */}
+                <div
+                    className="absolute top-3 h-0.5 bg-indigo-500 transition-all duration-500"
+                    style={{
+                        left: '12.5%',
+                        width: `${Math.min((currentStepIndex / (steps.length - 1)) * 75, 75)}%`
+                    }}
                 />
 
-                <div className="flex justify-between items-start">
+                {/* Steps */}
+                <div className="relative flex justify-between">
                     {steps.map((step, index) => {
                         const isActive = index <= currentStepIndex;
                         const isCurrent = index === currentStepIndex;
-                        const historyItem = trackingHistory?.find(h =>
-                            // Simple mapping to find relevant history if available
-                            h.status.toLowerCase().includes(step.id.replace('_', ' ')) ||
-                            h.status.toLowerCase() === step.id
-                        );
+                        const stepDate = getStepDate(step.id, index);
 
                         return (
-                            <div key={step.id} className="flex flex-col items-center relative group">
-                                <motion.div
-                                    initial={{ scale: 0.8, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ delay: index * 0.1 }}
-                                    className={`w-16 h-16 rounded-full border-4 flex items-center justify-center mb-4 transition-colors duration-300 bg-white
-                                        ${isActive ? 'border-green-500 text-green-600' : 'border-gray-200 text-gray-300'}
-                                        ${isCurrent ? 'ring-4 ring-green-100' : ''}
+                            <div key={step.id} className="flex flex-col items-center" style={{ width: '25%' }}>
+                                {/* Dot */}
+                                <div
+                                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all z-10
+                                        ${isActive
+                                            ? 'bg-indigo-500 border-indigo-500'
+                                            : 'bg-white border-gray-300'
+                                        }
                                     `}
                                 >
-                                    <span className="text-2xl filter drop-shadow-sm">{step.icon}</span>
-                                </motion.div>
-
-                                <div className="text-center">
-                                    <h4 className={`text-sm font-semibold mb-1 ${isActive ? 'text-gray-900' : 'text-gray-400'}`}>
-                                        {step.label}
-                                    </h4>
-                                    {historyItem && (
-                                        <p className="text-xs text-gray-500 whitespace-pre-line">
-                                            {new Date(historyItem.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                        </p>
-                                    )}
-                                    {isCurrent && !historyItem && (
-                                        <div className="inline-block px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full mt-1">
-                                            CURRENT
-                                        </div>
+                                    {isActive && (
+                                        <div className="w-2 h-2 bg-white rounded-full" />
                                     )}
                                 </div>
+
+                                {/* Label */}
+                                <span className={`mt-3 text-xs font-medium text-center leading-tight
+                                    ${isActive ? 'text-indigo-600' : 'text-gray-400'}
+                                `}>
+                                    {step.label}
+                                </span>
+
+                                {/* Date */}
+                                <span className="mt-1 text-[11px] text-gray-400 text-center">
+                                    {stepDate}
+                                </span>
                             </div>
                         );
                     })}
                 </div>
             </div>
-
-            {/* Detailed History Log (Optional / Collapsible could go here) */}
-            {trackingHistory && trackingHistory.length > 0 && (
-                <div className="mt-12 bg-gray-50 rounded-xl p-6 border border-gray-100">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wider">Tracking Activity</h4>
-                    <div className="space-y-6 relative border-l-2 border-gray-200 ml-3 pl-8">
-                        {trackingHistory.slice().reverse().map((event, idx) => (
-                            <div key={idx} className="relative">
-                                <span className="absolute -left-[39px] top-1 w-5 h-5 bg-white border-2 border-gray-300 rounded-full flex items-center justify-center">
-                                    <span className="w-2 h-2 bg-gray-300 rounded-full" />
-                                </span>
-                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
-                                    <div>
-                                        <p className="text-gray-900 font-medium text-sm">{event.message || event.status}</p>
-                                        <p className="text-gray-500 text-xs mt-1">{event.location}</p>
-                                    </div>
-                                    <span className="text-xs text-gray-400 font-mono mt-1 sm:mt-0">
-                                        {new Date(event.timestamp).toLocaleString(undefined, {
-                                            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                                        })}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

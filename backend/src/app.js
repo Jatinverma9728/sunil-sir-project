@@ -14,6 +14,7 @@ const { apiLimiter, authLimiter, paymentLimiter, adminLimiter } = require('./mid
  * @returns {object} Express app instance
  */
 const createApp = () => {
+    console.log('Creating Express app...');
     const app = express();
 
     // ============================================
@@ -230,6 +231,7 @@ const createApp = () => {
     app.use('/api/cart', apiLimiter, require('./routes/cartRoutes')); // Cart routes
     app.use('/api/wishlist', apiLimiter, require('./routes/wishlistRoutes')); // Wishlist routes
     app.use('/api', apiLimiter, promotionsRoutes); // Public promotions routes (banners, announcements, coupons)
+    app.use('/api/newsletter', apiLimiter, require('./routes/newsletterRoutes')); // Newsletter routes
     // app.use('/api/users', userRoutes);
 
 

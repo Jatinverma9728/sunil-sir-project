@@ -137,8 +137,8 @@ const verifyResetOTP = async (req, res) => {
             });
         }
 
-        // Verify OTP
-        const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+        // Verify OTP - ensure otp is string since JSON may parse it as number
+        const hashedOtp = crypto.createHash('sha256').update(otp.toString()).digest('hex');
 
         if (user.otp !== hashedOtp) {
             // Increment attempts
