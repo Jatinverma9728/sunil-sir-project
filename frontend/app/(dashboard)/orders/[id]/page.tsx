@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
 import OrderTracker from "@/components/orders/OrderTracker";
 import OrderPrintTemplate from "@/components/admin/OrderPrintTemplate";
-import { ChevronRight, FileText, MapPin, HelpCircle, Truck, RotateCcw, ExternalLink, Package } from "lucide-react";
+import { ChevronRight, FileText, MapPin, Truck, RotateCcw, ExternalLink, Package, CreditCard, Mail } from "lucide-react";
 
 interface OrderItem {
     product: {
@@ -128,7 +128,7 @@ function OrderDetailContent() {
         });
     };
 
-    // Calculate estimated delivery (7 days from order for demo)
+    // Calculate estimated delivery (7 days from order for demo if not set)
     const getEstimatedDelivery = () => {
         if (order?.estimatedDelivery) return order.estimatedDelivery;
         if (order?.createdAt) {
@@ -141,24 +141,24 @@ function OrderDetailContent() {
 
     if (authLoading || loading) {
         return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin"></div>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-gray-200 border-t-indigo-600 rounded-full animate-spin"></div>
             </div>
         );
     }
 
     if (error || !order) {
         return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-                <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-sm">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+                <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-lg shadow-gray-200/50">
+                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Package className="w-8 h-8 text-gray-400" />
                     </div>
                     <h1 className="text-xl font-semibold text-gray-900 mb-2">Order Not Found</h1>
                     <p className="text-gray-500 mb-6">{error || "The order you are looking for does not exist."}</p>
                     <Link
                         href="/orders"
-                        className="inline-block px-6 py-2.5 bg-indigo-500 text-white text-sm font-medium rounded-lg hover:bg-indigo-600 transition-colors"
+                        className="inline-block px-6 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
                     >
                         Back to Orders
                     </Link>
@@ -168,13 +168,13 @@ function OrderDetailContent() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 py-6 md:py-10">
+        <div className="min-h-screen bg-gray-50 py-6 md:py-10">
             {/* Print Template */}
             <OrderPrintTemplate order={order as any} />
 
             <div className="max-w-6xl mx-auto px-4 print:hidden">
                 {/* Main Card */}
-                <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
                     {/* Header */}
                     <div className="p-6 md:p-8 pb-0">
                         {/* Breadcrumb */}
@@ -204,13 +204,13 @@ function OrderDetailContent() {
                                         href={order.trackingDetails.trackingUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-500 text-white text-sm font-medium rounded-lg hover:bg-indigo-600 transition-colors"
+                                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
                                     >
                                         Track order
                                         <MapPin className="w-4 h-4" />
                                     </a>
                                 ) : (
-                                    <span className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-500 text-white text-sm font-medium rounded-lg">
+                                    <span className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg">
                                         Track order
                                         <MapPin className="w-4 h-4" />
                                     </span>
@@ -241,23 +241,30 @@ function OrderDetailContent() {
 
                     {/* Order Items */}
                     <div className="p-6 md:p-8 border-b border-gray-100">
+                        <div className="mb-4">
+                            <h2 className="text-lg font-semibold text-gray-900">Items ({order.orderItems.length})</h2>
+                        </div>
                         <div className="space-y-5">
                             {order.orderItems.map((item, idx) => (
-                                <div key={idx} className="flex items-center gap-4 md:gap-6">
+                                <div key={idx} className="flex items-center gap-4 md:gap-6 group">
                                     {/* Image */}
-                                    <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
-                                        {item.image ? (
-                                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <Package className="w-8 h-8 text-gray-300" />
-                                            </div>
-                                        )}
-                                    </div>
+                                    <Link href={item.product ? `/product/${item.product._id}` : '#'} className="block relative">
+                                        <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200">
+                                            {item.image ? (
+                                                <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center">
+                                                    <Package className="w-8 h-8 text-gray-300" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </Link>
 
                                     {/* Details */}
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="font-medium text-gray-900 text-base md:text-lg line-clamp-1">{item.title}</h3>
+                                        <Link href={item.product ? `/product/${item.product._id}` : '#'} className="block">
+                                            <h3 className="font-medium text-gray-900 text-base md:text-lg line-clamp-1 hover:text-indigo-600 transition-colors">{item.title}</h3>
+                                        </Link>
                                         {item.variant && (
                                             <p className="text-sm text-gray-400 mt-0.5">{item.variant}</p>
                                         )}
@@ -275,26 +282,50 @@ function OrderDetailContent() {
 
                     {/* Payment & Delivery Section */}
                     <div className="p-6 md:p-8 border-b border-gray-100">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                             {/* Payment */}
                             <div>
-                                <h3 className="font-semibold text-gray-900 text-lg mb-3">Payment</h3>
-                                <div className="flex items-center gap-2 text-gray-500">
-                                    <span className="capitalize">{order.paymentInfo.method}</span>
-                                    {order.paymentInfo.method.toLowerCase().includes('card') && (
-                                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded">VISA</span>
-                                    )}
+                                <h3 className="font-semibold text-gray-900 text-lg mb-4">Payment Information</h3>
+                                <div className="flex gap-4 items-center">
+                                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                                        <CreditCard className="w-5 h-5 text-indigo-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-900 capitalize mb-0.5">
+                                            {order.paymentInfo.method.replace('_', ' ')}
+                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                                ${order.paymentInfo.status === 'completed'
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-yellow-100 text-yellow-700'
+                                                }
+                                            `}>
+                                                {order.paymentInfo.status}
+                                            </span>
+                                            {order.paymentInfo.method === 'card' && (
+                                                <span className="text-xs text-gray-400">Ending in •••• 4242</span>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Delivery */}
                             <div>
-                                <h3 className="font-semibold text-gray-900 text-lg mb-3">Delivery</h3>
-                                <div className="text-sm text-gray-500">
-                                    <p className="text-gray-400 text-xs mb-1">Address</p>
-                                    <p>{order.shippingAddress.address}</p>
-                                    <p>{order.shippingAddress.city}, {order.shippingAddress.state}</p>
-                                    <p>{order.shippingAddress.phone}</p>
+                                <h3 className="font-semibold text-gray-900 text-lg mb-4">Delivery Details</h3>
+                                <div className="flex gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0">
+                                        <MapPin className="w-5 h-5 text-gray-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-900 mb-1">Address</p>
+                                        <p className="text-sm text-gray-500 leading-relaxed">
+                                            {order.shippingAddress.address}<br />
+                                            {order.shippingAddress.city}, {order.shippingAddress.state}<br />
+                                            {order.shippingAddress.phone}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -302,25 +333,31 @@ function OrderDetailContent() {
 
                     {/* Help & Summary Section */}
                     <div className="p-6 md:p-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                             {/* Need Help */}
                             <div>
                                 <h3 className="font-semibold text-gray-900 text-lg mb-4">Need Help</h3>
                                 <div className="space-y-3">
-                                    <a href="#" className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors">
-                                        <HelpCircle className="w-4 h-4" />
-                                        <span>Order Issues</span>
-                                        <ExternalLink className="w-3 h-3 ml-auto" />
+                                    <a href="/contact" className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors p-2 -ml-2 rounded-lg hover:bg-gray-50">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                            <Mail className="w-4 h-4" />
+                                        </div>
+                                        <span>Contact Support</span>
+                                        <ExternalLink className="w-3 h-3 ml-auto opacity-50" />
                                     </a>
-                                    <a href="#" className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors">
-                                        <Truck className="w-4 h-4" />
+                                    <a href="#" className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors p-2 -ml-2 rounded-lg hover:bg-gray-50">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                            <Truck className="w-4 h-4" />
+                                        </div>
                                         <span>Delivery Info</span>
-                                        <ExternalLink className="w-3 h-3 ml-auto" />
+                                        <ExternalLink className="w-3 h-3 ml-auto opacity-50" />
                                     </a>
-                                    <a href="#" className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors">
-                                        <RotateCcw className="w-4 h-4" />
-                                        <span>Returns</span>
-                                        <ExternalLink className="w-3 h-3 ml-auto" />
+                                    <a href="#" className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors p-2 -ml-2 rounded-lg hover:bg-gray-50">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                            <RotateCcw className="w-4 h-4" />
+                                        </div>
+                                        <span>Returns Policy</span>
+                                        <ExternalLink className="w-3 h-3 ml-auto opacity-50" />
                                     </a>
                                 </div>
                             </div>
@@ -328,7 +365,7 @@ function OrderDetailContent() {
                             {/* Order Summary */}
                             <div>
                                 <h3 className="font-semibold text-gray-900 text-lg mb-4">Order Summary</h3>
-                                <div className="space-y-3 text-sm">
+                                <div className="space-y-3 text-sm bg-gray-50 p-6 rounded-xl border border-gray-100">
                                     <div className="flex justify-between">
                                         <span className="text-gray-500">Subtotal</span>
                                         <span className="text-gray-900">₹{order.itemsPrice.toLocaleString()}</span>
@@ -336,7 +373,7 @@ function OrderDetailContent() {
                                     {order.discountPrice > 0 && (
                                         <div className="flex justify-between">
                                             <span className="text-gray-500">Discount</span>
-                                            <span className="text-gray-900">- ₹{order.discountPrice.toLocaleString()}</span>
+                                            <span className="text-green-600">- ₹{order.discountPrice.toLocaleString()}</span>
                                         </div>
                                     )}
                                     <div className="flex justify-between">
@@ -347,7 +384,7 @@ function OrderDetailContent() {
                                         <span className="text-gray-500">Tax</span>
                                         <span className="text-gray-900">+ ₹{order.taxPrice.toLocaleString()}</span>
                                     </div>
-                                    <div className="flex justify-between pt-3 border-t border-gray-100 mt-3">
+                                    <div className="flex justify-between pt-3 border-t border-gray-200 mt-3">
                                         <span className="font-semibold text-gray-900">Total</span>
                                         <span className="font-bold text-gray-900 text-xl">₹{order.totalPrice.toLocaleString()}</span>
                                     </div>
@@ -364,8 +401,8 @@ function OrderDetailContent() {
 export default function OrderDetailPage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin"></div>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-gray-200 border-t-indigo-600 rounded-full animate-spin"></div>
             </div>
         }>
             <OrderDetailContent />

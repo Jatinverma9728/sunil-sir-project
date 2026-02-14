@@ -228,6 +228,7 @@ export interface Order {
         quantity: number;
         price: number;
         image?: string;
+        variant?: string;
     }>;
     shippingAddress: {
         fullName: string;
@@ -247,6 +248,7 @@ export interface Order {
     itemsPrice: number;
     taxPrice: number;
     shippingPrice: number;
+    discountPrice?: number;
     totalPrice: number;
     orderStatus: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
     createdAt: string;

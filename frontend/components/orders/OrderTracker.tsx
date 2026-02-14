@@ -1,5 +1,7 @@
 "use client";
 
+import { CheckCircle2, Package, Truck, Home } from "lucide-react";
+
 interface TrackingHistory {
     status: string;
     location?: string;
@@ -14,10 +16,10 @@ interface OrderTrackerProps {
 }
 
 const steps = [
-    { id: "pending", label: "Order Confirmed" },
-    { id: "shipped", label: "Shipped" },
-    { id: "out_for_delivery", label: "Out For Delivery" },
-    { id: "delivered", label: "Delivered" },
+    { id: "pending", label: "Order Confirmed", icon: CheckCircle2 },
+    { id: "shipped", label: "Shipped", icon: Package },
+    { id: "out_for_delivery", label: "Out For Delivery", icon: Truck },
+    { id: "delivered", label: "Delivered", icon: Home },
 ];
 
 export default function OrderTracker({ currentStatus, trackingHistory, estimatedDelivery }: OrderTrackerProps) {
@@ -75,15 +77,15 @@ export default function OrderTracker({ currentStatus, trackingHistory, estimated
     }
 
     return (
-        <div className="w-full py-4">
+        <div className="w-full py-8">
             {/* Horizontal Timeline */}
             <div className="relative">
                 {/* Progress Line Background */}
-                <div className="absolute top-3 left-0 right-0 h-0.5 bg-gray-200" style={{ left: '12.5%', right: '12.5%' }} />
+                <div className="absolute top-4 left-0 right-0 h-0.5 bg-gray-100" style={{ left: '12.5%', right: '12.5%' }} />
 
                 {/* Active Progress Line */}
                 <div
-                    className="absolute top-3 h-0.5 bg-indigo-500 transition-all duration-500"
+                    className="absolute top-4 h-0.5 bg-indigo-600 transition-all duration-700 ease-out"
                     style={{
                         left: '12.5%',
                         width: `${Math.min((currentStepIndex / (steps.length - 1)) * 75, 75)}%`
@@ -96,32 +98,31 @@ export default function OrderTracker({ currentStatus, trackingHistory, estimated
                         const isActive = index <= currentStepIndex;
                         const isCurrent = index === currentStepIndex;
                         const stepDate = getStepDate(step.id, index);
+                        const Icon = step.icon;
 
                         return (
-                            <div key={step.id} className="flex flex-col items-center" style={{ width: '25%' }}>
-                                {/* Dot */}
+                            <div key={step.id} className="flex flex-col items-center group" style={{ width: '25%' }}>
+                                {/* Icon Circle */}
                                 <div
-                                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all z-10
+                                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 z-10
                                         ${isActive
-                                            ? 'bg-indigo-500 border-indigo-500'
-                                            : 'bg-white border-gray-300'
+                                            ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200'
+                                            : 'bg-white border-gray-200 text-gray-300'
                                         }
                                     `}
                                 >
-                                    {isActive && (
-                                        <div className="w-2 h-2 bg-white rounded-full" />
-                                    )}
+                                    <Icon className="w-4 h-4" strokeWidth={2.5} />
                                 </div>
 
                                 {/* Label */}
-                                <span className={`mt-3 text-xs font-medium text-center leading-tight
-                                    ${isActive ? 'text-indigo-600' : 'text-gray-400'}
+                                <span className={`mt-4 text-xs font-semibold text-center uppercase tracking-wide transition-colors duration-300
+                                    ${isActive ? 'text-indigo-900' : 'text-gray-400'}
                                 `}>
                                     {step.label}
                                 </span>
 
                                 {/* Date */}
-                                <span className="mt-1 text-[11px] text-gray-400 text-center">
+                                <span className="mt-1 text-[11px] font-medium text-gray-500 text-center">
                                     {stepDate}
                                 </span>
                             </div>
