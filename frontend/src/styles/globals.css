@@ -48,7 +48,7 @@ html {
   /* Neutrals - Clean Foundation */
   --neutral-950: #0A0A0B;
   /* Almost black - primary text */
-  --neutral-900: #18181B;
+  --neutral-900: #ffffff;
   /* Dark gray - headings */
   --neutral-800: #27272A;
   /* Medium dark */
@@ -149,7 +149,6 @@ h6,
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
-  color: var(--neutral-900);
 }
 
 h1 {

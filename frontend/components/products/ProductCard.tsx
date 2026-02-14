@@ -294,7 +294,7 @@ export default function ProductCard({ product, onAddToCart, index = 0 }: Product
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                     : isAdding
                                         ? 'bg-primary-electric text-white shadow-md'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-primary-electric hover:text-white hover:shadow-md'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-900 hover:text-white hover:shadow-md'
                                 }
                             `}
                         >
