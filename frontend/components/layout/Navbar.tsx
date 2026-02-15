@@ -94,15 +94,15 @@ export default function Navbar() {
             >
                 <div className="container mx-auto px-4 lg:px-6">
                     <div className="flex items-center justify-between h-16 lg:h-20 gap-4">
-                        {/* Logo */}
+                        {/* Logo - Enhanced with Hover */}
                         <Link
                             href="/"
-                            className="text-xl lg:text-2xl font-bold tracking-tight text-gray-900 hover:text-gray-700 transition-colors flex items-center gap-2"
+                            className="group text-xl lg:text-2xl font-bold tracking-tight text-gray-900 hover:text-[var(--primary-electric)] transition-all duration-300 flex items-center gap-2"
                         >
-                            <span className="w-8 h-8 lg:w-9 lg:h-9 bg-gray-900 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-gray-200">
+                            <span className="w-8 h-8 lg:w-9 lg:h-9 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
                                 N
                             </span>
-                            <span className="hidden sm:inline">North Tech Hub<span className="text-[#C1FF72]">.</span></span>
+                            <span className="hidden sm:inline">North Tech Hub<span className="text-[var(--secondary-pop)] group-hover:animate-bounce">.</span></span>
                         </Link>
 
                         {/* Desktop Search Bar - Pill Style */}
@@ -130,15 +130,15 @@ export default function Navbar() {
                             </div>
                         </form>
 
-                        {/* Desktop Navigation Links */}
+                        {/* Desktop Navigation Links - Enhanced */}
                         <div className="hidden lg:flex items-center gap-2">
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${pathname === link.href
-                                        ? "bg-gray-900 text-white shadow-lg shadow-gray-200"
-                                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                    className={`px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 hover:scale-105 ${pathname === link.href
+                                        ? "bg-gradient-to-r from-[var(--primary-electric)] to-[var(--primary-deep)] text-white shadow-lg"
+                                        : "text-gray-600 hover:bg-gray-100 hover:text-[var(--primary-electric)]"
                                         }`}
                                 >
                                     {link.label}

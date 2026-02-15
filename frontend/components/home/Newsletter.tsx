@@ -75,14 +75,14 @@ export default function Newsletter() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="Enter your email"
-                                    className="w-full px-6 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-400 focus:border-indigo-300 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all duration-300 shadow-sm"
+                                    className="w-full px-6 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-400 focus:border-[var(--primary-electric)] focus:outline-none focus:ring-4 focus:ring-[var(--primary-electric)]/10 transition-all duration-300 shadow-sm"
                                     disabled={status === "loading"}
                                 />
                             </div>
                             <button
                                 type="submit"
                                 disabled={status === "loading"}
-                                className="px-8 py-4 bg-gray-900 text-white text-base font-semibold rounded-2xl hover:bg-indigo-600 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-0.5"
+                                className="px-8 py-4 bg-gradient-to-r from-[var(--primary-electric)] to-[var(--primary-deep)] text-white text-base font-semibold rounded-2xl hover:shadow-[var(--glow-primary)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-electric)]"
                             >
                                 {status === "loading" ? (
                                     <span className="flex items-center gap-2">

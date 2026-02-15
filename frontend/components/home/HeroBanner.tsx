@@ -162,7 +162,7 @@ export default function HeroBanner() {
                                         </div>
                                         <Link
                                             href={`/products/${product._id}`}
-                                            className="inline-flex items-center justify-center px-6 sm:px-8 py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base bg-white text-gray-900 font-bold rounded-full hover:bg-gray-900 hover:text-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out w-fit touch-target"
+                                            className="inline-flex items-center justify-center px-6 sm:px-8 py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base bg-white text-gray-900 font-bold rounded-full hover:bg-[var(--primary-electric)] hover:text-white hover:shadow-[var(--glow-primary)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 ease-out w-fit touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white"
                                         >
                                             Shop Now →
                                         </Link>

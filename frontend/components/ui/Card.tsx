@@ -1,14 +1,23 @@
 import { cn } from "@/lib/utils";
 import { HTMLAttributes, forwardRef } from "react";
 
-export interface CardProps extends HTMLAttributes<HTMLDivElement> { }
+export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+    variant?: "default" | "glass" | "elevated";
+}
 
-const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref) => {
+const Card = forwardRef<HTMLDivElement, CardProps>(({ className, variant = "default", ...props }, ref) => {
+    const variants = {
+        default: "bg-white border border-gray-200 shadow-sm dark:border-gray-700 dark:bg-gray-800",
+        glass: "bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)]",
+        elevated: "bg-white border border-gray-100 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-200",
+    };
+
     return (
         <div
             ref={ref}
             className={cn(
-                "rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800",
+                "rounded-[1.25rem]",
+                variants[variant],
                 className
             )}
             {...props}
@@ -31,7 +40,7 @@ const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingEleme
         return (
             <h3
                 ref={ref}
-                className={cn("text-2xl font-semibold leading-none tracking-tight", className)}
+                className={cn("text-2xl font-semibold leading-none tracking-tight text-gray-900", className)}
                 {...props}
             />
         );

@@ -11,6 +11,7 @@ import AnnouncementBar from "@/components/AnnouncementBar";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import PageTransition from "@/components/ui/PageTransition";
 import "../src/styles/globals.css";
+import "../src/styles/premium-polish.css";
 
 // Playful Tech Fonts
 const inter = Inter({
