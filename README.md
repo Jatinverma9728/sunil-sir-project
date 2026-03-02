@@ -20,7 +20,6 @@ Modern scalable MERN stack monorepo for e-commerce and course platform.
 
 ## Project Structure
 
-
 ```
 ├── frontend/          # Next.js application
 ├── backend/           # Express.js API server
