@@ -248,21 +248,10 @@ const createApp = () => {
         });
     });
 
+    const errorHandler = require('./middlewares/errorHandler');
+
     // Global Error Handler
-    app.use((err, req, res, next) => {
-        console.error('Error:', err);
-
-        // Note: CSRF middleware removed - JWT Bearer auth provides equivalent protection
-
-        const statusCode = err.statusCode || 500;
-        const message = err.message || 'Internal Server Error';
-
-        res.status(statusCode).json({
-            success: false,
-            message: message,
-            ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-        });
-    });
+    app.use(errorHandler);
 
     return app;
 };

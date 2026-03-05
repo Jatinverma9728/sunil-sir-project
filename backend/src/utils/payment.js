@@ -12,9 +12,7 @@ const getRazorpayInstance = () => {
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
     if (!keyId || !keySecret) {
-        console.warn('⚠️ Razorpay credentials not configured. Using test mode.');
-        // Return null to indicate SDK not available
-        return null;
+        throw new Error('Razorpay credentials not configured');
     }
 
     return new Razorpay({
@@ -33,23 +31,6 @@ const getRazorpayInstance = () => {
 const createRazorpayOrder = async (amount, currency = 'INR', options = {}) => {
     const razorpay = getRazorpayInstance();
 
-    // If Razorpay is not configured, return mock order for development
-    if (!razorpay) {
-        console.log('📦 Creating mock Razorpay order (SDK not configured)');
-        return {
-            id: `order_mock_${generateMockId()}`,
-            entity: 'order',
-            amount: Math.round(amount * 100), // Convert to paise
-            amount_paid: 0,
-            amount_due: Math.round(amount * 100),
-            currency: currency,
-            status: 'created',
-            created_at: Math.floor(Date.now() / 1000),
-            notes: options.notes || {},
-            _isMock: true,
-        };
-    }
-
     try {
         const orderOptions = {
             amount: Math.round(amount * 100), // Convert rupees to paise
@@ -62,22 +43,8 @@ const createRazorpayOrder = async (amount, currency = 'INR', options = {}) => {
         console.log(`✅ Razorpay order created: ${order.id}`);
         return order;
     } catch (error) {
-        console.warn('⚠️ Razorpay order creation failed (likely invalid keys). Falling back to mock mode.');
         console.error('Razorpay Error details:', error);
-
-        // Return mock order on failure
-        return {
-            id: `order_mock_${generateMockId()}`,
-            entity: 'order',
-            amount: Math.round(amount * 100),
-            amount_paid: 0,
-            amount_due: Math.round(amount * 100),
-            currency: currency,
-            status: 'created',
-            created_at: Math.floor(Date.now() / 1000),
-            notes: options.notes || {},
-            _isMock: true,
-        };
+        throw new Error('Failed to create Razorpay order');
     }
 };
 
@@ -96,12 +63,6 @@ const verifyRazorpaySignature = (params) => {
     if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
         console.error('❌ Missing payment verification parameters');
         return false;
-    }
-
-    // Check for mock orders (development mode)
-    if (razorpayOrderId.startsWith('order_mock_')) {
-        console.log('✅ Mock order signature verified (development mode)');
-        return true;
     }
 
     // Get Razorpay secret

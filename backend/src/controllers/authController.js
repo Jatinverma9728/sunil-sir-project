@@ -154,6 +154,15 @@ const login = async (req, res) => {
             });
         }
 
+        // Check if email is verified
+        if (user.isEmailVerified === false) {
+            return res.status(401).json({
+                success: false,
+                message: 'Please verify your email before logging in',
+                code: 'EMAIL_NOT_VERIFIED'
+            });
+        }
+
         // Check if account is locked
         if (user.isLocked) {
             const lockTimeRemaining = Math.ceil((user.lockUntil - Date.now()) / (60 * 1000));

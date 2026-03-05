@@ -116,17 +116,21 @@ const createOrder = async (req, res) => {
 
         logTime('Product validation loop complete');
 
-        // OPTIMIZED: Execute all stock updates in parallel
-        console.log('Updating stock (parallel)...');
-        await Promise.all(stockUpdates.map(update =>
-            Product.findByIdAndUpdate(
-                update.productId,
-                { $inc: { stock: -update.quantity } },
-                { new: true }
-            )
-        ));
+        // OPTIMIZED: Execute all stock updates in parallel (only for COD, otherwise defer to verifyPayment)
+        if (paymentMethod === 'cod') {
+            console.log('Updating stock (parallel) for COD order...');
+            await Promise.all(stockUpdates.map(update =>
+                Product.findByIdAndUpdate(
+                    update.productId,
+                    { $inc: { stock: -update.quantity } },
+                    { new: true }
+                )
+            ));
+        } else {
+            console.log('Skipping stock deduction in createOrder for online payment, will deduct in verifyPayment');
+        }
 
-        logTime('Stock updates complete');
+        logTime('Stock handling complete');
 
         console.log('Products verified. Calculated Items Price:', calculatedItemsPrice);
 
@@ -276,6 +280,13 @@ const verifyPayment = async (req, res) => {
             });
         }
 
+        if (order.paymentInfo.status === 'completed') {
+            return res.status(400).json({
+                success: false,
+                message: 'Payment already verified for this order',
+            });
+        }
+
         // Verify signature (mock)
         console.log('Calling verifyRazorpaySignature...');
         const isValid = verifyRazorpaySignature({
@@ -301,8 +312,20 @@ const verifyPayment = async (req, res) => {
         order.paymentInfo.status = 'completed';
         order.orderStatus = 'processing';
 
-        // Stock update removed - handled in createOrder atomically
-        console.log('Stock already deducted in createOrder');
+        // Deduct stock upon successful payment verification
+        console.log('Deducting stock after successful payment...');
+        const stockUpdatesToApply = order.orderItems.map(item => ({
+            productId: item.product,
+            quantity: item.quantity
+        }));
+
+        await Promise.all(stockUpdatesToApply.map(update =>
+            Product.findByIdAndUpdate(
+                update.productId,
+                { $inc: { stock: -update.quantity } },
+                { new: true }
+            )
+        ));
 
         console.log('Updating coupon...');
         // Update usage count for coupon
