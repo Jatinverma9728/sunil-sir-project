@@ -60,31 +60,29 @@ const register = async (req, res) => {
         // Generate token
         const token = generateToken(user._id);
 
-        // Generate verification token
-        const verificationToken = crypto.randomBytes(32).toString('hex');
+        // Generate verification OTP
+        const verificationOTP = Math.floor(100000 + Math.random() * 900000).toString();
         const tokenHash = crypto
             .createHash('sha256')
-            .update(verificationToken)
+            .update(verificationOTP)
             .digest('hex');
 
         // Create verification record
         await EmailVerification.create({
             user: user._id,
             email: user.email,
-            token: verificationToken,
             tokenHash,
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
         });
 
-        // Send verification email
-        const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
-        console.log('📧 Sending verification email to:', user.email);
-        console.log('🔗 Verification link:', verificationLink);
+        // Send verification OTP
+        console.log('📧 Sending verification OTP to:', user.email);
         try {
-            await sendVerificationEmail(user.email, verificationLink, user.name);
-            console.log('✅ Verification email sent successfully to:', user.email);
+            const { sendOTPEmail } = require('../utils/email');
+            await sendOTPEmail(user.email, verificationOTP, user.name);
+            console.log('✅ Verification OTP sent successfully to:', user.email);
         } catch (emailError) {
-            console.error('❌ Failed to send verification email:', emailError.message);
+            console.error('❌ Failed to send verification OTP:', emailError.message);
             console.error('Error details:', emailError);
         }
 

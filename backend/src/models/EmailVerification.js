@@ -67,18 +67,19 @@ emailVerificationSchema.index({ user: 1, email: 1 });
 emailVerificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // Auto-delete expired
 
 /**
- * Static method: Generate verification token
+ * Static method: Generate verification token (6-digit OTP)
  */
 emailVerificationSchema.statics.generateToken = function () {
-  // Generate a random 32-byte token
-  const token = crypto.randomBytes(32).toString('hex');
-  return token;
+  // Generate a random 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  return otp;
 };
 
 /**
  * Instance method: Hash token for storage
  */
 emailVerificationSchema.methods.hashToken = function (token) {
+  // For OTPs, we might encrypt them, but hashing with sha256 is fine too for obfuscation
   return crypto.createHash('sha256').update(token).digest('hex');
 };
 

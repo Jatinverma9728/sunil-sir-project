@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
@@ -9,7 +9,7 @@ import { apiClient } from "@/lib/api/client";
 
 export default function VerifyEmailPage() {
     const router = useRouter();
-    const { user, token } = useAuth();
+    const { user, token, refreshUser } = useAuth();
     const toast = useToast();
     const api = apiClient;
 
@@ -19,11 +19,18 @@ export default function VerifyEmailPage() {
     const [verificationStatus, setVerificationStatus] = useState<"pending" | "verified" | "error">("pending");
     const [message, setMessage] = useState("");
 
+    // OTP State
+    const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+    const [verifyingOtp, setVerifyingOtp] = useState(false);
+    const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+    const [emailInput, setEmailInput] = useState<string>("");
+
     // Check if already verified
     useEffect(() => {
         if (user?.isEmailVerified) {
             setVerificationStatus("verified");
-            const timer = setTimeout(() => router.push("/dashboard"), 2000);
+            const timer = setTimeout(() => router.push("/profile"), 2000);
             return () => clearTimeout(timer);
         }
     }, [user, router]);
@@ -33,12 +40,21 @@ export default function VerifyEmailPage() {
         const fetchStatus = async () => {
             try {
                 setLoading(true);
-                const response = await api.get<{ isEmailVerified: boolean; email: string }>("/verification/status");
+                const response = await api.get<{ isEmailVerified: boolean; email: string }>("/verification/status", true);
                 setVerificationStatus(response.data?.isEmailVerified ? "verified" : "pending");
+                // For OTP flow, we might not need to display the email directly here,
+                // but keep it for consistency if needed elsewhere.
                 setMessage(response.data?.email || "");
+                if (!response.data?.isEmailVerified && response.data?.email) {
+                    // If not verified, and we have an email, pre-fill emailInput if user is null
+                    if (!user) setEmailInput(response.data.email);
+                    // Optionally, trigger an initial OTP send if user is not verified and no OTP has been sent recently
+                    // This might be handled by the backend automatically on registration/login if email is unverified
+                }
             } catch (error: any) {
                 setVerificationStatus("pending");
-                setMessage(user?.email || "");
+                setMessage((user as any)?.email || "");
+                if (!user) setEmailInput((user as any)?.email || ""); // Fallback if user is null
             } finally {
                 setLoading(false);
             }
@@ -46,8 +62,11 @@ export default function VerifyEmailPage() {
 
         if (user && token) {
             fetchStatus();
+        } else if (!user && !emailInput) {
+            // If no user and no email input, prompt for email
+            // This case is handled by the UI showing the email input field
         }
-    }, [user, token, api]);
+    }, [user, token, api, emailInput]);
 
     // Resend cooldown timer
     useEffect(() => {
@@ -57,8 +76,6 @@ export default function VerifyEmailPage() {
         }
     }, [resendCooldown]);
 
-
-    const [emailInput, setEmailInput] = useState("");
 
     const handleResend = async () => {
         const targetEmail = user?.email || emailInput;
@@ -73,18 +90,98 @@ export default function VerifyEmailPage() {
         try {
             await api.post("/verification/resend-verification-email", { email: targetEmail });
             setResendCooldown(3600); // 1 hour rate limit
-            toast.success("Verification email sent! Check your inbox.");
+            toast.success("Verification OTP sent! Check your inbox.");
             setVerificationStatus("pending");
-            setMessage("Check your email for the verification link");
+            setMessage("Check your email for the verification code");
         } catch (error: any) {
             if (error.response?.status === 429) {
                 toast.error("Too many resend attempts. Try again in 1 hour.");
                 setResendCooldown(3600);
             } else {
-                toast.error(error.message || "Failed to resend verification email");
+                toast.error(error.message || "Failed to resend verification OTP");
             }
         } finally {
             setResendLoading(false);
+        }
+    };
+
+    const handleOtpChange = (index: number, value: string) => {
+        if (!/^[0-9]*$/.test(value)) return; // Only allow numbers
+
+        const newOtp = [...otp];
+        newOtp[index] = value;
+        setOtp(newOtp);
+
+        // Auto focus next input
+        if (value && index < 5 && inputRefs.current[index + 1]) {
+            inputRefs.current[index + 1]?.focus();
+        }
+    };
+
+    const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+        // Handle backspace
+        if (e.key === "Backspace" && !otp[index] && index > 0) {
+            inputRefs.current[index - 1]?.focus();
+        }
+    };
+
+    const handleOtpPaste = (e: React.ClipboardEvent) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+
+        if (pastedData) {
+            const newOtp = [...otp];
+            for (let i = 0; i < pastedData.length; i++) {
+                newOtp[i] = pastedData[i];
+            }
+            setOtp(newOtp);
+
+            // Focus on next empty input or the last one
+            const focusIndex = pastedData.length < 6 ? pastedData.length : 5;
+            inputRefs.current[focusIndex]?.focus();
+        }
+    };
+
+    const handleVerifyOtp = async (e?: React.FormEvent) => {
+        e?.preventDefault();
+
+        const otpString = otp.join("");
+        const targetEmail = user?.email || emailInput;
+
+        if (otpString.length !== 6) {
+            toast.error("Please enter a valid 6-digit OTP");
+            return;
+        }
+
+        if (!targetEmail) {
+            toast.error("Please enter your email address first");
+            return;
+        }
+
+        setVerifyingOtp(true);
+
+        try {
+            const response = await api.post("/verification/verify-otp", {
+                email: targetEmail.toLowerCase(),
+                otp: otpString
+            });
+
+            toast.success("Email verified successfully!");
+            setVerificationStatus("verified");
+
+            // Refresh user state to reflect verified status
+            await refreshUser();
+
+            setTimeout(() => {
+                router.push("/profile");
+            }, 2000);
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || error.message || "Invalid or expired OTP");
+            // Clear OTP inputs on error
+            setOtp(["", "", "", "", "", ""]);
+            inputRefs.current[0]?.focus();
+        } finally {
+            setVerifyingOtp(false);
         }
     };
 
@@ -100,15 +197,18 @@ export default function VerifyEmailPage() {
                     </div>
                     <h2 className="text-2xl font-semibold text-gray-900 mb-2">Email Verified!</h2>
                     <p className="text-gray-600 mb-6">Your email has been successfully verified.</p>
-                    <Link href="/dashboard" className="inline-block px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
-                        Go to Dashboard
-                    </Link>
+                    <button
+                        onClick={() => router.push("/profile")}
+                        className="inline-block px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                    >
+                        Go to Profile
+                    </button>
                 </div>
             </div>
         );
     }
 
-    // Pending verification - show resend page
+    // Pending verification - show OTP form
     return (
         <div className="min-h-screen bg-white flex">
             {/* Left - Form */}
@@ -125,120 +225,89 @@ export default function VerifyEmailPage() {
                         <h1 className="text-3xl font-medium text-gray-900 mb-2 tracking-tight">
                             Verify your email
                         </h1>
-                        <p className="text-gray-500">
-                            We've sent a verification link to{" "}
+                        <p className="text-gray-500 text-sm">
+                            We've sent a 6-digit verification code to{" "}
                             <span className="font-medium text-gray-700">{user?.email || "your email"}</span>
                         </p>
                     </div>
 
-                    {/* Status Messages */}
-                    <div className="mb-6 space-y-4">
-                        {/* Pending State */}
-                        <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
-                            <p className="text-sm text-blue-600 flex items-center gap-2">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>Check your inbox and click the verification link in the email.</span>
-                            </p>
+                    {/* Email Input (If not logged in) */}
+                    {!user && (
+                        <div className="mb-6">
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Confirm your email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                value={emailInput}
+                                onChange={(e) => setEmailInput(e.target.value)}
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                                placeholder="your@email.com"
+                            />
                         </div>
+                    )}
 
-                        {/* Checklist */}
-                        <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200">
-                            <p className="text-sm font-medium text-gray-700 mb-3">What to do:</p>
-                            <ul className="space-y-2 text-sm text-gray-600">
-                                <li className="flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    Check your email inbox
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    Look for email from "noreply@northtechhub.com"
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    Click the verification link (valid for 24 hours)
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    Check spam folder if not found
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    {/* Resend Section */}
-                    <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl mb-6">
-                        <p className="text-sm text-amber-700 mb-3">Didn't receive an email?</p>
-
-                        {!user && (
-                            <div className="mb-4">
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Enter your email</label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    value={emailInput}
-                                    onChange={(e) => setEmailInput(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
-                                    placeholder="your@email.com"
-                                />
+                    {/* OTP Input Form */}
+                    <form onSubmit={handleVerifyOtp} className="mb-8">
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
+                                Enter Verification Code
+                            </label>
+                            <div className="flex justify-between gap-2 sm:gap-4" onPaste={handleOtpPaste}>
+                                {otp.map((digit, idx) => (
+                                    <input
+                                        key={idx}
+                                        ref={(el) => { inputRefs.current[idx] = el; }}
+                                        type="text"
+                                        maxLength={1}
+                                        value={digit}
+                                        onChange={(e) => handleOtpChange(idx, e.target.value)}
+                                        onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                                        className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-semibold bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 transition-all shadow-sm"
+                                        placeholder="-"
+                                    />
+                                ))}
                             </div>
-                        )}
+                        </div>
 
                         <button
-                            onClick={handleResend}
-                            disabled={resendLoading || resendCooldown > 0}
-                            className="w-full py-2 px-4 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            type="submit"
+                            disabled={verifyingOtp || otp.join("").length !== 6 || (!user && !emailInput)}
+                            className="w-full py-3.5 px-4 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2"
                         >
-                            {resendLoading ? (
+                            {verifyingOtp ? (
                                 <>
-                                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    Sending...
-                                </>
-                            ) : resendCooldown > 0 ? (
-                                <>
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Resend in {resendCooldown}s
+                                    Verifying...
                                 </>
                             ) : (
-                                <>
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                    Resend Verification Email
-                                </>
+                                "Verify Email"
                             )}
                         </button>
-                        {resendCooldown > 0 && (
-                            <p className="text-xs text-amber-600 mt-2">Rate limited. Try again after {Math.floor(resendCooldown / 60)} minutes.</p>
-                        )}
-                    </div>
+                    </form>
 
-                    {/* Help Section */}
-                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 mb-6">
-                        <p className="text-sm font-medium text-gray-700 mb-3">Still having trouble?</p>
-                        <ul className="space-y-2 text-xs text-gray-600">
-                            <li>• Check your spam or promotions folder</li>
-                            <li>• Make sure you entered the correct email</li>
-                            <li>• Verification link expires after 24 hours</li>
-                        </ul>
+                    {/* Resend Section */}
+                    <div className="text-center mt-6 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                        <p className="text-sm text-gray-600 mb-3">Didn't receive the code?</p>
+                        <button
+                            onClick={handleResend}
+                            disabled={resendLoading || resendCooldown > 0}
+                            className="text-gray-900 font-medium hover:underline disabled:text-gray-400 disabled:no-underline transition-all flex items-center justify-center gap-2 mx-auto"
+                        >
+                            {resendCooldown > 0 ? (
+                                `Resend code in ${resendCooldown} s`
+                            ) : resendLoading ? (
+                                "Sending..."
+                            ) : (
+                                "Resend OTP Code"
+                            )}
+                        </button>
                     </div>
 
                     {/* Support Link */}
-                    <div className="text-center space-y-3">
+                    <div className="text-center mt-10 space-y-3">
                         <p className="text-sm text-gray-500">
                             <a href="mailto:support@northtechhub.com" className="text-gray-900 hover:underline font-medium">
                                 Contact Support
@@ -252,23 +321,18 @@ export default function VerifyEmailPage() {
                 </div>
             </div>
 
-            {/* Right - Decorative */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 items-center justify-center p-12 relative overflow-hidden">
-                {/* Decorative elements */}
-                <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-white/5 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-
-                <div className="relative z-10 text-center">
-                    <div className="w-24 h-24 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-8">
-                        <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            {/* Right - Image/Banner */}
+            <div className="hidden lg:flex w-1/2 bg-gray-900 items-center justify-center relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80')] bg-cover bg-center" />
+                <div className="relative z-10 max-w-lg p-12 text-center text-white">
+                    <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-8 border border-white/20">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.965 11.965 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
                     </div>
-                    <h2 className="text-4xl font-medium text-white mb-4 tracking-tight">
-                        Email verification
-                    </h2>
-                    <p className="text-gray-400 text-lg max-w-md">
-                        Verify your email address to unlock all features and secure your account. The verification link is valid for 24 hours.
+                    <h2 className="text-3xl font-light mb-4 text-white">Secure Your Account</h2>
+                    <p className="text-gray-300 font-light leading-relaxed">
+                        Email verification helps us keep your account safe and ensures you can always recover your access if needed.
                     </p>
                 </div>
             </div>

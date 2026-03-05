@@ -1,10 +1,10 @@
 const User = require('../models/User');
 const EmailVerification = require('../models/EmailVerification');
-const { sendVerificationEmail: sendVerificationEmailUtil, sendResendVerificationEmail } = require('../utils/email');
+const { sendOTPEmail } = require('../utils/email');
 const crypto = require('crypto');
 
 /**
- * @desc    Send verification email to user
+ * @desc    Send verification email (OTP) to user
  * @route   POST /api/verification/send-verification-email
  * @access  Protected
  */
@@ -33,15 +33,15 @@ const sendVerificationEmail = async (req, res) => {
       isUsed: false,
     });
 
-    // Generate verification token
-    const token = crypto.randomBytes(32).toString('hex');
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const tokenHash = crypto
       .createHash('sha256')
-      .update(token)
+      .update(otp)
       .digest('hex');
 
     // Create verification record
-    const verification = await EmailVerification.create({
+    await EmailVerification.create({
       user: user._id,
       email: user.email,
       tokenHash,
@@ -49,12 +49,11 @@ const sendVerificationEmail = async (req, res) => {
     });
 
     // Send verification email
-    const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${token}`;
-    await sendVerificationEmailUtil(user.email, verificationLink, user.name);
+    await sendOTPEmail(user.email, otp, user.name);
 
     res.status(200).json({
       success: true,
-      message: 'Verification email sent successfully',
+      message: 'Verification OTP sent successfully',
       data: {
         email: user.email,
         expiresIn: '24 hours',
@@ -71,29 +70,30 @@ const sendVerificationEmail = async (req, res) => {
 };
 
 /**
- * @desc    Verify email with token
- * @route   GET /api/verification/verify/:token
+ * @desc    Verify email with OTP
+ * @route   POST /api/verification/verify-otp
  * @access  Public
  */
-const verifyEmail = async (req, res) => {
+const verifyOTP = async (req, res) => {
   try {
-    const { token } = req.params;
+    const { email, otp } = req.body;
 
-    if (!token) {
+    if (!email || !otp) {
       return res.status(400).json({
         success: false,
-        message: 'Verification token is required',
+        message: 'Email and verification OTP are required',
       });
     }
 
-    // Hash the token to find the record
+    // Hash the OTP to find the record
     const hashedToken = crypto
       .createHash('sha256')
-      .update(token)
+      .update(otp)
       .digest('hex');
 
     // Find verification record
     const verification = await EmailVerification.findOne({
+      email: email.toLowerCase(),
       tokenHash: hashedToken,
       isUsed: false,
     });
@@ -101,15 +101,15 @@ const verifyEmail = async (req, res) => {
     if (!verification) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid verification token',
+        message: 'Invalid or missing verification OTP',
       });
     }
 
-    // Check if token is expired
+    // Check if OTP is expired
     if (verification.isTokenExpired()) {
       return res.status(400).json({
         success: false,
-        message: 'Verification token has expired',
+        message: 'Verification OTP has expired',
         expiredAt: verification.expiresAt,
       });
     }
@@ -157,15 +157,17 @@ const verifyEmail = async (req, res) => {
 };
 
 /**
- * @desc    Resend verification email
+ * @desc    Resend verification email (OTP)
  * @route   POST /api/verification/resend-verification-email
- * @access  Protected
+ * @access  Public
  */
 const resendVerificationEmail = async (req, res) => {
   try {
     const { email } = req.body;
+    console.log(`[Email Verification] Client requested resend for email: '${email}'`);
 
     if (!email) {
+      console.log(`[Email Verification] Failed: No email provided in body.`);
       return res.status(400).json({
         success: false,
         message: 'Email address is required',
@@ -175,6 +177,7 @@ const resendVerificationEmail = async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
+      console.log(`[Email Verification] Failed: No account found for ${email}.`);
       return res.status(404).json({
         success: false,
         message: 'No account found with this email',
@@ -205,11 +208,11 @@ const resendVerificationEmail = async (req, res) => {
       });
     }
 
-    // Generate new verification token
-    const token = crypto.randomBytes(32).toString('hex');
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const tokenHash = crypto
       .createHash('sha256')
-      .update(token)
+      .update(otp)
       .digest('hex');
 
     // Create new verification record
@@ -221,19 +224,21 @@ const resendVerificationEmail = async (req, res) => {
     });
 
     // Send verification email
-    const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${token}`;
-    await sendResendVerificationEmail(user.email, verificationLink, user.name);
+    console.log(`[Email Verification] Generated OTP and saved to DB. Sending to: ${user.email}`);
+
+    await sendOTPEmail(user.email, otp, user.name);
+    console.log(`[Email Verification] OTP email dispatched successfully to: ${user.email}`);
 
     res.status(200).json({
       success: true,
-      message: 'Verification email resent successfully',
+      message: 'Verification OTP sent successfully',
       data: {
         email: user.email,
         expiresIn: '24 hours',
       },
     });
   } catch (error) {
-    console.error('Resend verification email error:', error);
+    console.error('[Email Verification] Resend verification email error:', error);
     res.status(500).json({
       success: false,
       message: 'Error resending verification email',
@@ -277,7 +282,7 @@ const getVerificationStatus = async (req, res) => {
 
 module.exports = {
   sendVerificationEmail,
-  verifyEmail,
+  verifyOTP,
   resendVerificationEmail,
   getVerificationStatus,
 };

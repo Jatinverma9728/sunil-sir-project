@@ -340,7 +340,7 @@ export default function RegisterPage() {
 
         if (!formData.password) newErrors.password = "Password is required";
         else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
-        else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) newErrors.password = "Password must contain uppercase, lowercase, and number";
+        else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(formData.password)) newErrors.password = "Password must contain uppercase, lowercase, number, and special character";
 
         if (!formData.confirmPassword) newErrors.confirmPassword = "Please confirm your password";
         else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";

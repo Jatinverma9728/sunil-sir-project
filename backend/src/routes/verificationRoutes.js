@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   sendVerificationEmail,
-  verifyEmail,
+  verifyOTP,
   resendVerificationEmail,
   getVerificationStatus,
 } = require('../controllers/emailVerificationController');
@@ -12,8 +12,8 @@ const { protect } = require('../middlewares/authMiddleware');
  * Email Verification Routes
  */
 
-// Public route: Verify email with token
-router.get('/verify/:token', verifyEmail);
+// Public route: Verify email with OTP
+router.post('/verify-otp', verifyOTP);
 router.post('/resend-verification-email', resendVerificationEmail);
 
 // Protected routes (requires authentication)
