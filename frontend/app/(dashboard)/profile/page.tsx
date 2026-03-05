@@ -281,9 +281,29 @@ export default function ProfilePage() {
                                     <label className="block text-sm text-gray-500 mb-2">Full Name</label>
                                     <input type="text" name="name" value={profile.name} onChange={handleProfileChange} className="w-full px-4 py-3.5 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-gray-300 transition-all" />
                                 </div>
-                                <div>
-                                    <label className="block text-sm text-gray-500 mb-2">Email</label>
-                                    <input type="email" value={profile.email} disabled className="w-full px-4 py-3.5 bg-gray-100 border border-gray-100 rounded-xl text-gray-500 cursor-not-allowed" />
+                                <div className="relative">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="block text-sm text-gray-500">Email</label>
+                                        {user && !user.isEmailVerified ? (
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider uppercase text-red-500">
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4v2m0 0v2m0-6v-2m0 0V7a2 2 0 012-2h2.586a1 1 0 00-.707-1.707h-3.172a1 1 0 00-.707.293l-.828.828A1 1 0 009 5.586V7a2 2 0 012 2z" /></svg>
+                                                Unverified
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider uppercase text-green-500">
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                                Verified
+                                            </span>
+                                        )}
+                                    </div>
+                                    <input type="email" value={profile.email} disabled className={`w-full px-4 py-3.5 bg-gray-100 border ${user && !user.isEmailVerified ? 'border-red-200' : 'border-gray-100'} rounded-xl text-gray-500 cursor-not-allowed`} />
+                                    {user && !user.isEmailVerified && (
+                                        <div className="absolute right-3 top-[42px]">
+                                            <Link href="/verify-email" className="px-3 py-1.5 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-800 transition-colors shadow-sm">
+                                                Verify Now
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm text-gray-500 mb-2">Phone</label>

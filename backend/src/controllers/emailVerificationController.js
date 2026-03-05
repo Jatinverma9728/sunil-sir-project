@@ -163,12 +163,21 @@ const verifyEmail = async (req, res) => {
  */
 const resendVerificationEmail = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email address is required',
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found',
+        message: 'No account found with this email',
       });
     }
 

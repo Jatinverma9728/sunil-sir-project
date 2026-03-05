@@ -14,10 +14,10 @@ const { protect } = require('../middlewares/authMiddleware');
 
 // Public route: Verify email with token
 router.get('/verify/:token', verifyEmail);
+router.post('/resend-verification-email', resendVerificationEmail);
 
 // Protected routes (requires authentication)
 router.post('/send-verification-email', protect, sendVerificationEmail);
-router.post('/resend-verification-email', protect, resendVerificationEmail);
 router.get('/status', protect, getVerificationStatus);
 
 module.exports = router;

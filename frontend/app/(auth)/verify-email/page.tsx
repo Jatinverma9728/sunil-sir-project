@@ -58,13 +58,20 @@ export default function VerifyEmailPage() {
     }, [resendCooldown]);
 
 
+    const [emailInput, setEmailInput] = useState("");
+
     const handleResend = async () => {
-        if (resendCooldown > 0 || !user || !token) return;
+        const targetEmail = user?.email || emailInput;
+
+        if (resendCooldown > 0 || !targetEmail) {
+            if (!targetEmail) toast.error("Please enter your email address");
+            return;
+        }
 
         setResendLoading(true);
 
         try {
-            const response = await api.post("/verification/resend-verification-email", {});
+            await api.post("/verification/resend-verification-email", { email: targetEmail });
             setResendCooldown(3600); // 1 hour rate limit
             toast.success("Verification email sent! Check your inbox.");
             setVerificationStatus("pending");
@@ -80,26 +87,6 @@ export default function VerifyEmailPage() {
             setResendLoading(false);
         }
     };
-
-    // Redirect if not authenticated
-    if (!user || !token) {
-        return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4v2m0 0v2m0-6v-2m0 0V7a2 2 0 012-2h2.586a1 1 0 00-.707-1.707h-3.172a1 1 0 00-.707.293l-.828.828A1 1 0 009 5.586V7a2 2 0 012 2z" />
-                        </svg>
-                    </div>
-                    <h2 className="text-2xl font-semibold text-gray-900 mb-2">Not Authenticated</h2>
-                    <p className="text-gray-600 mb-6">Please log in to verify your email</p>
-                    <Link href="/login" className="inline-block px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
-                        Go to Login
-                    </Link>
-                </div>
-            </div>
-        );
-    }
 
     // If already verified
     if (verificationStatus === "verified") {
@@ -140,7 +127,7 @@ export default function VerifyEmailPage() {
                         </h1>
                         <p className="text-gray-500">
                             We've sent a verification link to{" "}
-                            <span className="font-medium text-gray-700">{user?.email}</span>
+                            <span className="font-medium text-gray-700">{user?.email || "your email"}</span>
                         </p>
                     </div>
 
@@ -191,6 +178,21 @@ export default function VerifyEmailPage() {
                     {/* Resend Section */}
                     <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl mb-6">
                         <p className="text-sm text-amber-700 mb-3">Didn't receive an email?</p>
+
+                        {!user && (
+                            <div className="mb-4">
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Enter your email</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={emailInput}
+                                    onChange={(e) => setEmailInput(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                    placeholder="your@email.com"
+                                />
+                            </div>
+                        )}
+
                         <button
                             onClick={handleResend}
                             disabled={resendLoading || resendCooldown > 0}
@@ -243,8 +245,8 @@ export default function VerifyEmailPage() {
                             </a>
                             {" if you need help"}
                         </p>
-                        <Link href="/dashboard" className="block text-sm text-gray-500 hover:underline">
-                            ← Back to Dashboard
+                        <Link href="/login" className="block text-sm text-gray-500 hover:underline">
+                            ← Back to Login
                         </Link>
                     </div>
                 </div>

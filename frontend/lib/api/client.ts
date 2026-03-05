@@ -161,10 +161,13 @@ export class ApiClient {
 
         // Handle specific status codes
         if (response.status === 401) {
-            // Unauthorized - clear token and redirect to login
-            this.removeAuthToken();
-            if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-                window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+            // Prevent logout loop on verification status check
+            if (!response.url.includes('/verification/status')) {
+                // Unauthorized - clear token and redirect to login
+                this.removeAuthToken();
+                if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+                    window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+                }
             }
             throw new ApiError('Authentication required', 401, errorData);
         }
