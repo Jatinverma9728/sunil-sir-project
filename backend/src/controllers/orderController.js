@@ -27,6 +27,16 @@ const createOrder = async (req, res) => {
     try {
         console.log('User:', req.user ? req.user._id : 'No User');
 
+        // Ensure user is email verified
+        const user = await User.findById(req.user._id);
+        if (!user || !user.isEmailVerified) {
+            return res.status(403).json({
+                success: false,
+                message: 'You must verify your email address before placing an order',
+                code: 'EMAIL_VERIFICATION_REQUIRED'
+            });
+        }
+
         const {
             orderItems,
             shippingAddress,
