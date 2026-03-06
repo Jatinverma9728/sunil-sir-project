@@ -48,8 +48,9 @@ const sendVerificationEmail = async (req, res) => {
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     });
 
-    // Send verification email
-    await sendOTPEmail(user.email, otp, user.name);
+    // Send verification email asynchronously
+    sendOTPEmail(user.email, otp, user.name)
+      .catch(error => console.error('Failed to send verification email:', error));
 
     res.status(200).json({
       success: true,
@@ -223,11 +224,12 @@ const resendVerificationEmail = async (req, res) => {
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     });
 
-    // Send verification email
+    // Send verification email asynchronously
     console.log(`[Email Verification] Generated OTP and saved to DB. Sending to: ${user.email}`);
 
-    await sendOTPEmail(user.email, otp, user.name);
-    console.log(`[Email Verification] OTP email dispatched successfully to: ${user.email}`);
+    sendOTPEmail(user.email, otp, user.name)
+      .then(() => console.log(`[Email Verification] OTP email dispatched successfully to: ${user.email}`))
+      .catch(error => console.error('[Email Verification] Failed to dispatch OTP email:', error));
 
     res.status(200).json({
       success: true,

@@ -169,7 +169,7 @@ export class ApiClient {
                     window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
                 }
             }
-            throw new ApiError('Authentication required', 401, errorData);
+            throw new ApiError(errorMessage || 'Authentication required', 401, errorData);
         }
 
         if (response.status === 403) {

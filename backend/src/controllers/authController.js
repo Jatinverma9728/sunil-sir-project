@@ -75,16 +75,15 @@ const register = async (req, res) => {
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
         });
 
-        // Send verification OTP
+        // Send verification OTP asynchronously
         console.log('📧 Sending verification OTP to:', user.email);
-        try {
-            const { sendOTPEmail } = require('../utils/email');
-            await sendOTPEmail(user.email, verificationOTP, user.name);
-            console.log('✅ Verification OTP sent successfully to:', user.email);
-        } catch (emailError) {
-            console.error('❌ Failed to send verification OTP:', emailError.message);
-            console.error('Error details:', emailError);
-        }
+        const { sendOTPEmail } = require('../utils/email');
+        sendOTPEmail(user.email, verificationOTP, user.name)
+            .then(() => console.log('✅ Verification OTP sent successfully to:', user.email))
+            .catch((emailError) => {
+                console.error('❌ Failed to send verification OTP:', emailError.message);
+                console.error('Error details:', emailError);
+            });
 
         res.status(201).json({
             success: true,
@@ -152,14 +151,7 @@ const login = async (req, res) => {
             });
         }
 
-        // Check if email is verified
-        if (user.isEmailVerified === false) {
-            return res.status(401).json({
-                success: false,
-                message: 'Please verify your email before logging in',
-                code: 'EMAIL_NOT_VERIFIED'
-            });
-        }
+        // Allow login without email verification (verification may be required for specific actions like checkout)
 
         // Check if account is locked
         if (user.isLocked) {
