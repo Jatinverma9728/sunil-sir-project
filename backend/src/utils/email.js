@@ -34,9 +34,9 @@ const sendOTPEmail = async (to, otp, name = 'User') => {
         const transporter = createTransporter();
 
         const mailOptions = {
-            from: `"Flash" <${process.env.EMAIL_USER}>`,
+            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
             to,
-            subject: 'Verification Code - Flash',
+            subject: 'Verification Code - North Tech Hub',
             html: `
 <!DOCTYPE html>
 <html lang="en">
@@ -63,10 +63,10 @@ const sendOTPEmail = async (to, otp, name = 'User') => {
                                     <td align="center">
                                         <!-- Logo/Brand -->
                                         <div style="background: white; width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);">
-                                            <span style="font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px;">F</span>
+                                            <span style="font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px;">N</span>
                                         </div>
                                         
-                                        <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Flash</h1>
+                                        <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">North Tech Hub</h1>
                                         <p style="margin: 8px 0 0 0; color: #cbd5e1; font-size: 14px; font-weight: 500; letter-spacing: 0.5px;">VERIFICATION CODE</p>
                                     </td>
                                 </tr>
@@ -189,7 +189,7 @@ const sendOTPEmail = async (to, otp, name = 'User') => {
                                             Security Notice
                                         </p>
                                         <ul style="margin: 0; padding-left: 20px; color: #991b1b; font-size: 13px; line-height: 1.8;">
-                                            <li style="margin-bottom: 4px;">Never share this code with anyone, including Flash support</li>
+                                            <li style="margin-bottom: 4px;">Never share this code with anyone, including North Tech Hub support</li>
                                             <li style="margin-bottom: 4px;">This code will expire in 10 minutes</li>
                                             <li>If you didn't request this code, please ignore this email</li>
                                         </ul>
@@ -202,7 +202,7 @@ const sendOTPEmail = async (to, otp, name = 'User') => {
                                 <p style="margin: 0 0 8px 0; color: #64748b; font-size: 14px;">
                                     Need assistance?
                                 </p>
-                                <a href="mailto:support@flash.com" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 14px;">
+                                <a href="mailto:hello.averiq@gmail.com" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 14px;">
                                     Contact Support →
                                 </a>
                             </div>
@@ -217,7 +217,7 @@ const sendOTPEmail = async (to, otp, name = 'User') => {
                                 This is an automated message. Please do not reply to this email.
                             </p>
                             <p style="margin: 0 0 16px 0; color: #cbd5e1; font-size: 11px;">
-                                © ${new Date().getFullYear()} Flash. All rights reserved.
+                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
                             </p>
                             <div style="margin-top: 16px;">
                                 <a href="${process.env.FRONTEND_URL || '#'}/privacy" style="color: #94a3b8; text-decoration: none; font-size: 11px; margin: 0 8px;">Privacy Policy</a>
@@ -238,7 +238,7 @@ const sendOTPEmail = async (to, otp, name = 'User') => {
 </body>
 </html>
             `,
-            text: `Flash - Verification Code\n\nHello ${name},\n\nYour verification code is: ${otp}\n\nThis code is valid for 10 minutes.\n\nSecurity Tips:\n• Never share this code\n• Flash support will never ask for this\n• Ignore if you didn't request this\n\n© ${new Date().getFullYear()} Flash.`,
+            text: `North Tech Hub - Verification Code\n\nHello ${name},\n\nYour verification code is: ${otp}\n\nThis code is valid for 10 minutes.\n\nSecurity Tips:\n• Never share this code\n• North Tech Hub support will never ask for this\n• Ignore if you didn't request this\n\n© ${new Date().getFullYear()} North Tech Hub.`,
         };
 
         const info = await transporter.sendMail(mailOptions);
@@ -258,9 +258,9 @@ const sendWelcomeEmail = async (to, name) => {
         const transporter = createTransporter();
 
         const mailOptions = {
-            from: `"Flash" <${process.env.EMAIL_USER}>`,
+            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
             to,
-            subject: 'Welcome to Flash - Your Journey Begins',
+            subject: 'Welcome to North Tech Hub - Your Journey Begins',
             html: `
 <!DOCTYPE html>
 <html lang="en">
@@ -280,9 +280,9 @@ const sendWelcomeEmail = async (to, name) => {
                     <tr>
                         <td style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 48px; text-align: center; border-bottom: 4px solid #3b82f6;">
                             <div style="background: white; width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);">
-                                <span style="font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">F</span>
+                                <span style="font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">N</span>
                             </div>
-                            <h1 style="margin: 0; color: white; font-size: 32px; font-weight: 700;">Welcome to Flash</h1>
+                            <h1 style="margin: 0; color: white; font-size: 32px; font-weight: 700;">Welcome to North Tech Hub</h1>
                             <p style="margin: 12px 0 0 0; color: #cbd5e1; font-size: 16px;">Your premium shopping experience starts here</p>
                         </td>
                     </tr>
@@ -328,7 +328,7 @@ const sendWelcomeEmail = async (to, name) => {
                     <tr>
                         <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
                             <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} Flash. All rights reserved.
+                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -361,9 +361,9 @@ const sendPasswordResetConfirmation = async (to, name = 'User') => {
         const transporter = createTransporter();
 
         const mailOptions = {
-            from: `"Flash" <${process.env.EMAIL_USER}>`,
+            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
             to,
-            subject: 'Password Reset Successful - Flash',
+            subject: 'Password Reset Successful - North Tech Hub',
             html: `
 <!DOCTYPE html>
 <html lang="en">
@@ -428,7 +428,7 @@ const sendPasswordResetConfirmation = async (to, name = 'User') => {
                     <tr>
                         <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
                             <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} Flash. All rights reserved.
+                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -476,7 +476,7 @@ const sendOrderConfirmationEmail = async (to, order, name = 'Customer') => {
         `).join('');
 
         const mailOptions = {
-            from: `"Flash" <${process.env.EMAIL_USER}>`,
+            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
             to,
             subject: `Order Confirmed - #${order._id.toString().slice(-8).toUpperCase()}`,
             html: `
@@ -587,7 +587,7 @@ const sendOrderConfirmationEmail = async (to, order, name = 'Customer') => {
                     <tr>
                         <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
                             <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} Flash. All rights reserved.
+                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -620,7 +620,7 @@ const sendShippingUpdateEmail = async (to, order, name = 'Customer', trackingInf
         const transporter = createTransporter();
 
         const mailOptions = {
-            from: `"Flash" <${process.env.EMAIL_USER}>`,
+            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
             to,
             subject: `Your Order Has Been Shipped! - #${order._id.toString().slice(-8).toUpperCase()}`,
             html: `
@@ -704,7 +704,7 @@ const sendShippingUpdateEmail = async (to, order, name = 'Customer', trackingInf
                     <tr>
                         <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
                             <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} Flash. All rights reserved.
+                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -737,7 +737,7 @@ const sendCourseEnrollmentEmail = async (to, course, name = 'Student') => {
         const transporter = createTransporter();
 
         const mailOptions = {
-            from: `"Flash" <${process.env.EMAIL_USER}>`,
+            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
             to,
             subject: `🎉 You're Enrolled! - ${course.title}`,
             html: `
@@ -819,7 +819,7 @@ const sendCourseEnrollmentEmail = async (to, course, name = 'Student') => {
                     <tr>
                         <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
                             <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} Flash. All rights reserved.
+                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -852,9 +852,9 @@ const sendPasswordChangeNotification = async (to, name = 'User') => {
         const transporter = createTransporter();
 
         const mailOptions = {
-            from: `"Flash Security" <${process.env.EMAIL_USER}>`,
+            from: `"North Tech Hub Security" <${process.env.EMAIL_USER}>`,
             to,
-            subject: '⚠️ Password Changed - Flash Account',
+            subject: '⚠️ Password Changed - North Tech Hub Account',
             html: `
 <!DOCTYPE html>
 <html lang="en">
@@ -888,7 +888,7 @@ const sendPasswordChangeNotification = async (to, name = 'User') => {
                             </h2>
                             
                             <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                                Your Flash account password was recently changed. If you made this change, you can safely ignore this email.
+                                Your North Tech Hub account password was recently changed. If you made this change, you can safely ignore this email.
                             </p>
 
                             <!-- Change Details -->
@@ -930,10 +930,10 @@ const sendPasswordChangeNotification = async (to, name = 'User') => {
                     <tr>
                         <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
                             <p style="margin: 0 0 12px 0; color: #64748b; font-size: 12px;">
-                                Need help? Contact us at <a href="mailto:support@flash.com" style="color: #3b82f6;">support@flash.com</a>
+                                Need help? Contact us at <a href="mailto:hello.averiq@gmail.com" style="color: #3b82f6;">support@northtechhub.com</a>
                             </p>
                             <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} Flash. All rights reserved.
+                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
                             </p>
                         </td>
                     </tr>
@@ -968,9 +968,9 @@ const sendVerificationEmail = async (to, verificationLink, name = 'User') => {
         console.log('📧 [Email] Transporter created successfully');
 
         const mailOptions = {
-            from: `"Flash" <${process.env.EMAIL_USER}>`,
+            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
             to,
-            subject: 'Verify Your Email - Flash',
+            subject: 'Verify Your Email - North Tech Hub',
             html: `
 <!DOCTYPE html>
 <html lang="en">
@@ -997,7 +997,7 @@ const sendVerificationEmail = async (to, verificationLink, name = 'User') => {
                             <p style="color: #475569; font-size: 16px; margin: 0 0 20px 0;">Hi <strong>${name}</strong>,</p>
                             
                             <p style="color: #64748b; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">
-                                Welcome to Flash! To complete your registration and unlock full access to our platform, please verify your email address by clicking the button below.
+                                Welcome to North Tech Hub! To complete your registration and unlock full access to our platform, please verify your email address by clicking the button below.
                             </p>
                             
                             <p style="color: #64748b; font-size: 15px; line-height: 1.6; margin: 0 0 30px 0;">
@@ -1039,7 +1039,7 @@ const sendVerificationEmail = async (to, verificationLink, name = 'User') => {
                     <tr>
                         <td style="padding: 20px 30px; border-top: 1px solid #e2e8f0; background-color: #f8fafc; border-radius: 0 0 12px 12px;">
                             <p style="color: #94a3b8; font-size: 12px; text-align: center; margin: 0 0 10px 0;">
-                                © 2026 Flash. All rights reserved.
+                                © 2026 North Tech Hub. All rights reserved.
                             </p>
                             <p style="color: #cbd5e1; font-size: 11px; text-align: center; margin: 0;">
                                 <a href="${process.env.FRONTEND_URL}/privacy" style="color: #3b82f6; text-decoration: none;">Privacy Policy</a> | 

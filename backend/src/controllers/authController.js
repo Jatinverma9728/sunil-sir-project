@@ -75,15 +75,16 @@ const register = async (req, res) => {
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
         });
 
-        // Send verification OTP asynchronously
+        // Send verification OTP synchronously to ensure delivery in serverless environments
         console.log('📧 Sending verification OTP to:', user.email);
         const { sendOTPEmail } = require('../utils/email');
-        sendOTPEmail(user.email, verificationOTP, user.name)
-            .then(() => console.log('✅ Verification OTP sent successfully to:', user.email))
-            .catch((emailError) => {
-                console.error('❌ Failed to send verification OTP:', emailError.message);
-                console.error('Error details:', emailError);
-            });
+        try {
+            await sendOTPEmail(user.email, verificationOTP, user.name);
+            console.log('✅ Verification OTP sent successfully to:', user.email);
+        } catch (emailError) {
+            console.error('❌ Failed to send verification OTP:', emailError.message);
+            console.error('Error details:', emailError);
+        }
 
         res.status(201).json({
             success: true,
@@ -211,6 +212,7 @@ const login = async (req, res) => {
                     name: user.name,
                     email: user.email,
                     role: user.role,
+                    isEmailVerified: user.isEmailVerified,
                 },
                 token,
             },
@@ -253,8 +255,8 @@ const getProfile = async (req, res) => {
                     role: user.role,
                     avatar: user.avatar,
                     phone: user.phone,
-                    phone: user.phone,
                     addresses: user.addresses, // Updated
+                    isEmailVerified: user.isEmailVerified,
                     createdAt: user.createdAt,
                 },
             },
@@ -305,6 +307,7 @@ const updateProfile = async (req, res) => {
                     email: user.email,
                     role: user.role,
                     avatar: user.avatar,
+                    isEmailVerified: user.isEmailVerified,
                 },
             },
         });

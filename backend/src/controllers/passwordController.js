@@ -53,20 +53,21 @@ const forgotPassword = async (req, res) => {
         user.lastOTPSent = Date.now();
         await user.save({ validateBeforeSave: false });
 
-        // Send OTP via email asynchronously
-        sendOTPEmail(email, otp, user.name)
-            .then(() => console.log(`✅ Password reset OTP sent to ${email}`))
-            .catch((emailError) => {
-                console.error('❌ Failed to send OTP email:', emailError.message);
-                // Log OTP to console as fallback
-                console.log('='.repeat(50));
-                console.log('PASSWORD RESET OTP (Email failed - fallback)');
-                console.log('='.repeat(50));
-                console.log('Email:', email);
-                console.log('OTP:', otp);
-                console.log('Expires in: 10 minutes');
-                console.log('='.repeat(50));
-            });
+        // Send OTP via email synchronously for serverless
+        try {
+            await sendOTPEmail(email, otp, user.name);
+            console.log(`✅ Password reset OTP sent to ${email}`);
+        } catch (emailError) {
+            console.error('❌ Failed to send OTP email:', emailError.message);
+            // Log OTP to console as fallback
+            console.log('='.repeat(50));
+            console.log('PASSWORD RESET OTP (Email failed - fallback)');
+            console.log('='.repeat(50));
+            console.log('Email:', email);
+            console.log('OTP:', otp);
+            console.log('Expires in: 10 minutes');
+            console.log('='.repeat(50));
+        }
 
         res.status(200).json({
             success: true,
@@ -224,9 +225,12 @@ const resetPassword = async (req, res) => {
 
         await user.save();
 
-        // Send confirmation email asynchronously
-        sendPasswordResetConfirmation(user.email, user.name)
-            .catch((emailError) => console.error('Failed to send confirmation email:', emailError));
+        // Send confirmation email synchronously for serverless
+        try {
+            await sendPasswordResetConfirmation(user.email, user.name);
+        } catch (emailError) {
+            console.error('Failed to send confirmation email:', emailError);
+        }
 
         res.status(200).json({
             success: true,

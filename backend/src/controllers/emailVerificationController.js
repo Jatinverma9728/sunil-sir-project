@@ -48,9 +48,12 @@ const sendVerificationEmail = async (req, res) => {
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     });
 
-    // Send verification email asynchronously
-    sendOTPEmail(user.email, otp, user.name)
-      .catch(error => console.error('Failed to send verification email:', error));
+    // Send verification email synchronously for serverless
+    try {
+      await sendOTPEmail(user.email, otp, user.name);
+    } catch (error) {
+      console.error('Failed to send verification email:', error);
+    }
 
     res.status(200).json({
       success: true,
@@ -100,6 +103,17 @@ const verifyOTP = async (req, res) => {
     });
 
     if (!verification) {
+      console.log(`[Email Verification Debug] Failed lookup for ${email.toLowerCase()}`);
+      console.log(`[Email Verification Debug] Looked for hash: ${hashedToken}`);
+
+      // Let's see what is actually in the DB for this email
+      const allForEmail = await EmailVerification.find({ email: email.toLowerCase() });
+      console.log(`[Email Verification Debug] Found ${allForEmail.length} total records for this email.`);
+      if (allForEmail.length > 0) {
+        console.log(`[Email Verification Debug] Most recent DB hash: ${allForEmail[allForEmail.length - 1].tokenHash}`);
+        console.log(`[Email Verification Debug] Was it used?: ${allForEmail[allForEmail.length - 1].isUsed}`);
+      }
+
       return res.status(400).json({
         success: false,
         message: 'Invalid or missing verification OTP',
@@ -224,12 +238,15 @@ const resendVerificationEmail = async (req, res) => {
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     });
 
-    // Send verification email asynchronously
+    // Send verification email synchronously for serverless
     console.log(`[Email Verification] Generated OTP and saved to DB. Sending to: ${user.email}`);
 
-    sendOTPEmail(user.email, otp, user.name)
-      .then(() => console.log(`[Email Verification] OTP email dispatched successfully to: ${user.email}`))
-      .catch(error => console.error('[Email Verification] Failed to dispatch OTP email:', error));
+    try {
+      await sendOTPEmail(user.email, otp, user.name);
+      console.log(`[Email Verification] OTP email dispatched successfully to: ${user.email}`);
+    } catch (error) {
+      console.error('[Email Verification] Failed to dispatch OTP email:', error);
+    }
 
     res.status(200).json({
       success: true,

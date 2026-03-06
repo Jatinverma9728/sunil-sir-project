@@ -48,8 +48,16 @@ export default function VerifyEmailPage() {
                 if (!response.data?.isEmailVerified && response.data?.email) {
                     // If not verified, and we have an email, pre-fill emailInput if user is null
                     if (!user) setEmailInput(response.data.email);
-                    // Optionally, trigger an initial OTP send if user is not verified and no OTP has been sent recently
-                    // This might be handled by the backend automatically on registration/login if email is unverified
+
+                    // Auto-trigger OTP send if we just landed here
+                    try {
+                        await api.post("/verification/resend-verification-email", { email: response.data.email });
+                        toast.success("Verification OTP sent! Check your inbox.");
+                        setResendCooldown(60);
+                    } catch (e: any) {
+                        // If rate limited, just start the cooldown visually
+                        if (e.response?.status === 429) setResendCooldown(60);
+                    }
                 }
             } catch (error: any) {
                 setVerificationStatus("pending");
@@ -89,14 +97,14 @@ export default function VerifyEmailPage() {
 
         try {
             await api.post("/verification/resend-verification-email", { email: targetEmail });
-            setResendCooldown(3600); // 1 hour rate limit
+            setResendCooldown(60); // 1 minute rate limit
             toast.success("Verification OTP sent! Check your inbox.");
             setVerificationStatus("pending");
             setMessage("Check your email for the verification code");
         } catch (error: any) {
             if (error.response?.status === 429) {
                 toast.error("Too many resend attempts. Try again in 1 hour.");
-                setResendCooldown(3600);
+                setResendCooldown(60); // Use 60 on the frontend display instead of a full hour
             } else {
                 toast.error(error.message || "Failed to resend verification OTP");
             }

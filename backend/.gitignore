@@ -10,6 +10,7 @@ yarn.lock
 .env.production.local
 .env.development.local
 .env.test.local
+.env.cloudinary.example
 
 # Build and distribution
 dist/
