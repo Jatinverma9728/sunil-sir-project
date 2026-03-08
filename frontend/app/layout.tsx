@@ -29,10 +29,97 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "North Tech Hub - Premium E-Commerce & Courses",
-  description: "Your destination for premium gadgets and online learning",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://northtechhub.in'),
+  title: {
+    default: "North Tech Hub - Buy Electronics & Learn Tech Online in India",
+    template: "%s | North Tech Hub"
+  },
+  description: "North Tech Hub is India's premier platform to buy genuine electronics, gadgets & accessories online. Enroll in expert-led coding, programming & tech courses at affordable prices. Free delivery available.",
+  keywords: [
+    "buy electronics online India",
+    "tech gadgets online",
+    "online tech courses India",
+    "learn programming online",
+    "best electronics store India",
+    "online coding courses",
+    "buy smartphones India",
+    "North Tech Hub",
+    "northtechhub.in",
+    "tech education India",
+    "buy headphones online",
+    "web development course",
+    "Python course India",
+    "JavaScript course",
+    "electronics shop India",
+    "genuine electronics India",
+    "best online learning platform India",
+    "affordable tech courses",
+    "e-learning platform India",
+    "developer tools online"
+  ],
+  authors: [{ name: "North Tech Hub", url: "https://northtechhub.in" }],
+  creator: "North Tech Hub",
+  publisher: "North Tech Hub",
+  category: "Technology",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "North Tech Hub - Buy Electronics & Learn Tech Online in India",
+    description: "North Tech Hub is India's premier platform to buy genuine electronics, gadgets & accessories online. Enroll in expert-led coding, programming & tech courses at affordable prices.",
+    url: "/",
+    siteName: "North Tech Hub",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "North Tech Hub - Buy Electronics & Learn Tech Online in India",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "North Tech Hub - Buy Electronics & Learn Tech Online in India",
+    description: "India's premier platform to buy genuine electronics & enroll in expert-led tech courses. Free delivery. Affordable prices.",
+    images: ["/og-image.jpg"],
+    creator: "@northtechhub",
+    site: "@northtechhub",
+  },
   verification: {
     google: "7-4VbfmDLvUFQPoat9HrYsB5gmLumofe21Jk4aejiR0",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  other: {
+    // Geo-targeting signals for India
+    'geo.region': 'IN',
+    'geo.placename': 'India',
+    'content-language': 'en-IN',
+    // Dublin Core metadata for better classification
+    'DC.language': 'en-IN',
+    'DC.coverage': 'India',
+    // Additional categorization
+    'classification': 'E-commerce, Education, Technology',
+    'target': 'all',
+    'HandheldFriendly': 'True',
+    'MobileOptimized': '320',
   },
 };
 
@@ -42,7 +129,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
+    <html lang="en-IN" className={`${inter.variable} ${outfit.variable}`}>
       <body className="antialiased min-h-screen flex flex-col">
         <ToastProvider>
           <AuthProvider>

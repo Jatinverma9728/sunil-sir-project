@@ -11,6 +11,7 @@ import SortDropdown from "@/components/products/SortDropdown";
 import ProductGrid from "@/components/products/ProductGrid";
 import ProductList from "@/components/products/ProductList";
 import Pagination from "@/components/products/Pagination";
+import Script from "next/script";
 
 interface Product {
     _id: string;
@@ -173,6 +174,21 @@ function ProductsContent() {
 
     return (
         <div className="min-h-screen bg-gray-50/50">
+            {products.length > 0 && (
+                <Script id="products-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "ItemList",
+                        "itemListElement": products.map((product, index) => ({
+                            "@type": "ListItem",
+                            "position": index + 1,
+                            "url": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://northtechhub.in'}/products/${product._id}`,
+                            "name": product.title,
+                            "image": product.images?.[0]?.url || product.images?.[0]
+                        }))
+                    })
+                }} />
+            )}
             <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-8 md:py-12">
                 <Breadcrumb items={breadcrumbItems} />
 
