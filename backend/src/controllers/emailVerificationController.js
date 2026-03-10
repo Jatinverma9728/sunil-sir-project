@@ -53,6 +53,10 @@ const sendVerificationEmail = async (req, res) => {
       await sendOTPEmail(user.email, otp, user.name);
     } catch (error) {
       console.error('Failed to send verification email:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send verification email: ' + error.message,
+      });
     }
 
     res.status(200).json({
@@ -246,6 +250,10 @@ const resendVerificationEmail = async (req, res) => {
       console.log(`[Email Verification] OTP email dispatched successfully to: ${user.email}`);
     } catch (error) {
       console.error('[Email Verification] Failed to dispatch OTP email:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send verification email: ' + error.message,
+      });
     }
 
     res.status(200).json({

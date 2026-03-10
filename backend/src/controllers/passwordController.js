@@ -59,14 +59,10 @@ const forgotPassword = async (req, res) => {
             console.log(`✅ Password reset OTP sent to ${email}`);
         } catch (emailError) {
             console.error('❌ Failed to send OTP email:', emailError.message);
-            // Log OTP to console as fallback
-            console.log('='.repeat(50));
-            console.log('PASSWORD RESET OTP (Email failed - fallback)');
-            console.log('='.repeat(50));
-            console.log('Email:', email);
-            console.log('OTP:', otp);
-            console.log('Expires in: 10 minutes');
-            console.log('='.repeat(50));
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to send OTP email: ' + emailError.message,
+            });
         }
 
         res.status(200).json({
