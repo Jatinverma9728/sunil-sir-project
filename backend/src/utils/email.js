@@ -1,19 +1,30 @@
 const nodemailer = require('nodemailer');
 
 /**
- * Create email transporter
+ * Create Gmail transporter using port 587 (STARTTLS)
+ * Port 465 (SSL) is often blocked by cloud providers like Render.
+ * Port 587 with STARTTLS works reliably on all cloud hosts.
  */
 const createTransporter = () => {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-        console.warn('⚠️ EMAIL_USER or EMAIL_PASSWORD is not defined in .env');
+        console.warn('⚠️ EMAIL_USER or EMAIL_PASSWORD is not defined');
         throw new Error('Email credentials missing');
     }
     return nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,       // false for STARTTLS (port 587)
+        requireTLS: true,    // enforce TLS upgrade
         auth: {
             user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD,
+            pass: process.env.EMAIL_PASSWORD, // Gmail App Password (16 chars, no spaces)
         },
+        tls: {
+            rejectUnauthorized: false, // needed on some cloud environments
+        },
+        connectionTimeout: 15000,
+        greetingTimeout: 15000,
+        socketTimeout: 20000,
     });
 };
 
@@ -27,6 +38,7 @@ const createTransporter = () => {
  */
 
 /**
+
  * Send OTP email with copy button
  */
 const sendOTPEmail = async (to, otp, name = 'User') => {
