@@ -51,7 +51,7 @@ export default function PrivacyPage() {
                                 <p className="text-sm text-blue-800 mb-4 leading-relaxed">
                                     For formal grievances or legal inquiries regarding your personal data.
                                 </p>
-                                <a href="mailto:privacy@northtechhub.in" className="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                                <a href="mailto:northtechhub2003@gmail.com" className="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
                                     Contact DPO &rarr;
                                 </a>
                             </div>

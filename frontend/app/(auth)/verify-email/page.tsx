@@ -317,7 +317,7 @@ export default function VerifyEmailPage() {
                     {/* Support Link */}
                     <div className="text-center mt-10 space-y-3">
                         <p className="text-sm text-gray-500">
-                            <a href="mailto:support@northtechhub.com" className="text-gray-900 hover:underline font-medium">
+                            <a href="mailto:northtechhub2003@gmail.com" className="text-gray-900 hover:underline font-medium">
                                 Contact Support
                             </a>
                             {" if you need help"}

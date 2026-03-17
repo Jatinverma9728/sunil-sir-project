@@ -143,7 +143,7 @@ export default function CookiesPage() {
                         Our team is here to help clarify any concerns about how we use cookies.
                     </p>
                     <a
-                        href="mailto:privacy@flash.com"
+                        href="mailto:northtechhub2003@gmail.com"
                         className="inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold hover:bg-gray-800 transition-all hover:scale-105"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

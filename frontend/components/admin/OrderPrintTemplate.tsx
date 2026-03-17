@@ -14,13 +14,13 @@ export default function OrderPrintTemplate({ order }: OrderPrintTemplateProps) {
     const [qrCode, setQrCode] = useState("");
     const companyInfo = {
         name: "North Tech Hub",
-        address: "123 Tech Park, Cyber City",
-        city: "Gurugram",
+        address: "Nalka Chowk, 12 Quarter, Near Sector 1-4",
+        city: "Hisar",
         state: "Haryana",
-        zip: "122002",
-        email: "support@northtechhub.com",
-        phone: "+91 98765 43210",
-        website: "www.northtechhub.com"
+        zip: "125001",
+        email: "northtechhub2003@gmail.com",
+        phone: "93553-86007",
+        website: "www.northtechhub.in"
     };
 
     useEffect(() => {

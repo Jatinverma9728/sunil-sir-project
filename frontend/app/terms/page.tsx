@@ -163,7 +163,7 @@ export default function TermsPage() {
                                     </div>
                                     <div>
                                         <h5 className="font-bold text-slate-900">Legal Department</h5>
-                                        <a href="mailto:legal@northtechhub.in" className="text-blue-600 font-medium hover:underline">legal@northtechhub.in</a>
+                                        <a href="mailto:northtechhub2003@gmail.com" className="text-blue-600 font-medium hover:underline">northtechhub2003@gmail.com</a>
                                     </div>
                                 </div>
                             </div>

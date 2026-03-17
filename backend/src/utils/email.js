@@ -945,7 +945,7 @@ const sendPasswordChangeNotification = async (to, name = 'User') => {
                     <tr>
                         <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
                             <p style="margin: 0 0 12px 0; color: #64748b; font-size: 12px;">
-                                Need help? Contact us at <a href="mailto:hello.averiq@gmail.com" style="color: #3b82f6;">support@northtechhub.com</a>
+                                Need help? Contact us at <a href="mailto:northtechhub2003@gmail.com" style="color: #3b82f6;">northtechhub2003@gmail.com</a>
                             </p>
                             <p style="margin: 0; color: #94a3b8; font-size: 12px;">
                                 © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
