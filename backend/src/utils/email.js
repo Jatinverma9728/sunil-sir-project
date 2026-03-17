@@ -10,11 +10,14 @@ const createTransporter = () => {
         console.warn('⚠️ EMAIL_USER or EMAIL_PASSWORD is not defined');
         throw new Error('Email credentials missing');
     }
+    const port = process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT, 10) : 587;
+    const isSecure = port === 465; // Port 465 is for implicit TLS
+    
     return nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,       // false for STARTTLS (port 587)
-        requireTLS: true,    // enforce TLS upgrade
+        host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+        port: port,
+        secure: isSecure,
+        requireTLS: !isSecure, // enforce TLS upgrade if not implicitly secure limit
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASSWORD, // Gmail App Password (16 chars, no spaces)
