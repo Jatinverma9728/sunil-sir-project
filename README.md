@@ -4,7 +4,6 @@ Modern scalable MERN stack monorepo for e-commerce and course platform.
 
 ## Tech Stack
 
-
 ### Frontend
 - **Framework**: Next.js 14+ 
 - **Language**: TypeScript
@@ -15,7 +14,7 @@ Modern scalable MERN stack monorepo for e-commerce and course platform.
 - **Runtime**: Node.js
 - **Framework**: Express.js
 - **Database**: MongoDB with Mongoose
-- **Authentication**: JWT
+- **Authentication**: JWT OAuth 
 - **Language**: TypeScript
 
 ## Project Structure
