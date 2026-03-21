@@ -345,20 +345,20 @@ function OrderDetailContent() {
                                         <span>Contact Support</span>
                                         <ExternalLink className="w-3 h-3 ml-auto opacity-50" />
                                     </a>
-                                    <a href="#" className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors p-2 -ml-2 rounded-lg hover:bg-gray-50">
+                                    <Link href="/faq" className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors p-2 -ml-2 rounded-lg hover:bg-gray-50">
                                         <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
                                             <Truck className="w-4 h-4" />
                                         </div>
                                         <span>Delivery Info</span>
                                         <ExternalLink className="w-3 h-3 ml-auto opacity-50" />
-                                    </a>
-                                    <a href="#" className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors p-2 -ml-2 rounded-lg hover:bg-gray-50">
+                                    </Link>
+                                    <Link href="/terms" className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors p-2 -ml-2 rounded-lg hover:bg-gray-50">
                                         <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
                                             <RotateCcw className="w-4 h-4" />
                                         </div>
                                         <span>Returns Policy</span>
                                         <ExternalLink className="w-3 h-3 ml-auto opacity-50" />
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
 

@@ -1,34 +1,44 @@
-const nodemailer = require('nodemailer');
+// Using Resend API (HTTP port 443) to bypass Render's SMTP outbound blocks
+const { Resend } = require('resend');
 
 /**
- * Create Gmail transporter using port 587 (STARTTLS)
- * Port 465 (SSL) is often blocked by cloud providers like Render.
- * Port 587 with STARTTLS works reliably on all cloud hosts.
+ * Create a Resend transporter proxy that mimics Nodemailer's sendMail signature
+ * This ensures all of our old HTML emails work identically but are routed through Resend's API.
  */
 const createTransporter = () => {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-        console.warn('⚠️ EMAIL_USER or EMAIL_PASSWORD is not defined');
-        throw new Error('Email credentials missing');
+    if (!process.env.RESEND_API_KEY) {
+        console.warn('⚠️ RESEND_API_KEY is not defined. Please add it to your .env file or Render dashboard.');
     }
-    const port = process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT, 10) : 587;
-    const isSecure = port === 465; // Port 465 is for implicit TLS
     
-    return nodemailer.createTransport({
-        host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-        port: port,
-        secure: isSecure,
-        requireTLS: !isSecure, // enforce TLS upgrade if not implicitly secure limit
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD, // Gmail App Password (16 chars, no spaces)
-        },
-        tls: {
-            rejectUnauthorized: false, // needed on some cloud environments
-        },
-        connectionTimeout: 15000,
-        greetingTimeout: 15000,
-        socketTimeout: 20000,
-    });
+    // Initialize Resend with the API key from environment variables
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    
+    return {
+        sendMail: async (mailOptions) => {
+            // Note: If you do not have a verified domain, you MUST use onboarding@resend.dev as the from address,
+            // and you can only send to your own registered email.
+            // When you verify your domain, change EMAIL_FROM to "North Tech Hub <noreply@northtechhub.com>"
+            const fromAddress = process.env.EMAIL_FROM || 'North Tech Hub <onboarding@resend.dev>';
+            
+            // Resend SDK requires an array or string for 'to'
+            const toArray = Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to];
+            
+            const { data, error } = await resend.emails.send({
+                from: fromAddress,
+                to: toArray,
+                subject: mailOptions.subject,
+                html: mailOptions.html,
+                text: mailOptions.text || ''
+            });
+            
+            if (error) {
+                console.error('❌ Resend API Error:', error);
+                throw new Error(error.message);
+            }
+            
+            return { messageId: data.id };
+        }
+    };
 };
 
 /**

@@ -153,7 +153,9 @@ export default function Footer() {
                             {['Twitter', 'Instagram', 'LinkedIn'].map((social, i) => (
                                 <motion.a
                                     key={social}
-                                    href="#"
+                                    href={social === 'Twitter' ? 'https://twitter.com' : social === 'Instagram' ? 'https://instagram.com' : 'https://linkedin.com/company/northtechhub'}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     whileHover={{ y: -5, backgroundColor: "#ffffff", color: "#000000" }}
                                     className="w-12 h-12 bg-white/5 border border-white/5 rounded-full flex items-center justify-center text-gray-400 transition-colors"
                                 >
