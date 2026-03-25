@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const { generateNumericOTP } = require('../utils/otp');
 
 /**
  * EmailVerification Schema
@@ -70,9 +71,7 @@ emailVerificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // A
  * Static method: Generate verification token (6-digit OTP)
  */
 emailVerificationSchema.statics.generateToken = function () {
-  // Generate a random 6-digit OTP
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  return otp;
+  return generateNumericOTP();
 };
 
 /**

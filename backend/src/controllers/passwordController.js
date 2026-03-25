@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const crypto = require('crypto');
 const { sendOTPEmail, sendPasswordResetConfirmation } = require('../utils/email');
+const { generateNumericOTP, hashOTP, isValidOTPFormat, normalizeOTP } = require('../utils/otp');
 
 /**
  * @desc    Request password reset with OTP
@@ -40,10 +41,10 @@ const forgotPassword = async (req, res) => {
         }
 
         // Generate 6-digit OTP securely
-        const otp = crypto.randomInt(100000, 1000000).toString();
+        const otp = generateNumericOTP();
 
         // Hash OTP for security
-        const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+        const hashedOtp = hashOTP(otp);
 
         // Save OTP data
         user.otp = hashedOtp;
@@ -133,8 +134,15 @@ const verifyResetOTP = async (req, res) => {
             });
         }
 
-        // Verify OTP - ensure otp is string since JSON may parse it as number
-        const hashedOtp = crypto.createHash('sha256').update(otp.toString()).digest('hex');
+        if (!isValidOTPFormat(otp)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid OTP format',
+            });
+        }
+
+        // Verify OTP with normalized input
+        const hashedOtp = hashOTP(normalizeOTP(otp));
 
         if (user.otp !== hashedOtp) {
             // Increment attempts

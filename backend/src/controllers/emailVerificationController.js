@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const EmailVerification = require('../models/EmailVerification');
 const { sendOTPEmail } = require('../utils/email');
-const crypto = require('crypto');
+const { generateNumericOTP, hashOTP, isValidOTPFormat, normalizeOTP } = require('../utils/otp');
 
 /**
  * @desc    Send verification email (OTP) to user
@@ -33,12 +33,9 @@ const sendVerificationEmail = async (req, res) => {
       isUsed: false,
     });
 
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const tokenHash = crypto
-      .createHash('sha256')
-      .update(otp)
-      .digest('hex');
+    // Generate secure 6-digit OTP
+    const otp = generateNumericOTP();
+    const tokenHash = hashOTP(otp);
 
     // Create verification record
     await EmailVerification.create({
@@ -93,11 +90,15 @@ const verifyOTP = async (req, res) => {
       });
     }
 
+    if (!isValidOTPFormat(otp)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid verification OTP format',
+      });
+    }
+
     // Hash the OTP to find the record
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(otp)
-      .digest('hex');
+    const hashedToken = hashOTP(normalizeOTP(otp));
 
     // Find verification record
     const verification = await EmailVerification.findOne({
@@ -107,17 +108,6 @@ const verifyOTP = async (req, res) => {
     });
 
     if (!verification) {
-      console.log(`[Email Verification Debug] Failed lookup for ${email.toLowerCase()}`);
-      console.log(`[Email Verification Debug] Looked for hash: ${hashedToken}`);
-
-      // Let's see what is actually in the DB for this email
-      const allForEmail = await EmailVerification.find({ email: email.toLowerCase() });
-      console.log(`[Email Verification Debug] Found ${allForEmail.length} total records for this email.`);
-      if (allForEmail.length > 0) {
-        console.log(`[Email Verification Debug] Most recent DB hash: ${allForEmail[allForEmail.length - 1].tokenHash}`);
-        console.log(`[Email Verification Debug] Was it used?: ${allForEmail[allForEmail.length - 1].isUsed}`);
-      }
-
       return res.status(400).json({
         success: false,
         message: 'Invalid or missing verification OTP',
@@ -183,10 +173,8 @@ const verifyOTP = async (req, res) => {
 const resendVerificationEmail = async (req, res) => {
   try {
     const { email } = req.body;
-    console.log(`[Email Verification] Client requested resend for email: '${email}'`);
 
     if (!email) {
-      console.log(`[Email Verification] Failed: No email provided in body.`);
       return res.status(400).json({
         success: false,
         message: 'Email address is required',
@@ -196,7 +184,6 @@ const resendVerificationEmail = async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
-      console.log(`[Email Verification] Failed: No account found for ${email}.`);
       return res.status(404).json({
         success: false,
         message: 'No account found with this email',
@@ -227,12 +214,9 @@ const resendVerificationEmail = async (req, res) => {
       });
     }
 
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const tokenHash = crypto
-      .createHash('sha256')
-      .update(otp)
-      .digest('hex');
+    // Generate secure 6-digit OTP
+    const otp = generateNumericOTP();
+    const tokenHash = hashOTP(otp);
 
     // Create new verification record
     await EmailVerification.create({
@@ -243,11 +227,8 @@ const resendVerificationEmail = async (req, res) => {
     });
 
     // Send verification email synchronously for serverless
-    console.log(`[Email Verification] Generated OTP and saved to DB. Sending to: ${user.email}`);
-
     try {
       await sendOTPEmail(user.email, otp, user.name);
-      console.log(`[Email Verification] OTP email dispatched successfully to: ${user.email}`);
     } catch (error) {
       console.error('[Email Verification] Failed to dispatch OTP email:', error);
       return res.status(500).json({

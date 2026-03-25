@@ -2,7 +2,7 @@ const User = require('../models/User');
 const EmailVerification = require('../models/EmailVerification');
 const { generateToken } = require('../utils/token');
 const { sendVerificationEmail } = require('../utils/email');
-const crypto = require('crypto');
+const { generateNumericOTP, hashOTP } = require('../utils/otp');
 
 // Input sanitization helper
 const sanitizeInput = (str) => {
@@ -61,11 +61,8 @@ const register = async (req, res) => {
         const token = generateToken(user._id);
 
         // Generate verification OTP
-        const verificationOTP = Math.floor(100000 + Math.random() * 900000).toString();
-        const tokenHash = crypto
-            .createHash('sha256')
-            .update(verificationOTP)
-            .digest('hex');
+        const verificationOTP = generateNumericOTP();
+        const tokenHash = hashOTP(verificationOTP);
 
         // Create verification record
         await EmailVerification.create({

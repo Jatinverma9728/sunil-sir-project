@@ -173,12 +173,10 @@ orderSchema.methods.calculateTotal = function () {
     // Controller logic: 
     // const taxableAmount = Math.max(0, calculatedItemsPrice - calculatedDiscount);
     // const calculatedTaxPrice = Math.round(taxableAmount * 0.10 * 100) / 100; 
-
     // Update method to match:
     const discount = this.discountPrice || 0;
     const taxable = Math.max(0, this.itemsPrice - discount);
     this.taxPrice = Math.round(taxable * 0.10 * 100) / 100;
-
     this.totalPrice = taxable + this.taxPrice + this.shippingPrice;
 };
 
