@@ -8,7 +8,6 @@ import {
     deleteCategory,
     Category,
 } from "@/lib/api/admin";
-
 export default function CategoryManagement() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
