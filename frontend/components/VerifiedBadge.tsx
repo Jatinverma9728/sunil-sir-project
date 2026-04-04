@@ -6,6 +6,7 @@ interface VerifiedBadgeProps {
     className?: string;
 }
 
+
 export const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
     size = "md",
     showText = true,
