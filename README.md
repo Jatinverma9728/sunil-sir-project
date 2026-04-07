@@ -1,4 +1,4 @@
-# E-Commerce + Course Platform
+# E-Commerce + Online Course Platform
 
 Modern scalable MERN stack monorepo for e-commerce and course platform.
 
