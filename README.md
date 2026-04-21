@@ -8,7 +8,9 @@ Modern scalable MERN stack monorepo for e-commerce and course platform.
 - **Framework**: Next.js 14+ 
 - **Language**: TypeScript
 - **Styling**: CSS Modules / Tailwind CSS
-- **State Management**: React Context / Redux Toolkit
+- **State Management**: React Context / Redux 
+
+##Toolkit
 
 ### Backend
 - **Runtime**: Node.js
