@@ -9,9 +9,7 @@ Modern scalable MERN stack monorepo for e-commerce and course platform.
 - **Language**: TypeScript
 - **Styling**: CSS Modules / Tailwind CSS
 - **State Management**: React Context / Redux 
-
 ##Toolkit
-
 ### Backend
 - **Runtime**: Node.js
 - **Framework**: Express.js
