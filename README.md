@@ -27,6 +27,7 @@ Modern scalable MERN stack monorepo for e-commerce and course platform.
 
 ## Getting Started
 
+
 ### Prerequisites
 - Node.js 18+ and npm
 - MongoDB instance (local or cloud)
