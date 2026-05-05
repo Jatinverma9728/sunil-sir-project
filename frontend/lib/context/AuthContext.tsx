@@ -4,7 +4,6 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { User } from "../api/auth";
 import * as authAPI from "../api/auth";
 
-
 interface AuthContextType {
     user: User | null;
     token: string | null;
