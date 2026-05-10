@@ -26,6 +26,7 @@ export default function Modal({
         xl: "max-w-6xl",
     };
 
+
     return (
         <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
