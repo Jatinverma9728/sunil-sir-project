@@ -26,7 +26,6 @@ const errorHandler = (err, req, res, next) => {
         message = `Invalid ${err.path}: ${err.value}.`;
         statusCode = 400;
     }
-
     // JWT Errors
     if (err.name === 'JsonWebTokenError') {
         message = 'Invalid token. Please log in again!';
