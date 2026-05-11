@@ -1,9 +1,7 @@
 # E-Commerce + Online Course Platform
 
 Modern scalable MERN stack monorepo for e-commerce and course platform.
-
 ## Tech Stack
-
 ### Frontend
 - **Framework**: Next.js 14+ 
 - **Language**: TypeScript
