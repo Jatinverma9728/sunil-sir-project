@@ -7,6 +7,7 @@ interface GoogleButtonProps {
     text?: string;
 }
 
+
 export default function GoogleButton({ onLoading, text = "Continue with Google" }: GoogleButtonProps) {
     const handleGoogleLogin = () => {
         if (onLoading) onLoading(true);
