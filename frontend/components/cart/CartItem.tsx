@@ -14,6 +14,7 @@ interface CartItemProps {
             image?: string;
             images?: Array<{ url: string; alt?: string }>;
         };
+
         quantity: number;
     };
     onUpdateQuantity: (productId: string, quantity: number) => void;
