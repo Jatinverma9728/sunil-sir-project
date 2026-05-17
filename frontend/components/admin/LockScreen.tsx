@@ -29,6 +29,7 @@ export const LockScreen = () => {
         }
     };
 
+
     return (
         <AnimatePresence>
             <motion.div
