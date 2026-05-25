@@ -28,6 +28,7 @@ export default function Navbar() {
         { href: "/contact", label: "Contact" },
     ];
 
+
     const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
 
     // Smart Scroll Logic
