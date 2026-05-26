@@ -15,6 +15,7 @@ export default function GoogleButton({ onLoading, text = "Continue with Google" 
         window.location.href = `${API_URL}/auth/google`;
     };
 
+
     return (
         <button
             onClick={handleGoogleLogin}
