@@ -7,7 +7,6 @@ try {
 } catch (e) {
     console.error('❌ dotenv error:', e.message);
 }
-
 // Check environment variables
 console.log('📋 Environment check:');
 console.log('  - MONGODB_URI:', process.env.MONGODB_URI ? 'SET (' + process.env.MONGODB_URI.substring(0, 30) + '...)' : 'NOT SET');
