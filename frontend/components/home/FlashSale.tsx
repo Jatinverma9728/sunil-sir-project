@@ -81,7 +81,10 @@ export default function FlashSale() {
                 const offersRes = await getActiveOffers();
 
                 if (offersRes.success && offersRes.data && (offersRes.data as Offer[]).length > 0) {
-                    const activeOffers = (offersRes.data as Offer[]).sort((a, b) => b.priority - a.priority);
+                    const now = Date.now();
+                    const activeOffers = (offersRes.data as Offer[])
+                        .filter((offer) => new Date(offer.endDate).getTime() > now)
+                        .sort((a, b) => b.priority - a.priority);
                     setOffers(activeOffers);
 
                     // Set timer for first offer
@@ -184,9 +187,21 @@ export default function FlashSale() {
                 const newTimeLeft = calculateTimeLeft(currentOffer.endDate);
                 setTimeLeft(newTimeLeft);
 
-                if (newTimeLeft.days === 0 && newTimeLeft.hours === 0 &&
-                    newTimeLeft.minutes === 0 && newTimeLeft.seconds === 0) {
-                    window.location.reload();
+                if (
+                    newTimeLeft.days === 0 &&
+                    newTimeLeft.hours === 0 &&
+                    newTimeLeft.minutes === 0 &&
+                    newTimeLeft.seconds === 0
+                ) {
+                    const expiredOfferId = currentOffer._id;
+                    const now = Date.now();
+
+                    const remainingOffers = offers.filter((offer) => offer._id !== expiredOfferId);
+                    setOffers(remainingOffers);
+                    setActiveOfferIndex((index) => Math.min(index, Math.max(remainingOffers.length - 1, 0)));
+                    setProducts((prev) =>
+                        prev.filter((product) => new Date(product.offerEndDate).getTime() > now)
+                    );
                 }
             }
         }, 1000);

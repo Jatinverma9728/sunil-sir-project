@@ -13,13 +13,13 @@ export default function FAQPage() {
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative">
                     <div className="text-center">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-8">
-                            <svg className="w-4 h-4 text-[#C1FF72]" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-4 h-4 text-[#2563EB]" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                             </svg>
                             <span className="text-sm font-medium text-white">Support Center</span>
                         </div>
                         <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-                            How Can We <span className="text-[#C1FF72]">Help You?</span>
+                            How Can We <span className="text-[#2563EB]">Help You?</span>
                         </h1>
                         <p className="text-xl text-gray-300 max-w-2xl mx-auto">
                             Find answers to commonly asked questions about our products and services
@@ -118,7 +118,7 @@ export default function FAQPage() {
                     <p className="text-gray-300 mb-8">
                         Our support team is here to help you 24/7
                     </p>
-                    <button className="px-8 py-4 bg-[#C1FF72] text-gray-900 rounded-full font-semibold hover:bg-[#b3f064] transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <button className="px-8 py-4 bg-[#2563EB] text-gray-900 rounded-full font-semibold hover:bg-[#1D4ED8] transition-all duration-300 hover:scale-105 hover:shadow-xl">
                         Contact Support
                     </button>
                 </div>

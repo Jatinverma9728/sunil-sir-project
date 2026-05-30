@@ -1,4 +1,4 @@
-// Design System Helper Utilities for Playful Tech Brand
+// Design System Helper Utilities for North Tech Hub
 // Centralized constants and helpers for consistent styling
 
 /**
@@ -6,22 +6,22 @@
  * Use these in your components for consistent theming
  */
 export const colors = {
-    // Primary - Electric Indigo
+    // Primary - North Blue
     primary: {
-        electric: '#6366F1',
-        deep: '#4F46E5',
-        light: '#A5B4FC',
-        glow: '#818CF8',
-        50: '#EEF2FF',
+        electric: '#2563EB',
+        deep: '#1D4ED8',
+        light: '#DBEAFE',
+        glow: '#2563EB',
+        50: '#EFF6FF',
     },
-    // Secondary - Playful Amber
+    // Secondary - Sky Blue
     secondary: {
-        pop: '#F59E0B',
-        warm: '#FBBF24',
-        light: '#FEF3C7',
+        pop: '#0EA5E9',
+        warm: '#0284C7',
+        light: '#E0F2FE',
     },
     // Action & States
-    action: '#EC4899',
+    action: '#0EA5E9',
     success: '#10B981',
     warning: '#F59E0B',
     error: '#EF4444',
@@ -108,12 +108,12 @@ export const breakpoints = {
  * Helper: Generate gradient background
  */
 export const gradient = {
-    primary: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
-    secondary: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
-    action: 'linear-gradient(135deg, #EC4899 0%, #DB2777 100%)',
+    primary: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+    secondary: 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)',
+    action: 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)',
     soft: 'linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%)',
-    indigo: 'linear-gradient(135deg, #EEF2FF 0%, #FFFFFF 100%)',
-    amber: 'linear-gradient(135deg, #FEF3C7 0%, #FFFFFF 100%)',
+    indigo: 'linear-gradient(135deg, #DBEAFE 0%, #FFFFFF 100%)',
+    amber: 'linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%)',
 } as const;
 
 /**

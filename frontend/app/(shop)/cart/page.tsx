@@ -173,7 +173,7 @@ export default function CartPage() {
                                 {offerSavings > 0 && (
                                     <div className="flex justify-between text-green-600 bg-green-50 p-3 rounded-xl">
                                         <span className="flex items-center gap-2">
-                                            🔥 Offer Savings
+                                            Offer savings
                                         </span>
                                         <span className="font-semibold">-₹{offerSavings.toFixed(2)}</span>
                                     </div>
@@ -192,7 +192,7 @@ export default function CartPage() {
 
                                 {shipping > 0 && (
                                     <div className="text-sm text-gray-500 bg-blue-50 p-4 rounded-2xl">
-                                        <span className="font-medium text-blue-600">💡 Almost there!</span>
+                                        <span className="font-medium text-blue-600">Almost there</span>
                                         <br />Add ₹{(999 - subtotal).toFixed(2)} more for free shipping
                                     </div>
                                 )}
@@ -206,7 +206,7 @@ export default function CartPage() {
                                                 onClick={handleRemoveCoupon}
                                                 className="text-red-500 hover:text-red-600 text-xs"
                                             >
-                                                ✕
+                                                Remove
                                             </button>
                                         </span>
                                         <span className="font-medium">-₹{cartTotals.discount.toFixed(2)}</span>
@@ -248,7 +248,7 @@ export default function CartPage() {
                                     <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">
                                         <div>
                                             <p className="text-sm font-medium text-green-700">
-                                                🎉 Coupon Applied!
+                                                Coupon applied
                                             </p>
                                             <p className="text-xs text-green-600">
                                                 {appliedCoupon.discountType === 'percentage'

@@ -208,7 +208,7 @@ export default function CoursePlayerPage() {
                             </div>
                             <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
                                 <div
-                                    className="h-full bg-[#C1FF72] transition-all duration-500"
+                                    className="h-full bg-[#2563EB] transition-all duration-500"
                                     style={{ width: `${progress.completionPercentage}%` }}
                                 ></div>
                             </div>
@@ -256,7 +256,7 @@ export default function CoursePlayerPage() {
                                 <button
                                     onClick={handleMarkComplete}
                                     disabled={markingComplete}
-                                    className="px-8 py-3 bg-[#C1FF72] text-black rounded-lg font-semibold hover:bg-[#b3f063] transition-colors disabled:opacity-70 flex items-center gap-2"
+                                    className="px-8 py-3 bg-[#2563EB] text-black rounded-lg font-semibold hover:bg-[#1D4ED8] transition-colors disabled:opacity-70 flex items-center gap-2"
                                 >
                                     {markingComplete ? (
                                         <>
@@ -291,7 +291,7 @@ export default function CoursePlayerPage() {
                             <button
                                 onClick={() => setShowNotes(false)}
                                 className={`px-6 py-3 font-medium transition-colors ${!showNotes
-                                    ? "text-white border-b-2 border-[#C1FF72]"
+                                    ? "text-white border-b-2 border-[#2563EB]"
                                     : "text-gray-400 hover:text-white"
                                     }`}
                             >
@@ -300,7 +300,7 @@ export default function CoursePlayerPage() {
                             <button
                                 onClick={() => setShowNotes(true)}
                                 className={`px-6 py-3 font-medium transition-colors ${showNotes
-                                    ? "text-white border-b-2 border-[#C1FF72]"
+                                    ? "text-white border-b-2 border-[#2563EB]"
                                     : "text-gray-400 hover:text-white"
                                     }`}
                             >
@@ -332,9 +332,9 @@ export default function CoursePlayerPage() {
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
                                     placeholder="Take notes while learning..."
-                                    className="w-full h-64 px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-[#C1FF72] focus:border-transparent resize-none"
+                                    className="w-full h-64 px-4 py-3 bg-gray-800 text-white border border-gray-700 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent resize-none"
                                 />
-                                <button className="mt-4 px-6 py-2 bg-[#C1FF72] text-black rounded-lg font-medium hover:bg-[#b3f063] transition-colors">
+                                <button className="mt-4 px-6 py-2 bg-[#2563EB] text-black rounded-lg font-medium hover:bg-[#1D4ED8] transition-colors">
                                     Save Notes
                                 </button>
                             </div>
@@ -358,7 +358,7 @@ export default function CoursePlayerPage() {
                                         }`}
                                 >
                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${lesson.isCompleted
-                                        ? "bg-green-500"
+                                        ? "bg-blue-500"
                                         : currentLesson?._id === lesson._id
                                             ? "bg-indigo-500"
                                             : "bg-gray-700"

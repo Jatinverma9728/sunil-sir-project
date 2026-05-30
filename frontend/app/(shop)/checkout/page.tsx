@@ -227,18 +227,18 @@ export default function CheckoutPage() {
                         <div className="flex items-center gap-2">
                             <div
                                 className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${step === "address"
-                                    ? "bg-[#C1FF72] text-black"
-                                    : "bg-green-500 text-white"
+                                    ? "bg-[#2563EB] text-black"
+                                    : "bg-blue-500 text-white"
                                     }`}
                             >
-                                {step === "address" ? "1" : "✓"}
+                                {step === "address" ? "1" : "Done"}
                             </div>
                             <span className="font-medium text-gray-900">Shipping</span>
                         </div>
 
                         <div className="flex-1 h-1 bg-gray-300">
                             <div
-                                className={`h-full transition-all ${step === "payment" ? "bg-green-500 w-full" : "bg-gray-300 w-0"
+                                className={`h-full transition-all ${step === "payment" ? "bg-blue-500 w-full" : "bg-gray-300 w-0"
                                     }`}
                             ></div>
                         </div>
@@ -246,7 +246,7 @@ export default function CheckoutPage() {
                         <div className="flex items-center gap-2">
                             <div
                                 className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${step === "payment"
-                                    ? "bg-[#C1FF72] text-black"
+                                    ? "bg-[#2563EB] text-black"
                                     : "bg-gray-300 text-gray-600"
                                     }`}
                             >
@@ -292,7 +292,7 @@ export default function CheckoutPage() {
                                         Delivery Options
                                     </h3>
                                     <div className="space-y-3">
-                                        <label className="flex items-start gap-4 p-4 border-2 border-[#C1FF72] bg-green-50 rounded-xl cursor-pointer">
+                                        <label className="flex items-start gap-4 p-4 border-2 border-[#2563EB] bg-blue-50 rounded-xl cursor-pointer">
                                             <input
                                                 type="radio"
                                                 name="delivery"
@@ -428,7 +428,9 @@ export default function CheckoutPage() {
                     <div className="grid md:grid-cols-4 gap-6 text-center">
                         <div>
                             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <span className="text-2xl">🔒</span>
+                                <svg className="w-6 h-6 text-green-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16.5 10.5V7.5a4.5 4.5 0 0 0-9 0v3m-.75 0h10.5A1.75 1.75 0 0 1 19 12.25v6A1.75 1.75 0 0 1 17.25 20H6.75A1.75 1.75 0 0 1 5 18.25v-6a1.75 1.75 0 0 1 1.75-1.75Z" />
+                                </svg>
                             </div>
                             <h4 className="font-semibold text-gray-900 text-sm mb-1">
                                 Secure Payment
@@ -439,7 +441,9 @@ export default function CheckoutPage() {
                         </div>
                         <div>
                             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <span className="text-2xl">🚚</span>
+                                <svg className="w-6 h-6 text-blue-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h11v10H3V7Zm11 3h3l4 4v3h-7v-7ZM7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+                                </svg>
                             </div>
                             <h4 className="font-semibold text-gray-900 text-sm mb-1">
                                 Fast Delivery
@@ -457,7 +461,9 @@ export default function CheckoutPage() {
                         </div>
                         <div>
                             <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <span className="text-2xl">💬</span>
+                                <svg className="w-6 h-6 text-yellow-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h8m-8 4h5m8-2a8 8 0 0 1-11.7 7.1L4 20l.9-5.3A8 8 0 1 1 21 12Z" />
+                                </svg>
                             </div>
                             <h4 className="font-semibold text-gray-900 text-sm mb-1">
                                 24/7 Support

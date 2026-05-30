@@ -338,7 +338,7 @@ export default function AdminDashboard() {
         if (activeTab === "users") fetchUsers();
     }, [activeTab, fetchProducts, fetchOrders, fetchCourses, fetchUsers, fetchCategories]);
 
-    const COLORS = ["#C1FF72", "#2D5A27", "#4CAF50", "#81C784", "#A5D6A7"];
+    const COLORS = ["#2563EB", "#1D4ED8", "#2563EB", "#60A5FA", "#DBEAFE"];
 
     if (loading || authLoading) {
         return (
@@ -388,7 +388,7 @@ export default function AdminDashboard() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors whitespace-nowrap ${activeTab === tab.id
-                                    ? "text-black border-b-2 border-[#C1FF72] bg-green-50"
+                                    ? "text-black border-b-2 border-[#2563EB] bg-blue-50"
                                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                     }`}
                             >
@@ -451,7 +451,7 @@ export default function AdminDashboard() {
                                         <XAxis dataKey="date" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
                                         <YAxis />
                                         <Tooltip formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Revenue']} />
-                                        <Area type="monotone" dataKey="revenue" stroke="#2D5A27" fill="#C1FF72" />
+                                        <Area type="monotone" dataKey="revenue" stroke="#1D4ED8" fill="#2563EB" />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
@@ -463,7 +463,7 @@ export default function AdminDashboard() {
                                         <XAxis dataKey="date" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
                                         <YAxis />
                                         <Tooltip />
-                                        <Bar dataKey="orders" fill="#2D5A27" radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey="orders" fill="#1D4ED8" radius={[4, 4, 0, 0]} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
@@ -517,11 +517,11 @@ export default function AdminDashboard() {
                                     <LineChart data={chartData}>
                                         <CartesianGrid strokeDasharray="3 3" />
                                         <XAxis dataKey="date" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
-                                        <YAxis yAxisId="left" orientation="left" stroke="#2D5A27" />
+                                        <YAxis yAxisId="left" orientation="left" stroke="#1D4ED8" />
                                         <YAxis yAxisId="right" orientation="right" stroke="#3b82f6" />
                                         <Tooltip />
                                         <Legend />
-                                        <Line yAxisId="left" type="monotone" dataKey="revenue" stroke="#2D5A27" strokeWidth={2} name="Revenue (₹)" dot={false} />
+                                        <Line yAxisId="left" type="monotone" dataKey="revenue" stroke="#1D4ED8" strokeWidth={2} name="Revenue (₹)" dot={false} />
                                         <Line yAxisId="right" type="monotone" dataKey="orders" stroke="#3b82f6" strokeWidth={2} name="Orders" dot={false} />
                                     </LineChart>
                                 </ResponsiveContainer>
@@ -1029,7 +1029,7 @@ export default function AdminDashboard() {
                                                 <tr key={u._id} className="border-b border-gray-100 hover:bg-gray-50">
                                                     <td className="py-3 px-4">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-8 h-8 bg-[#C1FF72] rounded-full flex items-center justify-center font-bold">
+                                                            <div className="w-8 h-8 bg-[#2563EB] rounded-full flex items-center justify-center font-bold">
                                                                 {u.name?.charAt(0).toUpperCase()}
                                                             </div>
                                                             <span className="font-medium">{u.name}</span>

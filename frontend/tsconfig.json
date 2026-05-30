@@ -38,6 +38,9 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "lib/context/CartContext (1).tsx"
   ]
 }

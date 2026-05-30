@@ -90,7 +90,7 @@ function OrderSuccessContent() {
 
                 // Trigger confetti
                 const end = Date.now() + 3 * 1000;
-                const colors = ['#C1FF72', '#000000', '#ffffff'];
+                const colors = ['#2563EB', '#000000', '#ffffff'];
 
                 (function frame() {
                     confetti({
@@ -183,7 +183,7 @@ function OrderSuccessContent() {
                     transition={{ duration: 0.5 }}
                     className="text-center mb-12 print:mb-6"
                 >
-                    <div className="w-24 h-24 bg-[#C1FF72] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-100 no-print">
+                    <div className="w-24 h-24 bg-[#2563EB] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-100 no-print">
                         <svg className="w-12 h-12 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <motion.path
                                 initial={{ pathLength: 0 }}
@@ -225,12 +225,12 @@ function OrderSuccessContent() {
                             <div className="relative flex justify-between">
                                 {/* Connector Line */}
                                 <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 z-0"></div>
-                                <div className="absolute top-1/2 left-0 w-[33%] h-1 bg-[#C1FF72] -translate-y-1/2 z-0"></div>
+                                <div className="absolute top-1/2 left-0 w-[33%] h-1 bg-[#2563EB] -translate-y-1/2 z-0"></div>
 
                                 {/* Steps */}
                                 {['Placed', 'Processing', 'Shipped', 'Delivered'].map((step, index) => (
                                     <div key={step} className="relative z-10 flex flex-col items-center gap-2 bg-white px-2">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-[#C1FF72] text-black ring-4 ring-[#C1FF72]/20' :
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-[#2563EB] text-black ring-4 ring-[#2563EB]/20' :
                                             index === 1 ? 'bg-gray-100 text-gray-400 border-2 border-dashed border-gray-300' :
                                                 'bg-gray-100 text-gray-400'
                                             }`}>
@@ -241,7 +241,7 @@ function OrderSuccessContent() {
                                 ))}
                             </div>
 
-                            <div className="mt-6 flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-100">
+                            <div className="mt-6 flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-green-100">
                                 <span className="text-2xl">🚚</span>
                                 <div>
                                     <p className="text-xs text-green-800 font-bold uppercase tracking-wide">Estimated Delivery</p>
@@ -386,7 +386,7 @@ function OrderSuccessContent() {
                             transition={{ duration: 0.5, delay: 0.6 }}
                             className="space-y-3 no-print"
                         >
-                            <Link href="/products" className="block w-full py-4 px-6 bg-[#C1FF72] text-black font-bold rounded-xl text-center hover:bg-[#b5fc5e] transition-colors shadow-lg shadow-green-100 hover:shadow-xl">
+                            <Link href="/products" className="block w-full py-4 px-6 bg-[#2563EB] text-black font-bold rounded-xl text-center hover:bg-[#1D4ED8] transition-colors shadow-lg shadow-blue-100 hover:shadow-xl">
                                 Continue Shopping
                             </Link>
                             <Link href={`/orders/${order._id}`} className="block w-full py-4 px-6 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-center hover:bg-gray-50 transition-colors">

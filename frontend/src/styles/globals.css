@@ -7,38 +7,35 @@ html {
 
 :root {
   /* ========================================
-     PLAYFUL TECH COLOR PALETTE
-     Energetic, Modern, Mobile-First
+     NORTH TECH HUB BRAND SYSTEM
+     Premium tech commerce + learning
      ======================================== */
 
-  /* Primary Brand Colors - Electric Indigo  */
-  --primary-electric: #6366F1;
-  /* Main brand color - Used for primary CTAs, links */
-  --primary-deep: #4F46E5;
+  /* Primary Brand Colors - North Blue */
+  --primary-electric: #2563EB;
+  /* Main brand color - Used for primary CTAs, active states */
+  --primary-deep: #1D4ED8;
   /* Hover states, active elements */
-  --primary-light: #A5B4FC;
+  --primary-light: #DBEAFE;
   /* Backgrounds, subtle accents */
-  --primary-glow: #818CF8;
+  --primary-glow: #2563EB;
   /* Glow effects, highlights */
-  --primary-50: #EEF2FF;
+  --primary-50: #EFF6FF;
   /* Very light backgrounds */
 
-  /* Secondary - Playful Amber (Energy & Warmth) */
-  --secondary-pop: #F59E0B;
-  /* Energetic accent - badges, highlights */
-  --secondary-warm: #FBBF24;
-  /* Warm variations */
-  --secondary-light: #FEF3C7;
-  /* Light backgrounds */
+  /* Secondary - Sky Blue for learning, links, secondary CTAs */
+  --secondary-pop: #0EA5E9;
+  --secondary-warm: #0284C7;
+  --secondary-light: #E0F2FE;
 
   /* Success & Action Colors */
   --success: #10B981;
   /* Success states, confirmations */
   --success-light: #D1FAE5;
   /* Success backgrounds */
-  --action: #EC4899;
+  --action: #0EA5E9;
   /* Urgent CTAs, flash sales, hot deals */
-  --action-light: #FCE7F3;
+  --action-light: #E0F2FE;
   /* Action backgrounds */
   --warning: #F59E0B;
   /* Warnings */
@@ -48,7 +45,7 @@ html {
   /* Neutrals - Clean Foundation */
   --neutral-950: #0A0A0B;
   /* Almost black - primary text */
-  --neutral-900: #ffffff;
+  --neutral-900: #18181B;
   /* Dark gray - headings */
   --neutral-800: #27272A;
   /* Medium dark */
@@ -68,22 +65,22 @@ html {
   /* Background Gradients - Subtle Energy */
   --bg-primary: #FFFFFF;
   --bg-gradient-soft: linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%);
-  --bg-gradient-indigo: linear-gradient(135deg, #EEF2FF 0%, #FFFFFF 100%);
-  --bg-gradient-amber: linear-gradient(135deg, #FEF3C7 0%, #FFFFFF 100%);
+  --bg-gradient-indigo: linear-gradient(135deg, #DBEAFE 0%, #FFFFFF 100%);
+  --bg-gradient-amber: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%);
   --bg-card: rgba(255, 255, 255, 0.95);
   --bg-glass: rgba(255, 255, 255, 0.7);
 
   /* Special Effects - Glows & Shadows */
-  --glow-primary: 0 0 40px rgba(99, 102, 241, 0.3);
-  --glow-secondary: 0 0 30px rgba(245, 158, 11, 0.25);
-  --glow-action: 0 0 35px rgba(236, 72, 153, 0.3);
+  --glow-primary: 0 0 40px rgba(37, 99, 235, 0.28);
+  --glow-secondary: 0 0 30px rgba(14, 165, 233, 0.2);
+  --glow-action: 0 0 35px rgba(14, 165, 233, 0.25);
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   --shadow-elevated: 0 20px 40px -12px rgba(0, 0, 0, 0.08);
-  --shadow-glow-primary: 0 8px 32px rgba(99, 102, 241, 0.15);
-  --shadow-glow-secondary: 0 8px 32px rgba(245, 158, 11, 0.15);
+  --shadow-glow-primary: 0 8px 32px rgba(37, 99, 235, 0.18);
+  --shadow-glow-secondary: 0 8px 32px rgba(14, 165, 233, 0.14);
 
   /* Border Radius - Optimized from 2rem */
   --radius-xs: 0.5rem;
@@ -209,10 +206,10 @@ h4 {
    Energetic, Modern, Mobile-Friendly
    ======================================== */
 
-/* Primary Electric Button */
+/* Primary North Blue Button */
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-electric) 0%, var(--primary-deep) 100%);
-  color: white;
+  color: var(--neutral-white);
   font-family: var(--font-outfit), sans-serif;
   font-weight: 700;
   padding: 0.875rem 2rem;
@@ -238,10 +235,10 @@ h4 {
   transform: translateY(0) scale(0.98);
 }
 
-/* Secondary Amber Button */
+/* Secondary Blue Button */
 .btn-secondary {
   background: linear-gradient(135deg, var(--secondary-pop) 0%, var(--secondary-warm) 100%);
-  color: var(--neutral-950);
+  color: white;
   font-family: var(--font-outfit), sans-serif;
   font-weight: 700;
   padding: 0.875rem 2rem;

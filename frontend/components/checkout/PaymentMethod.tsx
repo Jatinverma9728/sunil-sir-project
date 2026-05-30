@@ -49,25 +49,25 @@ export default function PaymentMethod({
             id: "card",
             name: "Credit / Debit Card",
             description: "Visa, Mastercard, RuPay & more",
-            icon: "💳",
+            icon: "Card",
         },
         {
             id: "upi",
             name: "UPI",
             description: "Google Pay, PhonePe, Paytm & more",
-            icon: "📱",
+            icon: "UPI",
         },
         {
             id: "netbanking",
             name: "Netbanking",
             description: "All Indian banks supported",
-            icon: "🏦",
+            icon: "Bank",
         },
         {
             id: "cod",
             name: "Cash on Delivery",
             description: "Pay when you receive",
-            icon: "💵",
+            icon: "Cash",
         },
     ];
 
@@ -201,7 +201,7 @@ export default function PaymentMethod({
                     <label
                         key={method.id}
                         className={`flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedMethod === method.id
-                            ? "border-[#C1FF72] bg-green-50"
+                            ? "border-[#2563EB] bg-blue-50"
                             : "border-gray-200 hover:border-gray-300"
                             }`}
                     >
@@ -222,7 +222,7 @@ export default function PaymentMethod({
                             <p className="text-sm text-gray-600">{method.description}</p>
                         </div>
                         {selectedMethod === method.id && (
-                            <span className="text-green-600 font-bold">✓</span>
+                            <span className="text-blue-600 font-bold text-sm">Selected</span>
                         )}
                     </label>
                 ))}
@@ -232,7 +232,7 @@ export default function PaymentMethod({
             {isRazorpayMethod && (
                 <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm text-blue-900 mb-2 font-medium">
-                        🔒 Secure Payment via Razorpay
+                        Secure payment via Razorpay
                     </p>
                     <p className="text-xs text-blue-700">
                         You selected <strong>{paymentMethods.find(m => m.id === selectedMethod)?.name}</strong>.
@@ -240,7 +240,7 @@ export default function PaymentMethod({
                     </p>
                     {(!razorpayKeyId || !razorpayOrderId) && (
                         <p className="text-xs text-orange-600 mt-2">
-                            ⚠️ Payment gateway is being configured...
+                            Payment gateway is being configured...
                         </p>
                     )}
                 </div>
@@ -250,7 +250,7 @@ export default function PaymentMethod({
             {selectedMethod === "cod" && (
                 <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                     <p className="text-sm text-yellow-900 mb-2 font-medium">
-                        💵 Cash on Delivery
+                        Cash on delivery
                     </p>
                     <p className="text-xs text-yellow-700">
                         Pay ₹{totalAmount.toFixed(2)} when your order is delivered. Additional COD charges may apply.

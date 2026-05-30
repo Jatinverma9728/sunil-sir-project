@@ -74,7 +74,7 @@ export default function PaginationControls({
                         key={page}
                         onClick={() => onPageChange(page as number)}
                         className={`w-12 h-12 rounded-lg border-2 font-medium transition-colors ${currentPage === page
-                                ? "bg-[#C1FF72] border-[#C1FF72] text-black"
+                                ? "bg-[#2563EB] border-[#2563EB] text-black"
                                 : "border-gray-300 hover:bg-gray-100"
                             }`}
                     >

@@ -63,7 +63,7 @@ export default function AddToCartButton({ product, inStock = true, stock = 10 }:
                 <button
                     onClick={handleAddToCart}
                     disabled={!inStock || adding}
-                    className="flex-1 h-10 px-6 bg-[#2D5A27] text-white rounded-lg font-semibold text-sm hover:bg-[#234a1f] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 h-10 px-6 bg-[#1D4ED8] text-white rounded-lg font-semibold text-sm hover:bg-[#234a1f] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                     {adding ? (
                         <span className="flex items-center gap-2">
@@ -82,7 +82,7 @@ export default function AddToCartButton({ product, inStock = true, stock = 10 }:
                 <button
                     onClick={handleBuyNow}
                     disabled={!inStock}
-                    className="h-10 px-6 bg-[#C1FF72] text-black rounded-lg font-semibold text-sm hover:bg-[#b0ee61] transition-colors disabled:bg-gray-200 disabled:cursor-not-allowed"
+                    className="h-10 px-6 bg-[#2563EB] text-black rounded-lg font-semibold text-sm hover:bg-[#1D4ED8] transition-colors disabled:bg-gray-200 disabled:cursor-not-allowed"
                 >
                     Buy Now
                 </button>

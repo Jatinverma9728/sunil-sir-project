@@ -171,7 +171,7 @@ export default function Navbar() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                 </svg>
                                 {cartItemCount > 0 && (
-                                    <span className="absolute top-1 right-1 bg-[#C1FF72] text-gray-900 text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center font-bold border-2 border-white">
+                                    <span className="absolute top-1 right-1 bg-[#2563EB] text-gray-900 text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center font-bold border-2 border-white">
                                         {cartItemCount > 9 ? "9+" : cartItemCount}
                                     </span>
                                 )}
@@ -269,7 +269,7 @@ export default function Navbar() {
                                 >
                                     {link.label}
                                     {pathname === link.href && (
-                                        <svg className="w-5 h-5 text-[#C1FF72]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                         </svg>
                                     )}

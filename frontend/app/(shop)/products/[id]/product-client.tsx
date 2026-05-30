@@ -238,7 +238,9 @@ export default function ProductDetailClient() {
                                         </>
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center bg-gray-50">
-                                            <span className="text-4xl text-gray-300">📦</span>
+                                            <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7.5 12 3 4 7.5m16 0v9L12 21m8-13.5-8 4.5m0 9v-9m0 0L4 7.5m8 4.5-8-4.5m0 0v9L12 21" />
+                                            </svg>
                                         </div>
                                     )}
 
@@ -308,7 +310,7 @@ export default function ProductDetailClient() {
                                 <button
                                     onClick={handleBuyNow}
                                     disabled={!product.inStock}
-                                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 >
                                     BUY NOW
                                 </button>
@@ -334,7 +336,7 @@ export default function ProductDetailClient() {
 
                         {count > 0 && (
                             <div className="flex items-center gap-4 pb-5 border-b border-gray-200">
-                                <div className="flex items-center gap-1 bg-green-700 text-white px-2.5 py-1.5 text-sm font-bold shadow-sm">
+                                <div className="flex items-center gap-1 bg-blue-700 text-white px-2.5 py-1.5 text-sm font-bold shadow-sm">
                                     <span>{avg.toFixed(1)}</span>
                                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -349,9 +351,9 @@ export default function ProductDetailClient() {
                             {activeOffer && (
                                 <div className="mb-3 flex flex-wrap gap-2">
                                     <span className="bg-gradient-to-r from-rose-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 inline-block shadow-sm rounded-sm">
-                                        🔥 {activeOffer.offerName}
+                                        {activeOffer.offerName}
                                     </span>
-                                    <span className="bg-green-600 text-white text-xs font-bold px-3 py-1.5 inline-block shadow-sm">
+                                    <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 inline-block shadow-sm">
                                         {discount}% OFF
                                     </span>
                                 </div>
@@ -395,7 +397,7 @@ export default function ProductDetailClient() {
                             )}
                             {product.stock && product.stock < 10 && product.inStock && (
                                 <p className="text-orange-600 font-medium mt-2 text-sm">
-                                    ⚡ Only {product.stock} left - order soon!
+                                    Only {product.stock} left - order soon.
                                 </p>
                             )}
                         </div>
@@ -440,7 +442,7 @@ export default function ProductDetailClient() {
                             </div>
                             {deliveryInfo && (
                                 <div className="mt-3 p-4 bg-green-50 border border-green-200 text-green-900">
-                                    <p className="font-semibold">✓ Delivery by {deliveryInfo.date}</p>
+                                    <p className="font-semibold">Delivery by {deliveryInfo.date}</p>
                                     <p className="text-sm mt-1">if ordered today</p>
                                 </div>
                             )}

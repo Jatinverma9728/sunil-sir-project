@@ -64,7 +64,9 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                         className={`w-full h-full object-cover transition-transform duration-500 ${isHovered ? 'scale-110' : 'scale-100'}`}
                     />
                 ) : (
-                    <span className="text-4xl opacity-30">📦</span>
+                        <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7.5 12 3 4 7.5m16 0v9L12 21m8-13.5-8 4.5m0 9v-9m0 0L4 7.5m8 4.5-8-4.5m0 0v9L12 21" />
+                        </svg>
                 )}
                 {/* Offer Badge */}
                 {hasDiscount && (
@@ -88,7 +90,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                 {/* Offer Name Badge */}
                 {hasDiscount && (
                     <span className="inline-block text-xs text-rose-600 font-medium mb-2">
-                        🔥 {activeOffer.offerName}
+                                            {activeOffer.offerName}
                     </span>
                 )}
 

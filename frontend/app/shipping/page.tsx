@@ -6,13 +6,13 @@ export default function ShippingPage() {
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative">
                     <div className="text-center">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-8">
-                            <svg className="w-5 h-5 text-[#C1FF72]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                             </svg>
                             <span className="text-sm font-medium text-white">Delivery Information</span>
                         </div>
                         <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-                            Shipping <span className="text-[#C1FF72]">Information</span>
+                            Shipping <span className="text-[#2563EB]">Information</span>
                         </h1>
                         <p className="text-xl text-gray-300 max-w-2xl mx-auto">
                             Fast and reliable delivery to your doorstep
@@ -31,7 +31,7 @@ export default function ShippingPage() {
                 <div className="grid md:grid-cols-3 gap-8 mb-20">
                     {/* Standard */}
                     <div className="relative bg-white rounded-3xl p-8 border-2 border-gray-100 hover:border-gray-900 transition-all duration-300 hover:shadow-xl group">
-                        <div className="absolute -top-4 -right-4 w-16 h-16 bg-[#C1FF72] rounded-full flex items-center justify-center shadow-lg">
+                        <div className="absolute -top-4 -right-4 w-16 h-16 bg-[#2563EB] rounded-full flex items-center justify-center shadow-lg">
                             <span className="text-gray-900 font-bold text-xs">FREE</span>
                         </div>
                         <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-gray-100 transition-colors">
@@ -52,7 +52,7 @@ export default function ShippingPage() {
 
                     {/* Express */}
                     <div className="relative bg-gray-900 rounded-3xl p-8 border-2 border-gray-900 shadow-2xl transform md:-translate-y-4">
-                        <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#C1FF72] rounded-full flex items-center justify-center shadow-xl">
+                        <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#2563EB] rounded-full flex items-center justify-center shadow-xl">
                             <span className="text-gray-900 font-bold text-xl">⚡</span>
                         </div>
                         <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-6">
@@ -138,19 +138,19 @@ export default function ShippingPage() {
                         <h3 className="text-2xl font-bold mb-4">Important Information</h3>
                         <ul className="space-y-4 text-gray-300">
                             <li className="flex items-start gap-3">
-                                <span className="text-[#C1FF72] mt-1">✓</span>
+                                <span className="text-[#2563EB] mt-1">✓</span>
                                 <span>Orders placed before 2 PM ship same day</span>
                             </li>
                             <li className="flex items-start gap-3">
-                                <span className="text-[#C1FF72] mt-1">✓</span>
+                                <span className="text-[#2563EB] mt-1">✓</span>
                                 <span>Signature required for orders over ₹500</span>
                             </li>
                             <li className="flex items-start gap-3">
-                                <span className="text-[#C1FF72] mt-1">✓</span>
+                                <span className="text-[#2563EB] mt-1">✓</span>
                                 <span>All shipments are fully insured</span>
                             </li>
                             <li className="flex items-start gap-3">
-                                <span className="text-[#C1FF72] mt-1">✓</span>
+                                <span className="text-[#2563EB] mt-1">✓</span>
                                 <span>Email tracking updates at every stage</span>
                             </li>
                         </ul>
@@ -164,7 +164,7 @@ export default function ShippingPage() {
 function Feature({ text, white = false }: { text: string; white?: boolean }) {
     return (
         <div className="flex items-center gap-2">
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${white ? 'bg-[#C1FF72]' : 'bg-gray-100'}`}>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${white ? 'bg-[#2563EB]' : 'bg-gray-100'}`}>
                 <svg className={`w-3 h-3 ${white ? 'text-gray-900' : 'text-gray-900'}`} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>

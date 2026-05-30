@@ -51,7 +51,9 @@ export default function OrderSummary({
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
-                                <span className="text-2xl">📱</span>
+                                <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7.5 12 3 4 7.5m16 0v9L12 21m8-13.5-8 4.5m0 9v-9m0 0L4 7.5m8 4.5-8-4.5m0 0v9L12 21" />
+                                </svg>
                             )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -101,7 +103,7 @@ export default function OrderSummary({
                     <div className="bg-green-50 rounded-lg p-3 border border-green-200">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <span className="text-green-600">🎫</span>
+                                <span className="text-green-600 font-semibold">Coupon</span>
                                 <span className="text-sm font-medium text-green-900">
                                     {appliedCoupon.code}
                                 </span>
@@ -123,14 +125,14 @@ export default function OrderSummary({
             {/* Estimated Delivery */}
             <div className="bg-blue-50 rounded-lg p-4 mb-4">
                 <p className="text-sm font-medium text-blue-900 mb-1">
-                    📦 Estimated Delivery
+                    Estimated delivery
                 </p>
                 <p className="text-xs text-blue-700">3-5 business days</p>
             </div>
 
             {/* Security Badge */}
             <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="text-green-500">🔒</span>
+                <span className="text-green-600 font-semibold">Secure</span>
                 <span>Secure Checkout</span>
             </div>
         </div>

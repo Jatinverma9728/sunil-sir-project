@@ -168,7 +168,7 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
                             <label
                                 key={addr._id || index}
                                 className={`block p-4 border-2 rounded-xl cursor-pointer transition-all ${formData.streetAddress === addr.street && formData.zipCode === addr.zipCode
-                                        ? "border-[#C1FF72] bg-green-50"
+                                        ? "border-[#2563EB] bg-blue-50"
                                         : "border-gray-200 hover:border-blue-200"
                                     }`}
                             >
@@ -215,7 +215,7 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
                                 name="fullName"
                                 value={formData.fullName}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#C1FF72] focus:border-transparent ${errors.fullName ? "border-red-500" : "border-gray-300"
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.fullName ? "border-red-500" : "border-gray-300"
                                     }`}
                                 placeholder="John Doe"
                             />
@@ -233,7 +233,7 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#C1FF72] focus:border-transparent ${errors.phone ? "border-red-500" : "border-gray-300"
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.phone ? "border-red-500" : "border-gray-300"
                                     }`}
                                 placeholder="+91 9876543210"
                             />
@@ -250,7 +250,7 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
                             name="streetAddress"
                             value={formData.streetAddress}
                             onChange={handleChange}
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#C1FF72] focus:border-transparent ${errors.streetAddress ? "border-red-500" : "border-gray-300"
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.streetAddress ? "border-red-500" : "border-gray-300"
                                 }`}
                             placeholder="123 Main Street"
                         />
@@ -268,7 +268,7 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
                             name="apartment"
                             value={formData.apartment}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C1FF72] focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
                             placeholder="Apt 4B"
                         />
                     </div>
@@ -283,7 +283,7 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
                                 name="city"
                                 value={formData.city}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#C1FF72] focus:border-transparent ${errors.city ? "border-red-500" : "border-gray-300"
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.city ? "border-red-500" : "border-gray-300"
                                     }`}
                                 placeholder="Mumbai"
                             />
@@ -299,7 +299,7 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
                                 name="state"
                                 value={formData.state}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#C1FF72] focus:border-transparent ${errors.state ? "border-red-500" : "border-gray-300"
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.state ? "border-red-500" : "border-gray-300"
                                     }`}
                                 placeholder="Maharashtra"
                             />
@@ -315,7 +315,7 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
                                 name="zipCode"
                                 value={formData.zipCode}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#C1FF72] focus:border-transparent ${errors.zipCode ? "border-red-500" : "border-gray-300"
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.zipCode ? "border-red-500" : "border-gray-300"
                                     }`}
                                 placeholder="400001"
                             />
@@ -331,7 +331,7 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
                             name="country"
                             value={formData.country}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C1FF72] focus:border-transparent bg-white"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent bg-white"
                         >
                             <option value="India">India</option>
                             <option value="United States">United States</option>

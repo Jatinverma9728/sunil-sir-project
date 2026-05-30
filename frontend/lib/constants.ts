@@ -3,7 +3,7 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:30
 
 // North Tech Hub Brand Colors
 export const COLORS = {
-    primary: '#C1FF72', // Lime green
+    primary: '#2563EB', // Brand blue
     black: '#1A1A1A',
     white: '#FFFFFF',
     gray: {
@@ -20,6 +20,6 @@ export const COLORS = {
     },
     yellow: '#FFC700',
     red: '#FF3E3E',
-    blue: '#4A90E2',
-    green: '#C1FF72',
+    blue: '#2563EB',
+    green: '#10B981',
 };
