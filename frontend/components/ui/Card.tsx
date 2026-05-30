@@ -16,7 +16,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(({ className, variant = "defa
         <div
             ref={ref}
             className={cn(
-                "rounded-[1.25rem]",
+                "rounded-lg",
                 variants[variant],
                 className
             )}
@@ -40,7 +40,7 @@ const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingEleme
         return (
             <h3
                 ref={ref}
-                className={cn("text-2xl font-semibold leading-none tracking-tight text-gray-900", className)}
+                className={cn("text-2xl font-semibold leading-none text-gray-900", className)}
                 {...props}
             />
         );

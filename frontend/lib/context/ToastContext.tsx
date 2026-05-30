@@ -112,8 +112,8 @@ function SamsungToast({ toast, onRemove, index }: { toast: Toast; onRemove: (id:
     };
 
     const icons: Record<ToastType, string> = {
-        success: "✓",
-        error: "✕",
+        success: "\u2713",
+        error: "\u2715",
         warning: "!",
         info: "i",
     };

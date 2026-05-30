@@ -47,19 +47,15 @@ export default function Newsletter() {
     return (
         <section className="py-24">
             <div className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8">
-                <div className="relative bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-[3rem] p-12 md:p-20 overflow-hidden text-center border border-indigo-100/50 shadow-[0_20px_40px_-15px_rgba(99,102,241,0.05)]">
-                    {/* Abstract Shapes */}
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-                    <div className="absolute bottom-0 left-0 w-72 h-72 bg-pink-200/20 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
-
+                <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm md:p-12">
                     <div className="relative z-10 max-w-2xl mx-auto">
                         {/* Header */}
                         <div className="mb-8">
-                            <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/60 backdrop-blur-sm border border-indigo-100 rounded-full text-xs font-bold text-indigo-600 uppercase tracking-widest mb-6">
+                            <span className="mb-6 inline-flex items-center gap-2 rounded-md border border-blue-100 bg-blue-50 px-4 py-1.5 text-xs font-bold uppercase text-[var(--primary-electric)]">
                                 <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
                                 Newsletter
                             </span>
-                            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight leading-tight">
+                            <h2 className="mb-4 text-4xl font-bold leading-tight text-gray-900 md:text-5xl">
                                 Stay in the loop
                             </h2>
                             <p className="text-gray-600 text-lg md:text-xl">
@@ -75,14 +71,14 @@ export default function Newsletter() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="Enter your email"
-                                    className="w-full px-6 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-400 focus:border-[var(--primary-electric)] focus:outline-none focus:ring-4 focus:ring-[var(--primary-electric)]/10 transition-all duration-300 shadow-sm"
+                                    className="w-full rounded-lg border border-gray-200 bg-white px-6 py-4 text-gray-900 shadow-sm transition-all duration-300 placeholder:text-gray-400 focus:border-[var(--primary-electric)] focus:outline-none focus:ring-4 focus:ring-[var(--primary-electric)]/10"
                                     disabled={status === "loading"}
                                 />
                             </div>
                             <button
                                 type="submit"
                                 disabled={status === "loading"}
-                                className="px-8 py-4 bg-gradient-to-r from-[var(--primary-electric)] to-[var(--primary-deep)] text-white text-base font-semibold rounded-2xl hover:shadow-[var(--glow-primary)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary-electric)]"
+                                className="whitespace-nowrap rounded-lg bg-gradient-to-r from-[var(--primary-electric)] to-[var(--primary-deep)] px-8 py-4 text-base font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--glow-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-electric)] focus-visible:ring-offset-2 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
                             >
                                 {status === "loading" ? (
                                     <span className="flex items-center gap-2">
@@ -97,7 +93,7 @@ export default function Newsletter() {
                         </form>
 
                         {message && (
-                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${status === "success" ? "bg-green-50 text-green-700 border border-green-100" : "bg-red-50 text-red-700 border border-red-100"} mb-8 animate-fade-in`}>
+                            <div className={`mb-8 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ${status === "success" ? "bg-green-50 text-green-700 border border-green-100" : "bg-red-50 text-red-700 border border-red-100"} animate-fade-in`}>
                                 {status === "success" && (
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                                 )}
@@ -109,7 +105,7 @@ export default function Newsletter() {
                         <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 text-gray-500">
                             {["Exclusive Deals", "Early Access", "No Spam"].map((feature) => (
                                 <span key={feature} className="flex items-center gap-2 text-sm font-medium">
-                                    <div className="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                    <div className="flex h-5 w-5 items-center justify-center rounded-md bg-blue-100 text-[var(--primary-electric)]">
                                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                                         </svg>

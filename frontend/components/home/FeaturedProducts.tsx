@@ -31,14 +31,14 @@ export default function FeaturedProducts() {
             <section className="py-16 md:py-24 bg-white/50">
                 <div className="container mx-auto px-4 md:px-6">
                     <div className="text-center mb-12">
-                        <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+                        <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-5xl">
                             Trending Now
                         </h2>
                         <p className="text-gray-500 font-medium">Curated selection of our best sellers</p>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[...Array(4)].map((_, i) => (
-                            <div key={i} className="bg-white rounded-[2rem] border border-gray-100 h-[420px] animate-pulse" />
+                            <div key={i} className="h-[420px] animate-pulse rounded-lg border border-gray-200 bg-white" />
                         ))}
                     </div>
                 </div>
@@ -52,7 +52,7 @@ export default function FeaturedProducts() {
                 {/* Section Header */}
                 <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
                     <div className="text-center md:text-left">
-                        <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+                        <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-5xl">
                             Trending Products
                         </h2>
                         <p className="text-gray-500 font-medium text-lg">
@@ -61,7 +61,7 @@ export default function FeaturedProducts() {
                     </div>
                     <Link
                         href="/products"
-                        className="hidden md:inline-flex items-center gap-2 px-8 py-3.5 bg-gray-900 text-white rounded-full font-bold hover:bg-indigo-600 transition-all shadow-lg hover:shadow-indigo-200 hover:-translate-y-0.5"
+                        className="hidden items-center gap-2 rounded-lg bg-gray-900 px-8 py-3.5 font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-[var(--primary-electric)] hover:shadow-blue-200 md:inline-flex"
                     >
                         View All
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +81,7 @@ export default function FeaturedProducts() {
                 <div className="md:hidden text-center">
                     <Link
                         href="/products"
-                        className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-bold hover:bg-indigo-600 transition-all shadow-lg w-full justify-center"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 px-8 py-4 font-bold text-white shadow-lg transition-all hover:bg-[var(--primary-electric)]"
                     >
                         View All Products
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

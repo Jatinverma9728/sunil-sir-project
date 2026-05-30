@@ -17,7 +17,12 @@ const categorySchema = new mongoose.Schema(
         },
         icon: {
             type: String,
-            default: '📦',
+            default: '',
+            trim: true,
+        },
+        image: {
+            type: String,
+            default: '',
             trim: true,
         },
         description: {

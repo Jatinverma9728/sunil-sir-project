@@ -31,7 +31,7 @@ export default function HeroBanner() {
 
     const fetchHeroProducts = async () => {
         try {
-            const response = await getProducts({ limit: 50 });
+            const response = await getProducts({ limit: 10 });
 
             if (!response.success || !response.data || response.data.length === 0) {
                 setLoading(false);
@@ -91,10 +91,10 @@ export default function HeroBanner() {
             <section className="py-4 sm:py-6 md:py-8">
                 <div className="max-w-[1600px] mx-auto px-3 sm:px-4">
                     <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 h-auto md:h-[500px] lg:h-[600px] animate-shimmer">
-                        <div className="lg:col-span-2 bg-gray-100 rounded-[1.25rem] h-[400px] sm:h-[450px] md:h-full" />
+                        <div className="lg:col-span-2 h-[400px] rounded-lg bg-gray-100 sm:h-[450px] md:h-full" />
                         <div className="hidden md:flex flex-col gap-3 sm:gap-4 md:gap-6">
-                            <div className="flex-1 bg-gray-100 rounded-[1.25rem]" />
-                            <div className="flex-1 bg-gray-100 rounded-[1.25rem]" />
+                            <div className="flex-1 rounded-lg bg-gray-100" />
+                            <div className="flex-1 rounded-lg bg-gray-100" />
                         </div>
                     </div>
                 </div>
@@ -116,7 +116,7 @@ export default function HeroBanner() {
             <div className="max-w-[1600px] mx-auto px-3 sm:px-4">
                 <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 h-auto md:h-[500px] lg:h-[600px]">
                     {/* Main Slideshow - New Arrivals */}
-                    <div className="lg:col-span-2 relative rounded-[1.25rem] overflow-hidden shadow-md border border-gray-100 bg-white h-[400px] sm:h-[450px] md:h-full">
+                    <div className="relative h-[400px] overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md sm:h-[450px] md:h-full lg:col-span-2">
                         {newArrivals.map((product, index) => (
                             <div
                                 key={product._id}
@@ -141,10 +141,10 @@ export default function HeroBanner() {
                                 {/* Content */}
                                 <div className="relative h-full flex flex-col md:flex-row items-center">
                                     <div className="flex-1 p-5 sm:p-6 md:p-10 lg:p-16 flex flex-col justify-center z-10">
-                                        <span className="inline-block px-3 sm:px-4 py-1.5 rounded-full bg-primary-electric text-white text-xs sm:text-sm font-bold mb-3 sm:mb-4 md:mb-6 w-fit shadow-md">
+                                        <span className="mb-3 inline-block w-fit rounded-md bg-[var(--primary-electric)] px-3 py-1.5 text-xs font-bold text-white shadow-md sm:mb-4 sm:px-4 sm:text-sm md:mb-6">
                                             New Arrival
                                         </span>
-                                        <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-2 sm:mb-3 leading-tight tracking-tight line-clamp-2">
+                                        <h2 className="font-heading mb-2 line-clamp-2 text-2xl font-bold leading-tight text-white sm:mb-3 sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
                                             {product.title}
                                         </h2>
                                         <p className="text-white/90 text-sm sm:text-base md:text-lg mb-1 sm:mb-2 font-medium">
@@ -152,19 +152,19 @@ export default function HeroBanner() {
                                         </p>
                                         <div className="flex items-baseline gap-2 sm:gap-3 mb-4 sm:mb-6 md:mb-8">
                                             <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-                                                ₹{product.price.toFixed(0)}
+                                                {"\u20B9"}{product.price.toLocaleString("en-IN")}
                                             </span>
                                             {product.originalPrice && product.originalPrice > product.price && (
                                                 <span className="text-base sm:text-lg md:text-xl text-white/60 line-through">
-                                                    ₹{product.originalPrice.toFixed(0)}
+                                                    {"\u20B9"}{product.originalPrice.toLocaleString("en-IN")}
                                                 </span>
                                             )}
                                         </div>
                                         <Link
                                             href={`/products/${product._id}`}
-                                            className="inline-flex items-center justify-center px-6 sm:px-8 py-2.5 sm:py-3 md:py-3.5 text-sm sm:text-base bg-white text-gray-900 font-bold rounded-full hover:bg-[var(--primary-electric)] hover:text-white hover:shadow-[var(--glow-primary)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 ease-out w-fit touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white"
+                                            className="touch-target inline-flex w-fit items-center justify-center rounded-lg bg-white px-6 py-2.5 text-sm font-bold text-gray-900 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[var(--primary-electric)] hover:text-white hover:shadow-[var(--glow-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 active:translate-y-0 sm:px-8 sm:py-3 sm:text-base md:py-3.5"
                                         >
-                                            Shop Now →
+                                            Shop Now
                                         </Link>
                                     </div>
                                 </div>
@@ -201,7 +201,7 @@ export default function HeroBanner() {
                             >
                                 <Link
                                     href={`/products/${trendingProduct._id}`}
-                                    className="block h-full relative rounded-[1.25rem] overflow-hidden border border-gray-100 group hover:shadow-lg hover:-translate-y-1 transition-all duration-200 ease-out"
+                                    className="group relative block h-full overflow-hidden rounded-lg border border-gray-100 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg"
                                 >
                                     {/* Background Image */}
                                     <div className="absolute inset-0">
@@ -220,8 +220,8 @@ export default function HeroBanner() {
                                     {/* Content */}
                                     <div className="relative h-full flex flex-col justify-end p-4 sm:p-5 md:p-6 z-10">
                                         <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                                            <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-secondary-pop text-white text-[10px] sm:text-xs font-bold">
-                                                🔥 Trending
+                                            <span className="inline-block rounded-md bg-[var(--secondary-pop)] px-2 py-0.5 text-[10px] font-bold text-white sm:px-3 sm:py-1 sm:text-xs">
+                                                Trending
                                             </span>
                                             {trendingProduct.rating && (
                                                 <span className="text-white/90 text-xs sm:text-sm font-medium">
@@ -233,7 +233,7 @@ export default function HeroBanner() {
                                             {trendingProduct.title}
                                         </h3>
                                         <p className="text-white/90 font-semibold text-sm sm:text-base md:text-lg">
-                                            From ₹{trendingProduct.price.toFixed(0)}
+                                            From {"\u20B9"}{trendingProduct.price.toLocaleString("en-IN")}
                                         </p>
                                     </div>
                                 </Link>
@@ -250,7 +250,7 @@ export default function HeroBanner() {
                             >
                                 <Link
                                     href={`/products/${bestSeller._id}`}
-                                    className="block h-full relative rounded-[1.25rem] overflow-hidden border border-gray-100 group hover:shadow-lg hover:-translate-y-1 transition-all duration-200 ease-out"
+                                    className="group relative block h-full overflow-hidden rounded-lg border border-gray-100 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg"
                                 >
                                     {/* Background Image */}
                                     <div className="absolute inset-0">
@@ -269,12 +269,12 @@ export default function HeroBanner() {
                                     {/* Content */}
                                     <div className="relative h-full flex flex-col justify-end p-4 sm:p-5 md:p-6 z-10">
                                         <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                                            <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-success text-white text-[10px] sm:text-xs font-bold">
-                                                ⭐ Best Seller
+                                            <span className="inline-block rounded-md bg-[var(--success)] px-2 py-0.5 text-[10px] font-bold text-white sm:px-3 sm:py-1 sm:text-xs">
+                                                Best Seller
                                             </span>
                                             {bestSeller.rating && (
                                                 <span className="text-white/90 text-xs sm:text-sm font-medium">
-                                                    {bestSeller.rating.average.toFixed(1)} ★
+                                                    {bestSeller.rating.average.toFixed(1)} rating
                                                 </span>
                                             )}
                                         </div>
@@ -282,7 +282,7 @@ export default function HeroBanner() {
                                             {bestSeller.title}
                                         </h3>
                                         <p className="text-white/90 font-semibold text-sm sm:text-base md:text-lg">
-                                            ₹{bestSeller.price.toFixed(0)}
+                                            {"\u20B9"}{bestSeller.price.toLocaleString("en-IN")}
                                         </p>
                                     </div>
                                 </Link>

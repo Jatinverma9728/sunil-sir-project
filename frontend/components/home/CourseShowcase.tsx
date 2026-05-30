@@ -49,7 +49,7 @@ export default function CourseShowcase() {
             <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
                 {/* Header */}
                 <div className="text-center mb-14">
-                    <p className="text-sm font-medium text-gray-500 uppercase tracking-widest mb-3">
+                    <p className="mb-3 text-sm font-medium uppercase text-gray-500">
                         Learn From The Best
                     </p>
                     <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
@@ -64,7 +64,7 @@ export default function CourseShowcase() {
                 {loading ? (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-sm animate-pulse">
+                            <div key={i} className="overflow-hidden rounded-lg bg-white shadow-sm animate-pulse">
                                 <div className="aspect-video bg-gray-200" />
                                 <div className="p-6 space-y-4">
                                     <div className="h-5 bg-gray-200 rounded w-3/4" />
@@ -86,7 +86,7 @@ export default function CourseShowcase() {
                                 <Link
                                     key={course._id}
                                     href={`/courses/${course._id}`}
-                                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+                                    className="group overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:shadow-xl"
                                 >
                                     {/* Thumbnail */}
                                     <div className="relative aspect-video overflow-hidden bg-gray-100">
@@ -177,16 +177,16 @@ export default function CourseShowcase() {
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-baseline gap-2">
                                                 <span className="text-2xl font-bold text-gray-900">
-                                                    ₹{course.price.toLocaleString()}
+                                                    {"\u20B9"}{course.price.toLocaleString()}
                                                 </span>
                                                 {course.originalPrice && (
                                                     <span className="text-sm text-gray-400 line-through">
-                                                        ₹{course.originalPrice.toLocaleString()}
+                                                        {"\u20B9"}{course.originalPrice.toLocaleString()}
                                                     </span>
                                                 )}
                                             </div>
-                                            <span className="text-sm font-medium text-blue-600 group-hover:underline">
-                                                View Course →
+                                            <span className="text-sm font-medium text-[var(--primary-electric)] group-hover:underline">
+                                                View Course
                                             </span>
                                         </div>
                                     </div>
@@ -200,7 +200,7 @@ export default function CourseShowcase() {
                 <div className="text-center mt-12">
                     <Link
                         href="/courses"
-                        className="inline-flex items-center gap-2 px-8 py-3.5 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-full transition-colors"
+                        className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-8 py-3.5 font-medium text-white transition-colors hover:bg-[var(--primary-electric)]"
                     >
                         Browse All Courses
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

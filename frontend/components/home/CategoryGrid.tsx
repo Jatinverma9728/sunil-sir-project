@@ -1,16 +1,38 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getCategories } from "@/lib/api/products";
 import type { Category } from "@/lib/api/products";
 
-// Color options for categories
 const colorOptions = [
-    "bg-purple-50", "bg-blue-50", "bg-orange-50", "bg-teal-50",
-    "bg-indigo-50", "bg-gray-50", "bg-pink-50", "bg-cyan-50",
-    "bg-yellow-50", "bg-green-50"
+    "bg-blue-50 border-blue-100",
+    "bg-emerald-50 border-emerald-100",
+    "bg-slate-50 border-slate-200",
+    "bg-cyan-50 border-cyan-100",
+    "bg-amber-50 border-amber-100",
+    "bg-rose-50 border-rose-100",
 ];
+
+function CategoryImage({ category, tone }: { category: Category; tone: string }) {
+    return (
+        <div className={`relative mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border ${tone} shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-md md:h-24 md:w-24`}>
+            {category.image ? (
+                <img
+                    src={category.image}
+                    alt={category.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                />
+            ) : (
+                <svg className="h-9 w-9 text-gray-300 md:h-10 md:w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5V7.5A2.5 2.5 0 015.5 5h13A2.5 2.5 0 0121 7.5v9a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 013 16.5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 14l2.4-2.4a1 1 0 011.4 0L13 13.8l1.2-1.2a1 1 0 011.4 0L18 15" />
+                </svg>
+            )}
+        </div>
+    );
+}
 
 export default function CategoryGrid() {
     const [categories, setCategories] = useState<Category[]>([]);
@@ -35,67 +57,66 @@ export default function CategoryGrid() {
 
     if (loading) {
         return (
-            <section className="py-8 md:py-12">
-                <div className="max-w-[1600px] mx-auto px-4">
-                    <div className="animate-pulse">
-                        <div className="h-8 bg-gray-200 rounded w-48 mb-8"></div>
-                        <div className="grid grid-cols-5 lg:grid-cols-10 gap-6">
-                            {[...Array(10)].map((_, i) => (
-                                <div key={i} className="flex flex-col items-center">
-                                    <div className="w-24 h-24 rounded-full bg-gray-200 mb-4"></div>
-                                    <div className="h-4 bg-gray-200 rounded w-16"></div>
-                                </div>
-                            ))}
+            <section className="bg-white py-8 md:py-12">
+                <div className="mx-auto max-w-[1600px] px-4 md:px-6 lg:px-8">
+                    <div className="mb-8 flex items-end justify-between">
+                        <div>
+                            <div className="mb-3 h-4 w-28 animate-pulse rounded bg-gray-100" />
+                            <div className="h-8 w-52 animate-pulse rounded bg-gray-100" />
                         </div>
+                        <div className="h-10 w-24 animate-pulse rounded-lg bg-gray-100" />
+                    </div>
+                    <div className="flex gap-6 overflow-hidden md:grid md:grid-cols-5 lg:grid-cols-10">
+                        {[...Array(10)].map((_, index) => (
+                            <div key={index} className="flex shrink-0 flex-col items-center">
+                                <div className="mb-4 h-20 w-20 animate-pulse rounded-full bg-gray-100 md:h-24 md:w-24" />
+                                <div className="h-4 w-20 animate-pulse rounded bg-gray-100" />
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
         );
     }
 
-    if (categories.length === 0) {
-        return null;
-    }
+    if (categories.length === 0) return null;
 
     return (
-        <section className="py-8 md:py-12">
-            <div className="max-w-[1600px] mx-auto px-4">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Shop by Category</h2>
+        <section className="bg-white py-8 md:py-12">
+            <div className="mx-auto max-w-[1600px] px-4 md:px-6 lg:px-8">
+                <div className="mb-8 flex items-center justify-between">
+                    <div>
+                        <p className="mb-2 text-sm font-semibold uppercase text-[var(--primary-electric)]">Shop faster</p>
+                        <h2 className="text-2xl font-bold text-gray-900 md:text-3xl">Shop by category</h2>
+                    </div>
                     <Link
                         href="/products"
-                        className="text-gray-500 hover:text-indigo-600 font-medium text-sm transition-colors flex items-center gap-1"
+                        className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:border-[var(--primary-electric)] hover:text-[var(--primary-electric)]"
                     >
-                        View All
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                        View all
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                     </Link>
                 </div>
 
-                {/* Categories Grid */}
-                <div className="flex overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide md:grid md:grid-cols-5 lg:grid-cols-10 md:gap-6 md:mx-0 md:px-0 md:pb-0">
+                <div className="-mx-4 flex overflow-x-auto px-4 pb-4 scrollbar-hide md:mx-0 md:grid md:grid-cols-5 md:gap-6 md:px-0 md:pb-0 lg:grid-cols-10">
                     {categories.map((category, index) => (
                         <Link
                             key={category.slug}
                             href={`/products?category=${category.slug}`}
-                            className="flex-shrink-0 flex flex-col items-center group mr-6 md:mr-0"
+                            className="group mr-6 flex shrink-0 flex-col items-center md:mr-0"
                         >
-                            {/* Circle Icon */}
-                            <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full ${colorOptions[index % colorOptions.length]} flex items-center justify-center mb-4 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden border border-white`}>
-                                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity bg-black" />
-                                {/* Display emoji icon from database */}
-                                <span className="text-4xl">{category.icon}</span>
-                            </div>
-
-                            {/* Category Name */}
-                            <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-600 transition-colors text-center whitespace-nowrap">
+                            <CategoryImage
+                                category={category}
+                                tone={colorOptions[index % colorOptions.length]}
+                            />
+                            <span className="max-w-[7rem] text-center text-sm font-semibold leading-tight text-gray-800 transition-colors group-hover:text-[var(--primary-electric)]">
                                 {category.name}
                             </span>
-
-                            {/* Product Count (optional) */}
                             {category.productCount !== undefined && category.productCount > 0 && (
-                                <span className="text-xs text-gray-400 mt-1">
-                                    {category.productCount} {category.productCount === 1 ? 'item' : 'items'}
+                                <span className="mt-1 text-xs text-gray-400">
+                                    {category.productCount} {category.productCount === 1 ? "item" : "items"}
                                 </span>
                             )}
                         </Link>

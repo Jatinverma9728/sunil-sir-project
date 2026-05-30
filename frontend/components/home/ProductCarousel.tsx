@@ -57,6 +57,7 @@ export default function ProductCarousel({
     const scrollToNext = () => {
         if (scrollContainerRef.current) {
             const container = scrollContainerRef.current;
+            if (products.length === 0) return;
             const cardWidth = container.scrollWidth / products.length;
             container.scrollBy({ left: cardWidth, behavior: 'smooth' });
         }
@@ -65,6 +66,7 @@ export default function ProductCarousel({
     const scrollToPrev = () => {
         if (scrollContainerRef.current) {
             const container = scrollContainerRef.current;
+            if (products.length === 0) return;
             const cardWidth = container.scrollWidth / products.length;
             container.scrollBy({ left: -cardWidth, behavior: 'smooth' });
         }
@@ -77,7 +79,7 @@ export default function ProductCarousel({
                     <div className="h-10 bg-gray-100 rounded-xl w-56 mb-10"></div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[...Array(4)].map((_, i) => (
-                            <div key={i} className="h-[400px] bg-gray-50 rounded-[2rem]"></div>
+                            <div key={i} className="h-[400px] rounded-lg bg-gray-50"></div>
                         ))}
                     </div>
                 </div>
@@ -92,21 +94,23 @@ export default function ProductCarousel({
             {/* Header */}
             <div className="flex items-end justify-between mb-10">
                 <div>
-                    <p className="text-sm font-semibold text-indigo-600 uppercase tracking-wider mb-2">
+                    <p className="mb-2 text-sm font-semibold uppercase text-[var(--primary-electric)]">
                         {subtitle || "Discover"}
                     </p>
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">{title}</h2>
+                    <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">{title}</h2>
                 </div>
                 <div className="hidden md:flex gap-2">
                     <button
                         onClick={scrollToPrev}
-                        className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-100 hover:text-indigo-600 transition-all"
+                        aria-label="Previous products"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 transition-all hover:bg-gray-100 hover:text-[var(--primary-electric)]"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                     </button>
                     <button
                         onClick={scrollToNext}
-                        className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-100 hover:text-indigo-600 transition-all"
+                        aria-label="Next products"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 transition-all hover:bg-gray-100 hover:text-[var(--primary-electric)]"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </button>
@@ -132,13 +136,6 @@ export default function ProductCarousel({
                     </div>
                 ))}
             </div>
-
-            {/* Add scrollbar hide styles */}
-            <style jsx>{`
-                .scrollbar-hide::-webkit-scrollbar {
-                    display: none;
-                }
-            `}</style>
         </section>
     );
 }

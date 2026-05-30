@@ -27,10 +27,6 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
     // Check for active offer on this product
     const activeOffer = getProductOffer(product._id, product.category || '', product.price);
 
-    // Debug logging
-    console.log('[CartItem] Product:', product._id, 'Category:', product.category, 'Price:', product.price);
-    console.log('[CartItem] Active Offer:', activeOffer);
-
     // Use offer price if available, otherwise use product price
     const displayPrice = activeOffer ? activeOffer.discountedPrice : product.price;
     const originalPrice = activeOffer ? activeOffer.originalPrice : product.price;
@@ -43,7 +39,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
     return (
         <div
             className={`
-                bg-white rounded-3xl p-4 sm:p-6 
+                bg-white rounded-lg p-4 sm:p-6 
                 flex flex-col sm:flex-row gap-4 sm:gap-6 
                 border border-gray-100
                 transition-all duration-300
@@ -55,7 +51,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
             {/* Product Image */}
             <Link
                 href={`/products/${product._id}`}
-                className="w-full sm:w-28 h-32 sm:h-28 bg-gray-50 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden group relative"
+                className="group relative flex h-32 w-full flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-50 sm:h-28 sm:w-28"
             >
                 {productImage ? (
                     <img
@@ -70,7 +66,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                 )}
                 {/* Offer Badge */}
                 {hasDiscount && (
-                    <span className="absolute top-2 left-2 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    <span className="absolute left-2 top-2 rounded-md bg-gradient-to-r from-rose-500 to-orange-500 px-2 py-1 text-xs font-bold text-white">
                         {activeOffer.discountPercent}% OFF
                     </span>
                 )}
@@ -79,7 +75,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
             {/* Product Info */}
             <div className="flex-1 min-w-0">
                 {product.category && (
-                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">{product.category}</p>
+                    <p className="mb-1 text-xs uppercase text-gray-400">{product.category}</p>
                 )}
                 <Link href={`/products/${product._id}`}>
                     <h3 className="text-base font-medium text-gray-900 hover:text-gray-600 transition-colors line-clamp-2 mb-2">
@@ -96,10 +92,12 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
 
                 {/* Quantity Controls and Price on Mobile */}
                 <div className="flex items-center justify-between sm:justify-start gap-4">
-                    <div className="flex items-center border border-gray-200 rounded-full overflow-hidden">
+                    <div className="flex items-center overflow-hidden rounded-lg border border-gray-200">
                         <button
+                            type="button"
                             onClick={() => onUpdateQuantity(product._id, quantity - 1)}
                             disabled={quantity <= 1}
+                            aria-label="Decrease quantity"
                             className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-gray-600"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,7 +106,9 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                         </button>
                         <span className="w-10 text-center font-medium text-gray-900">{quantity}</span>
                         <button
+                            type="button"
                             onClick={() => onUpdateQuantity(product._id, quantity + 1)}
+                            aria-label="Increase quantity"
                             className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-600"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,18 +120,20 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
                     {/* Price on Mobile */}
                     <div className="sm:hidden text-right">
                         <p className="text-lg font-semibold text-gray-900">
-                            ₹{itemTotal.toFixed(2)}
+                            {"\u20B9"}{itemTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                         {hasDiscount && (
                             <p className="text-xs text-gray-400 line-through">
-                                ₹{(originalPrice * quantity).toFixed(2)}
+                                {"\u20B9"}{(originalPrice * quantity).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </p>
                         )}
                     </div>
 
                     {/* Remove Button */}
                     <button
+                        type="button"
                         onClick={() => onRemove(product._id)}
+                        aria-label="Remove item"
                         className="text-gray-400 hover:text-red-500 transition-colors"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,20 +146,20 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemP
             {/* Price Info - Desktop only */}
             <div className="hidden sm:flex text-right flex-col justify-center">
                 <p className="text-xl font-semibold text-gray-900">
-                    ₹{itemTotal.toFixed(2)}
+                    {"\u20B9"}{itemTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 {hasDiscount ? (
                     <>
                         <p className="text-sm text-gray-400 line-through">
-                            ₹{originalPrice.toFixed(2)} each
+                            {"\u20B9"}{originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} each
                         </p>
                         <p className="text-sm text-green-600 font-medium">
-                            ₹{displayPrice.toFixed(2)} each
+                            {"\u20B9"}{displayPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} each
                         </p>
                     </>
                 ) : (
                     <p className="text-sm text-gray-400">
-                        ₹{displayPrice.toFixed(2)} each
+                        {"\u20B9"}{displayPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} each
                     </p>
                 )}
             </div>

@@ -9,13 +9,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Format currency
+ * Format currency to Indian Rupees with Unicode escape sequences to prevent mojibake.
  */
-export function formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'INR',
+export function formatCurrency(amount: number, includeDecimals = false): string {
+    const formatted = new Intl.NumberFormat('en-IN', {
+        minimumFractionDigits: includeDecimals ? 2 : 0,
+        maximumFractionDigits: includeDecimals ? 2 : 0,
     }).format(amount);
+    return `\u20B9${formatted}`;
 }
 
 /**

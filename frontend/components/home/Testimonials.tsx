@@ -59,13 +59,7 @@ export default function Testimonials() {
     }
 
     return (
-        <section className="py-24 bg-gradient-to-b from-white via-indigo-50/30 to-white overflow-hidden relative">
-            {/* Background decoration */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-1/4 -left-64 w-96 h-96 bg-indigo-200/20 rounded-full blur-3xl" />
-                <div className="absolute bottom-1/4 -right-64 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl" />
-            </div>
-
+        <section className="relative overflow-hidden bg-gradient-to-b from-white via-blue-50/30 to-white py-24">
             <div className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 relative z-10">
                 {/* Header */}
                 <div className="text-center mb-16">
@@ -73,7 +67,7 @@ export default function Testimonials() {
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="inline-block text-xs font-bold text-indigo-600 uppercase tracking-widest mb-3 bg-indigo-50 px-3 py-1 rounded-full"
+                        className="mb-3 inline-block rounded-md bg-blue-50 px-3 py-1 text-xs font-bold uppercase text-[var(--primary-electric)]"
                     >
                         Testimonials
                     </motion.span>
@@ -82,7 +76,7 @@ export default function Testimonials() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-3xl md:text-5xl font-bold text-gray-900 tracking-tight mb-6"
+                        className="mb-6 text-3xl font-bold text-gray-900 md:text-5xl"
                     >
                         Loved by thousands of learners
                     </motion.h2>
@@ -136,7 +130,7 @@ export default function Testimonials() {
                                     className="
                                         w-[350px] md:w-[400px] flex-shrink-0
                                         bg-white/70 backdrop-blur-xl
-                                        rounded-[2rem] p-8
+                                        rounded-lg p-8
                                         border border-white/50
                                         shadow-[0_8px_30px_rgb(0,0,0,0.04)]
                                         hover:shadow-[0_20px_40px_-15px_rgba(79,70,229,0.15)]

@@ -60,8 +60,8 @@ export default function DynamicPromoBanners() {
         return (
             <section className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 py-16">
                 <div className="grid md:grid-cols-2 gap-8">
-                    <div className="h-[300px] bg-gray-50 rounded-[2.5rem] animate-pulse" />
-                    <div className="h-[300px] bg-gray-50 rounded-[2.5rem] animate-pulse" />
+                    <div className="h-[300px] animate-pulse rounded-lg bg-gray-50" />
+                    <div className="h-[300px] animate-pulse rounded-lg bg-gray-50" />
                 </div>
             </section>
         );
@@ -76,7 +76,7 @@ export default function DynamicPromoBanners() {
                 <SingleBanner banner={current} onClick={() => handleBannerClick(current)} />
             ) : (
                 <div className="relative">
-                    <div className="overflow-hidden rounded-[2.5rem]">
+                    <div className="overflow-hidden rounded-lg">
                         <div
                             className="flex transition-transform duration-700 ease-out"
                             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -92,7 +92,8 @@ export default function DynamicPromoBanners() {
                     {/* Navigation Arrows */}
                     <button
                         onClick={() => goToSlide((currentIndex - 1 + banners.length) % banners.length)}
-                        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white transition-all shadow-sm hover:shadow-md text-gray-800"
+                        aria-label="Previous promotion"
+                        className="absolute left-6 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-lg bg-white/80 text-gray-800 shadow-sm backdrop-blur-md transition-all hover:bg-white hover:shadow-md"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -100,7 +101,8 @@ export default function DynamicPromoBanners() {
                     </button>
                     <button
                         onClick={() => goToSlide((currentIndex + 1) % banners.length)}
-                        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white transition-all shadow-sm hover:shadow-md text-gray-800"
+                        aria-label="Next promotion"
+                        className="absolute right-6 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-lg bg-white/80 text-gray-800 shadow-sm backdrop-blur-md transition-all hover:bg-white hover:shadow-md"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -113,6 +115,7 @@ export default function DynamicPromoBanners() {
                             <button
                                 key={index}
                                 onClick={() => goToSlide(index)}
+                                aria-label={`Go to promotion ${index + 1}`}
                                 className={`h-1.5 rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-gray-800 w-8' : 'bg-gray-300 w-2 hover:bg-gray-400'
                                     }`}
                             />
@@ -128,7 +131,7 @@ export default function DynamicPromoBanners() {
 function SingleBanner({ banner, onClick }: { banner: Banner; onClick: () => void }) {
     const content = (
         <div
-            className="relative rounded-[2.5rem] overflow-hidden h-[300px] md:h-[400px] cursor-pointer group"
+            className="group relative h-[300px] cursor-pointer overflow-hidden rounded-lg md:h-[400px]"
             style={{ backgroundColor: banner.backgroundColor }}
         >
             {banner.image && (
@@ -148,12 +151,12 @@ function SingleBanner({ banner, onClick }: { banner: Banner; onClick: () => void
 
             <div className="absolute inset-0 flex flex-col justify-center p-10 md:p-20" style={{ color: banner.textColor }}>
                 <div className="max-w-xl">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight leading-tight">{banner.title}</h2>
+                    <h2 className="mb-4 text-4xl font-bold leading-tight md:text-5xl">{banner.title}</h2>
                     {banner.subtitle && (
                         <p className="text-xl md:text-2xl mb-8 opacity-90 font-light">{banner.subtitle}</p>
                     )}
                     {banner.buttonText && (
-                        <span className="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all group-hover:shadow-lg group-hover:-translate-y-0.5">
+                        <span className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-8 py-4 font-medium text-white transition-all hover:bg-[var(--primary-electric)] group-hover:-translate-y-0.5 group-hover:shadow-lg">
                             {banner.buttonText}
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -182,22 +185,18 @@ function StaticPromoBanners() {
         <section className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 py-16">
             <div className="grid md:grid-cols-2 gap-8">
                 <Link href="/products?sale=true" className="group">
-                    <div className="relative bg-gradient-to-br from-indigo-50 to-blue-50 rounded-[2.5rem] p-10 md:p-14 overflow-hidden cursor-pointer transition-all duration-500 h-full min-h-[320px] flex flex-col justify-between hover:shadow-[0_20px_40px_-15px_rgba(99,102,241,0.1)] border border-indigo-100/50">
-                        {/* Abstract Shapes */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-100/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 transition-transform duration-700 group-hover:scale-110"></div>
-                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-100/50 rounded-full blur-2xl translate-y-1/3 -translate-x-1/3 transition-transform duration-700 group-hover:scale-110"></div>
-
+                    <div className="relative flex h-full min-h-[320px] cursor-pointer flex-col justify-between overflow-hidden rounded-lg border border-blue-100/70 bg-gradient-to-br from-blue-50 to-cyan-50 p-10 transition-all duration-500 hover:shadow-lg md:p-14">
                         <div className="relative z-10">
-                            <span className="inline-block text-xs font-bold text-indigo-600 uppercase tracking-widest mb-4 bg-white/60 backdrop-blur-sm px-4 py-1.5 rounded-full border border-indigo-100">
+                            <span className="mb-4 inline-block rounded-md border border-blue-100 bg-white/70 px-4 py-1.5 text-xs font-bold uppercase text-[var(--primary-electric)] backdrop-blur-sm">
                                 Limited Time
                             </span>
-                            <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3 tracking-tight leading-tight">Mega Sale</h3>
+                            <h3 className="mb-3 text-4xl font-bold leading-tight text-gray-900 md:text-5xl">Mega Sale</h3>
                             <p className="text-gray-500 text-xl font-medium">Up to 70% OFF</p>
                         </div>
                         <div className="relative z-10 flex items-center justify-between mt-8">
                             <span className="inline-flex items-center gap-3 text-gray-900 font-semibold group-hover:gap-4 transition-all duration-300">
                                 Shop Now
-                                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[var(--primary-electric)] shadow-sm transition-colors group-hover:bg-[var(--primary-electric)] group-hover:text-white">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                     </svg>
@@ -208,22 +207,18 @@ function StaticPromoBanners() {
                 </Link>
 
                 <Link href="/products" className="group">
-                    <div className="relative bg-gradient-to-br from-purple-50 to-pink-50 rounded-[2.5rem] p-10 md:p-14 overflow-hidden cursor-pointer transition-all duration-500 h-full min-h-[320px] flex flex-col justify-between hover:shadow-[0_20px_40px_-15px_rgba(236,72,153,0.1)] border border-purple-100/50">
-                        {/* Abstract Shapes */}
-                        <div className="absolute top-0 left-0 w-64 h-64 bg-purple-100/50 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/3 transition-transform duration-700 group-hover:scale-110"></div>
-                        <div className="absolute bottom-0 right-0 w-48 h-48 bg-pink-100/50 rounded-full blur-2xl translate-y-1/3 translate-x-1/3 transition-transform duration-700 group-hover:scale-110"></div>
-
+                    <div className="relative flex h-full min-h-[320px] cursor-pointer flex-col justify-between overflow-hidden rounded-lg border border-emerald-100/70 bg-gradient-to-br from-emerald-50 to-sky-50 p-10 transition-all duration-500 hover:shadow-lg md:p-14">
                         <div className="relative z-10">
-                            <span className="inline-block text-xs font-bold text-purple-600 uppercase tracking-widest mb-4 bg-white/60 backdrop-blur-sm px-4 py-1.5 rounded-full border border-purple-100">
+                            <span className="mb-4 inline-block rounded-md border border-emerald-100 bg-white/70 px-4 py-1.5 text-xs font-bold uppercase text-emerald-700 backdrop-blur-sm">
                                 Special Offer
                             </span>
-                            <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3 tracking-tight leading-tight">Free Shipping</h3>
-                            <p className="text-gray-500 text-xl font-medium">On orders over ₹999</p>
+                            <h3 className="mb-3 text-4xl font-bold leading-tight text-gray-900 md:text-5xl">Free Shipping</h3>
+                            <p className="text-gray-500 text-xl font-medium">On orders over {"\u20B9"}999</p>
                         </div>
                         <div className="relative z-10 flex items-center justify-between mt-8">
                             <span className="inline-flex items-center gap-3 text-gray-900 font-semibold group-hover:gap-4 transition-all duration-300">
                                 Learn More
-                                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-emerald-700 shadow-sm transition-colors group-hover:bg-emerald-700 group-hover:text-white">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                     </svg>

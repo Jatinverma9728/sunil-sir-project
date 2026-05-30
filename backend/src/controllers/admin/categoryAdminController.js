@@ -32,7 +32,7 @@ const getAllCategories = async (req, res) => {
  */
 const createCategory = async (req, res) => {
     try {
-        const { name, icon, description } = req.body;
+        const { name, icon, image, description, isActive } = req.body;
 
         if (!name) {
             return res.status(400).json({
@@ -58,8 +58,10 @@ const createCategory = async (req, res) => {
         const category = await Category.create({
             name: name.trim(),
             slug,
-            icon: icon || '📦',
+            icon: icon || '',
+            image: image || '',
             description: description || '',
+            isActive: isActive !== undefined ? isActive : true,
         });
 
         res.status(201).json({
@@ -99,7 +101,7 @@ const updateCategory = async (req, res) => {
             });
         }
 
-        const { name, icon, description, isActive } = req.body;
+        const { name, icon, image, description, isActive } = req.body;
 
         // If name is being updated, check for duplicates
         if (name && name !== category.name) {
@@ -121,6 +123,7 @@ const updateCategory = async (req, res) => {
         }
 
         if (icon !== undefined) category.icon = icon;
+        if (image !== undefined) category.image = image;
         if (description !== undefined) category.description = description;
         if (isActive !== undefined) category.isActive = isActive;
 

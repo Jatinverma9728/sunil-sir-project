@@ -2,6 +2,7 @@
 
 import HeroBanner from "@/components/home/HeroBanner";
 import CategoryGrid from "@/components/home/CategoryGrid";
+import RefurbishedSection from "@/components/home/RefurbishedSection";
 import FlashSale from "@/components/home/FlashSale";
 import FeaturedSection from "@/components/home/FeaturedSection";
 import ProductCarousel from "@/components/home/ProductCarousel";
@@ -49,6 +50,9 @@ export default function Home() {
 
       {/* Category Grid */}
       <CategoryGrid />
+
+      {/* Refurbished Laptops and Accessories */}
+      <RefurbishedSection />
 
       {/* Flash Sale Section */}
       <FlashSale />

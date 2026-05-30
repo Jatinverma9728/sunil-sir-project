@@ -94,13 +94,13 @@ export default function FilterSidebar({
         filters.tags.length > 0 || filters.rating || filters.priceMin || filters.priceMax;
 
     return (
-        <div className="w-full lg:w-80 bg-white rounded-[2rem] border border-gray-100 p-6 lg:p-8 sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] custom-scrollbar">
+        <div className={`w-full bg-white p-6 custom-scrollbar ${isMobile ? "" : "sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto rounded-lg border border-gray-200 shadow-sm lg:p-8"}`}>
             <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-50">
-                <h3 className="text-xl font-bold text-gray-900 tracking-tight">Filters</h3>
+                <h3 className="text-xl font-bold text-gray-900">Filters</h3>
                 {hasActiveFilters && (
                     <button
                         onClick={clearFilters}
-                        className="text-xs text-rose-600 hover:text-rose-700 font-bold px-3 py-1.5 bg-rose-50 rounded-full transition-colors uppercase tracking-wide"
+                        className="rounded-md bg-rose-50 px-3 py-1.5 text-xs font-bold uppercase text-rose-600 transition-colors hover:text-rose-700"
                     >
                         Reset
                     </button>
@@ -113,7 +113,7 @@ export default function FilterSidebar({
                     onClick={() => toggleSection('categories')}
                     className="flex items-center justify-between w-full mb-4 group"
                 >
-                    <h4 className="font-bold text-gray-900 text-sm uppercase tracking-wider group-hover:text-indigo-600 transition-colors">Categories</h4>
+                    <h4 className="font-bold text-gray-900 text-sm uppercase group-hover:text-[var(--primary-electric)] transition-colors">Categories</h4>
                     <svg className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${openSections.categories ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -124,7 +124,7 @@ export default function FilterSidebar({
                         <button
                             key={category}
                             onClick={() => handleCategoryChange(category)}
-                            className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 capitalize text-sm font-medium flex items-center justify-between group ${filters.category === category
+                            className={`group flex w-full items-center justify-between rounded-lg px-4 py-3 text-left text-sm font-medium capitalize transition-all duration-300 ${filters.category === category
                                 ? "bg-gray-900 text-white shadow-lg shadow-gray-200"
                                 : "hover:bg-gray-50 text-gray-600 hover:text-gray-900"
                                 }`}
@@ -142,7 +142,7 @@ export default function FilterSidebar({
                     onClick={() => toggleSection('price')}
                     className="flex items-center justify-between w-full mb-4 group"
                 >
-                    <h4 className="font-bold text-gray-900 text-sm uppercase tracking-wider group-hover:text-indigo-600 transition-colors">Price Range</h4>
+                    <h4 className="font-bold text-gray-900 text-sm uppercase group-hover:text-[var(--primary-electric)] transition-colors">Price Range</h4>
                     <svg className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${openSections.price ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -157,7 +157,7 @@ export default function FilterSidebar({
                                     type="number"
                                     value={priceRange.min}
                                     onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) }))}
-                                    className="w-full pl-7 pr-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-4 focus:ring-gray-100 focus:border-gray-900 outline-none transition-all text-sm font-medium"
+                                    className="w-full rounded-lg border border-gray-200 bg-gray-50/50 py-2.5 pl-7 pr-3 text-sm font-medium outline-none transition-all focus:border-[var(--primary-electric)] focus:bg-white focus:ring-4 focus:ring-[var(--primary-electric)]/10"
                                     placeholder="Min"
                                 />
                             </div>
@@ -167,14 +167,14 @@ export default function FilterSidebar({
                                     type="number"
                                     value={priceRange.max}
                                     onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))}
-                                    className="w-full pl-7 pr-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-4 focus:ring-gray-100 focus:border-gray-900 outline-none transition-all text-sm font-medium"
+                                    className="w-full rounded-lg border border-gray-200 bg-gray-50/50 py-2.5 pl-7 pr-3 text-sm font-medium outline-none transition-all focus:border-[var(--primary-electric)] focus:bg-white focus:ring-4 focus:ring-[var(--primary-electric)]/10"
                                     placeholder="Max"
                                 />
                             </div>
                         </div>
                         <button
                             onClick={handlePriceChange}
-                            className="w-full px-4 py-3 bg-gray-900 text-white rounded-xl hover:bg-black transition-all duration-300 text-sm font-bold shadow-lg shadow-gray-200 hover:shadow-xl active:scale-[0.98]"
+                            className="w-full rounded-lg bg-gray-900 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-gray-200 transition-all duration-300 hover:bg-[var(--primary-electric)] hover:shadow-xl active:scale-[0.98]"
                         >
                             Apply Price
                         </button>
@@ -189,7 +189,7 @@ export default function FilterSidebar({
                         onClick={() => toggleSection('brands')}
                         className="flex items-center justify-between w-full mb-4 group"
                     >
-                        <h4 className="font-bold text-gray-900 text-sm uppercase tracking-wider group-hover:text-indigo-600 transition-colors">Brands</h4>
+                        <h4 className="font-bold text-gray-900 text-sm uppercase group-hover:text-[var(--primary-electric)] transition-colors">Brands</h4>
                         <svg className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${openSections.brands ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
@@ -223,7 +223,7 @@ export default function FilterSidebar({
                     onClick={() => toggleSection('rating')}
                     className="flex items-center justify-between w-full mb-4 group"
                 >
-                    <h4 className="font-bold text-gray-900 text-sm uppercase tracking-wider group-hover:text-indigo-600 transition-colors">Rating</h4>
+                    <h4 className="font-bold text-gray-900 text-sm uppercase group-hover:text-[var(--primary-electric)] transition-colors">Rating</h4>
                     <svg className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${openSections.rating ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -235,7 +235,7 @@ export default function FilterSidebar({
                             <button
                                 key={rating}
                                 onClick={() => handleRatingChange(rating)}
-                                className={`w-full text-left px-4 py-2.5 rounded-xl transition-all flex items-center gap-3 group ${filters.rating === rating
+                                className={`group flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-left transition-all ${filters.rating === rating
                                     ? "bg-gray-50 border border-gray-200 ring-1 ring-gray-900/5"
                                     : "hover:bg-gray-50 border border-transparent"
                                     }`}
@@ -266,7 +266,7 @@ export default function FilterSidebar({
                         onClick={() => toggleSection('tags')}
                         className="flex items-center justify-between w-full mb-4 group"
                     >
-                        <h4 className="font-bold text-gray-900 text-sm uppercase tracking-wider group-hover:text-indigo-600 transition-colors">Tags</h4>
+                        <h4 className="font-bold text-gray-900 text-sm uppercase group-hover:text-[var(--primary-electric)] transition-colors">Tags</h4>
                         <svg className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${openSections.tags ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
@@ -278,7 +278,7 @@ export default function FilterSidebar({
                                 <button
                                     key={tag}
                                     onClick={() => handleTagToggle(tag)}
-                                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${filters.tags.includes(tag)
+                                    className={`rounded-md border px-4 py-1.5 text-xs font-bold transition-all ${filters.tags.includes(tag)
                                         ? "bg-gray-900 text-white border-gray-900 shadow-lg shadow-gray-200"
                                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-900 hover:text-gray-900"
                                         }`}

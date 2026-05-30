@@ -68,7 +68,7 @@ export default function Footer() {
             {/* Animated Background Marquee */}
             <div className="absolute top-1/2 left-0 w-full -translate-y-1/2 opacity-[0.04] pointer-events-none select-none overflow-hidden">
                 <motion.div
-                    className="whitespace-nowrap font-black text-[20vw] leading-none text-white tracking-tighter"
+                    className="whitespace-nowrap text-8xl font-black leading-none text-white md:text-[12rem]"
                     animate={{ x: [0, -1000] }}
                     transition={{
                         repeat: Infinity,
@@ -79,10 +79,6 @@ export default function Footer() {
                     NORTH TECH HUB  NORTH TECH HUB  NORTH TECH HUB
                 </motion.div>
             </div>
-
-            {/* Ambient Glows */}
-            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-600/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#2563EB]/5 rounded-full blur-[120px] pointer-events-none translate-y-1/2 -translate-x-1/4" />
 
             <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-24 pb-12 relative z-10">
 
@@ -95,7 +91,7 @@ export default function Footer() {
                     className="flex flex-col lg:flex-row items-end justify-between gap-12 mb-24 pb-12 border-b border-white/5"
                 >
                     <div className="max-w-2xl">
-                        <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold font-outfit tracking-tight text-white !text-white mb-6">
+                        <h2 className="mb-6 text-4xl font-bold text-white !text-white md:text-5xl lg:text-7xl">
                             Constructing the <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-white to-[#2563EB]">digital future.</span>
                         </h2>
@@ -107,9 +103,9 @@ export default function Footer() {
                     <div className="w-full lg:w-auto min-w-[350px]">
                         <form onSubmit={(e) => e.preventDefault()} className="relative group">
                             <motion.div
-                                className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-[#2563EB] rounded-2xl opacity-20 group-focus-within:opacity-100 transition duration-500 blur"
+                                className="absolute -inset-0.5 rounded-lg bg-gradient-to-r from-[var(--primary-electric)] to-[var(--primary-deep)] opacity-20 blur transition duration-500 group-focus-within:opacity-100"
                             />
-                            <div className="relative flex items-center bg-[#0A0A0A] rounded-2xl border border-white/10 p-1.5 transition-colors group-focus-within:border-white/20">
+                            <div className="relative flex items-center rounded-lg border border-white/10 bg-[#0A0A0A] p-1.5 transition-colors group-focus-within:border-white/20">
                                 <input
                                     type="email"
                                     placeholder="Enter your email"
@@ -120,7 +116,7 @@ export default function Footer() {
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="bg-white text-black font-bold rounded-xl px-6 py-3 transition-colors hover:bg-[#2563EB]"
+                                    className="rounded-md bg-white px-6 py-3 font-bold text-black transition-colors hover:bg-[var(--primary-electric)]"
                                 >
                                     Join
                                 </motion.button>
@@ -140,10 +136,10 @@ export default function Footer() {
                     {/* Brand Card */}
                     <motion.div variants={itemVariants} className="md:col-span-5 lg:col-span-4 space-y-8">
                         <Link href="/" onClick={scrollToTop} className="inline-flex items-center gap-3 group">
-                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-black font-bold text-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-transform duration-300 group-hover:rotate-6">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white text-xl font-bold text-black shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-transform duration-300 group-hover:rotate-6">
                                 N
                             </div>
-                            <span className="text-2xl font-bold font-outfit text-white tracking-tight group-hover:text-[#2563EB] transition-colors">North Tech Hub.</span>
+                            <span className="text-2xl font-bold text-white transition-colors group-hover:text-[var(--primary-electric)]">North Tech Hub.</span>
                         </Link>
                         <p className="text-gray-500 text-base leading-relaxed font-medium">
                             Premium electronics and expert-led courses. Designed for those who refuse to settle for average.
@@ -157,7 +153,7 @@ export default function Footer() {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     whileHover={{ y: -5, backgroundColor: "#ffffff", color: "#000000" }}
-                                    className="w-12 h-12 bg-white/5 border border-white/5 rounded-full flex items-center justify-center text-gray-400 transition-colors"
+                                    className="flex h-12 w-12 items-center justify-center rounded-lg border border-white/5 bg-white/5 text-gray-400 transition-colors"
                                 >
                                     <span className="sr-only">{social}</span>
                                     {/* Simple Icon Placeholders */}
@@ -180,7 +176,7 @@ export default function Footer() {
                             { title: "Support", links: footerLinks.support, color: "text-pink-400" },
                         ].map((section) => (
                             <div key={section.title}>
-                                <h3 className={`font-mono text-sm uppercase mb-6 tracking-wider font-bold !text-white`}>{section.title}</h3>
+                                <h3 className="mb-6 text-sm font-bold uppercase !text-white">{section.title}</h3>
                                 <ul className="space-y-4">
                                     {section.links.map((link) => (
                                         <li key={link.name}>
@@ -210,7 +206,7 @@ export default function Footer() {
                     viewport={{ once: true }}
                     className="flex flex-col md:flex-row items-center justify-between gap-6 pt-8 border-t border-white/5"
                 >
-                    <p className="text-gray-600 text-sm font-medium">© {currentYear} North Tech Hub. Crafted for the future.</p>
+                    <p className="text-sm font-medium text-gray-600">{"\u00A9"} {currentYear} North Tech Hub. Crafted for the future.</p>
 
                     <div className="flex items-center gap-6">
                         {/* Premium Averiq Badge */}
@@ -222,7 +218,7 @@ export default function Footer() {
                             whileTap={{ scale: 0.95 }}
                             className="flex items-center gap-3 group opacity-70 hover:opacity-100 transition-opacity"
                         >
-                            <span className="text-sm font-bold text-gray-500 uppercase tracking-widest group-hover:text-gray-300 transition-colors">Powered by</span>
+                            <span className="text-sm font-bold uppercase text-gray-500 transition-colors group-hover:text-gray-300">Powered by</span>
                             <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-[#2563EB] shadow-[0_0_8px_#2563EB] animate-pulse"></span>
                                 <img
@@ -238,7 +234,7 @@ export default function Footer() {
                             whileHover={{ scale: 1.1, rotate: 360 }}
                             whileTap={{ scale: 0.9 }}
                             transition={{ duration: 0.4 }}
-                            className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-black hover:bg-[#2563EB] transition-colors shadow-lg shadow-white/10"
+                            className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-black shadow-lg shadow-white/10 transition-colors hover:bg-[var(--primary-electric)]"
                             aria-label="Back to Top"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>

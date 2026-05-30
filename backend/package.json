@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "dev": "nodemon",
     "seed": "node src/scripts/seed.js",
     "build": "npm install --production",
     "postinstall": "echo '✅ Dependencies installed successfully'",

@@ -1,8 +1,8 @@
+
 "use client";
 
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
+import { motion } from "framer-motion";
 
 interface PageTransitionProps {
     children: React.ReactNode;
@@ -10,91 +10,23 @@ interface PageTransitionProps {
 
 /**
  * Page Transition Wrapper
- * Smooth slide animation on mobile/tablet only (< 1024px)
- * - Forward navigation: slide in from right
- * - Back navigation: slide in from left
+ * Performs a clean, premium entrance fade-in and slight slide-up animation.
+ * This entrance-only transition avoids using AnimatePresence exit animations,
+ * which cause conflicts with Next.js App Router's route lifecycle and result
+ * in blank screens on mobile/tablet back navigation.
  */
 export default function PageTransition({ children }: PageTransitionProps) {
     const pathname = usePathname();
-    const [isMobile, setIsMobile] = useState(false);
-    const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
-    const previousPathRef = useRef(pathname);
 
-    useEffect(() => {
-        // Check screen size
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth < 1024);
-        };
-
-        checkMobile();
-        window.addEventListener("resize", checkMobile);
-        return () => window.removeEventListener("resize", checkMobile);
-    }, []);
-
-    useEffect(() => {
-        // Detect navigation direction using browser history
-        const handlePopState = () => {
-            setDirection(-1); // Back button pressed
-        };
-
-        window.addEventListener("popstate", handlePopState);
-        return () => window.removeEventListener("popstate", handlePopState);
-    }, []);
-
-    useEffect(() => {
-        // When pathname changes, set forward direction (unless popstate set it to back)
-        if (pathname !== previousPathRef.current) {
-            // Reset to forward for regular navigation
-            const timer = setTimeout(() => setDirection(1), 50);
-            previousPathRef.current = pathname;
-            return () => clearTimeout(timer);
-        }
-    }, [pathname]);
-
-    // Simple slide variants with proper typing
-    const slideVariants = {
-        enter: (dir: number) => ({
-            x: dir > 0 ? "100%" : "-100%",
-            opacity: 0.5,
-        }),
-        center: {
-            x: 0,
-            opacity: 1,
-            transition: {
-                x: { type: "tween" as const, duration: 0.25, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] },
-                opacity: { duration: 0.2 },
-            },
-        },
-        exit: (dir: number) => ({
-            x: dir > 0 ? "-30%" : "30%",
-            opacity: 0,
-            transition: {
-                x: { type: "tween" as const, duration: 0.2, ease: "easeIn" as const },
-                opacity: { duration: 0.15 },
-            },
-        }),
-    };
-
-    // On desktop, render without animation
-    if (!isMobile) {
-        return <>{children}</>;
-    }
-
-    // On mobile/tablet, apply slide transition
     return (
-        <AnimatePresence mode="wait" initial={false} custom={direction}>
-            <motion.div
-                key={pathname}
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className="w-full"
-                style={{ willChange: "transform, opacity" }}
-            >
-                {children}
-            </motion.div>
-        </AnimatePresence>
+        <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+            className="w-full"
+        >
+            {children}
+        </motion.div>
     );
 }

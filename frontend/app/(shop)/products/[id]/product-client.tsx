@@ -360,12 +360,12 @@ export default function ProductDetailClient() {
                             )}
                             <div className="flex flex-wrap items-baseline gap-2 sm:gap-4 mb-2">
                                 <span className="text-2xl sm:text-4xl font-semibold text-gray-900">
-                                    ₹{finalPrice.toLocaleString('en-IN')}
+                                    {"\u20B9"}{finalPrice.toLocaleString('en-IN')}
                                 </span>
                                 {displayOriginalPrice && displayOriginalPrice > finalPrice && (
                                     <>
                                         <span className="text-xl text-gray-400 line-through">
-                                            ₹{displayOriginalPrice.toLocaleString('en-IN')}
+                                            {"\u20B9"}{displayOriginalPrice.toLocaleString('en-IN')}
                                         </span>
                                         <span className="text-lg text-green-600 font-semibold">
                                             {discount}% off
@@ -375,7 +375,7 @@ export default function ProductDetailClient() {
                             </div>
                             {savings > 0 && (
                                 <p className="text-green-700 font-semibold text-sm">
-                                    You Save: ₹{savings.toLocaleString('en-IN')} ({discount}%)
+                                    You Save: {"\u20B9"}{savings.toLocaleString('en-IN')} ({discount}%)
                                 </p>
                             )}
                             <p className="text-sm text-gray-600 mt-2">Inclusive of all taxes</p>
@@ -555,7 +555,7 @@ export default function ProductDetailClient() {
                                         </div>
                                         <h3 className="text-sm text-gray-900 line-clamp-2 mb-2">{rp.title}</h3>
                                         <div className="flex items-baseline gap-2">
-                                            <span className="font-semibold text-gray-900">₹{rp.price.toLocaleString('en-IN')}</span>
+                                            <span className="font-semibold text-gray-900">{"\u20B9"}{rp.price.toLocaleString('en-IN')}</span>
                                             {rp.originalPrice && rp.originalPrice > rp.price && (
                                                 <span className="text-xs text-green-600">{Math.round((1 - rp.price / rp.originalPrice) * 100)}% off</span>
                                             )}

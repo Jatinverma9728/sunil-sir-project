@@ -333,7 +333,7 @@ export default function ProductForm({
                         {categories && categories.length > 0 ? (
                             categories.map((cat) => (
                                 <option key={cat._id} value={cat.slug}>
-                                    {cat.icon} {cat.name}
+                                    {cat.name}
                                 </option>
                             ))
                         ) : (

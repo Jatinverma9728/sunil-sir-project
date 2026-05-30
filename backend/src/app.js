@@ -134,13 +134,19 @@ const createApp = () => {
     // ============================================
 
     // Health Check Route
-    app.get('/health', (req, res) => {
+    const healthCheck = (req, res) => {
         res.status(200).json({
             success: true,
             message: 'Server is running',
             timestamp: new Date().toISOString(),
             environment: process.env.NODE_ENV || 'development'
         });
+    };
+
+    app.get(['/health', '/api/health'], healthCheck);
+
+    app.get('/', (req, res) => {
+        res.redirect('/api');
     });
 
     // API Base Route

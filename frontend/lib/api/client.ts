@@ -176,6 +176,11 @@ export class ApiClient {
             throw new ApiError(errorMessage || 'Access forbidden', 403, errorData);
         }
 
+        // Handle rate limiting - DON'T retry, just throw immediately
+        if (response.status === 429) {
+            throw new ApiError(errorMessage || 'Too many requests, please try again later', 429, errorData);
+        }
+
         // Handle session locked (Admin inactivity)
         if (response.status === 423) {
             // Dispatch event for AdminAuthContext to detect
@@ -285,7 +290,7 @@ export class ApiClient {
         return this.request<T>(endpoint, {
             method: 'GET',
             requiresAuth,
-            retries: 2,
+            retries: 0,
         });
     }
 

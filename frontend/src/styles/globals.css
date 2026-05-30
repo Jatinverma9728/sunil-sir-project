@@ -145,44 +145,72 @@ h6,
   font-family: var(--font-outfit), 'Outfit', 'Inter', sans-serif;
   font-weight: 700;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 h1 {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: 2.5rem;
   font-weight: 800;
 }
 
 h2 {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-size: 2rem;
   font-weight: 700;
 }
 
 h3 {
-  font-size: clamp(1.25rem, 3vw, 1.875rem);
+  font-size: 1.5rem;
   font-weight: 700;
 }
 
 h4 {
-  font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+  font-size: 1.25rem;
   font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 3.25rem;
+  }
+
+  h2 {
+    font-size: 2.5rem;
+  }
+
+  h3 {
+    font-size: 1.875rem;
+  }
+
+  h4 {
+    font-size: 1.5rem;
+  }
 }
 
 /* Utility classes for typography */
 .text-display {
   font-family: var(--font-outfit), 'Outfit', 'Inter', sans-serif;
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: 3rem;
   font-weight: 900;
   line-height: 1.1;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .text-section {
   font-family: var(--font-outfit), 'Outfit', 'Inter', sans-serif;
-  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-size: 2rem;
   font-weight: 700;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
+}
+
+@media (min-width: 768px) {
+  .text-display {
+    font-size: 4.5rem;
+  }
+
+  .text-section {
+    font-size: 3rem;
+  }
 }
 
 /* Glassmorphic Card Styles */
@@ -544,6 +572,10 @@ h4 {
   background-size: 1000px 100%;
 }
 
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
 /* ========================================
    MOBILE-FIRST UTILITIES
    ======================================== */
@@ -570,6 +602,15 @@ h4 {
 }
 
 .hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 

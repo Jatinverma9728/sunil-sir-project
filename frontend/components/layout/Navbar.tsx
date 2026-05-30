@@ -98,9 +98,9 @@ export default function Navbar() {
                         {/* Logo - Enhanced with Hover */}
                         <Link
                             href="/"
-                            className="group text-xl lg:text-2xl font-bold tracking-tight text-gray-900 hover:text-[var(--primary-electric)] transition-all duration-300 flex items-center gap-2"
+                            className="group text-xl lg:text-2xl font-bold text-gray-900 hover:text-[var(--primary-electric)] transition-all duration-300 flex items-center gap-2"
                         >
-                            <span className="w-8 h-8 lg:w-9 lg:h-9 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                            <span className="w-8 h-8 lg:w-9 lg:h-9 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
                                 N
                             </span>
                             <span className="hidden sm:inline">North Tech Hub<span className="text-[var(--secondary-pop)] group-hover:animate-bounce">.</span></span>
@@ -108,7 +108,7 @@ export default function Navbar() {
 
                         {/* Desktop Search Bar - Pill Style */}
                         <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-8 group">
-                            <div className={`flex items-center w-full px-4 py-2.5 rounded-full transition-all duration-200 ${isScrolled ? "bg-gray-100 focus-within:bg-white focus-within:ring-2 focus-within:ring-gray-100" : "bg-white/80 focus-within:bg-white shadow-sm"
+                            <div className={`flex items-center w-full px-4 py-2.5 rounded-lg border transition-all duration-200 ${isScrolled ? "bg-gray-50 border-gray-200 focus-within:bg-white focus-within:ring-4 focus-within:ring-[var(--primary-electric)]/10 focus-within:border-[var(--primary-electric)]" : "bg-white/90 border-white/80 focus-within:bg-white shadow-sm focus-within:ring-4 focus-within:ring-[var(--primary-electric)]/10 focus-within:border-[var(--primary-electric)]"
                                 }`}>
                                 <svg className="w-5 h-5 text-gray-400 group-focus-within:text-gray-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -122,7 +122,8 @@ export default function Navbar() {
                                 />
                                 <button
                                     type="submit"
-                                    className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center hover:bg-black transition-transform active:scale-95 shrink-0"
+                                    aria-label="Submit search"
+                                    className="w-8 h-8 bg-gray-900 rounded-md flex items-center justify-center hover:bg-[var(--primary-electric)] transition-transform active:scale-95 shrink-0"
                                 >
                                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -137,7 +138,7 @@ export default function Navbar() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 hover:scale-105 ${pathname === link.href
+                                    className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 hover:scale-105 ${pathname === link.href
                                         ? "bg-gradient-to-r from-[var(--primary-electric)] to-[var(--primary-deep)] text-white shadow-lg"
                                         : "text-gray-600 hover:bg-gray-100 hover:text-[var(--primary-electric)]"
                                         }`}
@@ -152,7 +153,8 @@ export default function Navbar() {
                             {/* Mobile Search Toggle */}
                             <button
                                 onClick={() => setSearchOpen(!searchOpen)}
-                                className="md:hidden p-2.5 hover:bg-gray-100 rounded-full transition-colors"
+                                aria-label="Open search"
+                                className="md:hidden p-2.5 hover:bg-gray-100 rounded-lg transition-colors"
                             >
                                 <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -160,19 +162,19 @@ export default function Navbar() {
                             </button>
 
                             {/* Wishlist (Desktop) */}
-                            <Link href="/account" className="hidden sm:flex p-2.5 hover:bg-gray-100 rounded-full transition-colors group" title="Wishlist">
+                            <Link href="/wishlist" className="hidden sm:flex p-2.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Wishlist" aria-label="Wishlist">
                                 <svg className="w-6 h-6 text-gray-900 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
                             </Link>
 
                             {/* Cart */}
-                            <Link href="/cart" className="p-2.5 hover:bg-gray-100 rounded-full transition-all relative group" title="Cart">
+                            <Link href="/cart" className="p-2.5 hover:bg-gray-100 rounded-lg transition-all relative group" title="Cart" aria-label="Cart">
                                 <svg className="w-6 h-6 text-gray-900 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                 </svg>
                                 {cartItemCount > 0 && (
-                                    <span className="absolute top-1 right-1 bg-[#2563EB] text-gray-900 text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center font-bold border-2 border-white">
+                                    <span className="absolute top-1 right-1 bg-[var(--primary-electric)] text-white text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center font-bold border-2 border-white">
                                         {cartItemCount > 9 ? "9+" : cartItemCount}
                                     </span>
                                 )}
@@ -187,7 +189,7 @@ export default function Navbar() {
                                     </div>
                                 </Link>
                             ) : (
-                                <Link href="/login" className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white text-sm font-bold rounded-full hover:bg-black transition-all shadow-lg shadow-gray-200 hover:shadow-gray-300 transform hover:-translate-y-0.5">
+                                <Link href="/login" className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white text-sm font-bold rounded-lg hover:bg-[var(--primary-electric)] transition-all shadow-lg shadow-gray-200 hover:shadow-gray-300 transform hover:-translate-y-0.5">
                                     Sign In
                                 </Link>
                             )}
@@ -195,7 +197,8 @@ export default function Navbar() {
                             {/* Mobile Menu Button */}
                             <button
                                 onClick={() => setMobileMenuOpen(true)}
-                                className="lg:hidden p-2.5 hover:bg-gray-100 rounded-full transition-colors ml-1"
+                                aria-label="Open menu"
+                                className="lg:hidden p-2.5 hover:bg-gray-100 rounded-lg transition-colors ml-1"
                             >
                                 <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
@@ -225,7 +228,8 @@ export default function Navbar() {
                                 <h2 className="text-lg font-bold text-gray-900">Menu</h2>
                                 <button
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                                    aria-label="Close menu"
+                                    className="rounded-lg p-2 transition-colors hover:bg-gray-200"
                                 >
                                     <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -234,7 +238,7 @@ export default function Navbar() {
                             </div>
 
                             {isAuthenticated ? (
-                                <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                                <div className="flex items-center gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
                                     <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center text-lg font-bold text-white shrink-0">
                                         {user?.name?.charAt(0).toUpperCase()}
                                     </div>
@@ -249,7 +253,7 @@ export default function Navbar() {
                             ) : (
                                 <Link
                                     href="/login"
-                                    className="block w-full py-3 bg-gray-900 text-white text-center font-bold rounded-xl shadow-lg hover:bg-black transition-all"
+                                    className="block w-full rounded-lg bg-gray-900 py-3 text-center font-bold text-white shadow-lg transition-all hover:bg-[var(--primary-electric)]"
                                 >
                                     Sign In / Register
                                 </Link>
@@ -258,12 +262,12 @@ export default function Navbar() {
 
                         {/* Navigation Links */}
                         <div className="flex-1 p-6 space-y-2">
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Navigation</p>
+                            <p className="mb-3 px-2 text-xs font-bold uppercase text-gray-400">Navigation</p>
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`flex items-center justify-between px-4 py-3.5 rounded-xl font-medium transition-all ${pathname === link.href
+                                    className={`flex items-center justify-between rounded-lg px-4 py-3.5 font-medium transition-all ${pathname === link.href
                                         ? "bg-gray-900 text-white shadow-md"
                                         : "text-gray-600 hover:bg-gray-50"
                                         }`}
@@ -281,18 +285,18 @@ export default function Navbar() {
                         {/* Footer / Account Links */}
                         {isAuthenticated && (
                             <div className="p-6 border-t border-gray-100 bg-gray-50/50">
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Account</p>
+                                <p className="mb-3 px-2 text-xs font-bold uppercase text-gray-400">Account</p>
                                 <div className="space-y-2">
-                                    <Link href="/my-courses" className="flex items-center gap-3 px-4 py-3 text-gray-700 font-medium hover:bg-white rounded-xl transition-colors">
+                                    <Link href="/my-courses" className="flex items-center gap-3 rounded-lg px-4 py-3 font-medium text-gray-700 transition-colors hover:bg-white">
                                         <span className="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-sm">📚</span>
                                         My Courses
                                     </Link>
-                                    <Link href="/orders" className="flex items-center gap-3 px-4 py-3 text-gray-700 font-medium hover:bg-white rounded-xl transition-colors">
+                                    <Link href="/orders" className="flex items-center gap-3 rounded-lg px-4 py-3 font-medium text-gray-700 transition-colors hover:bg-white">
                                         <span className="w-8 h-8 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center text-sm">🛍️</span>
                                         My Orders
                                     </Link>
                                     {user?.role === "admin" && (
-                                        <Link href="/admin" className="flex items-center gap-3 px-4 py-3 text-gray-700 font-medium hover:bg-white rounded-xl transition-colors">
+                                        <Link href="/admin" className="flex items-center gap-3 rounded-lg px-4 py-3 font-medium text-gray-700 transition-colors hover:bg-white">
                                             <span className="w-8 h-8 bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center text-sm">⚙️</span>
                                             Admin Panel
                                         </Link>
@@ -302,7 +306,7 @@ export default function Navbar() {
                                             logout();
                                             setMobileMenuOpen(false);
                                         }}
-                                        className="w-full flex items-center gap-3 px-4 py-3 text-red-600 font-medium hover:bg-red-50 rounded-xl transition-colors mt-2"
+                                        className="mt-2 flex w-full items-center gap-3 rounded-lg px-4 py-3 font-medium text-red-600 transition-colors hover:bg-red-50"
                                     >
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -319,7 +323,7 @@ export default function Navbar() {
             {/* Search Modal (Same as before but refined) */}
             <div className={`fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 transition-all duration-300 ${searchOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
                 <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={() => setSearchOpen(false)} />
-                <div className={`relative bg-white rounded-3xl p-6 max-w-2xl w-full shadow-2xl transition-all duration-300 transform ${searchOpen ? "scale-100 translate-y-0" : "scale-95 -translate-y-4"}`}>
+                <div className={`relative bg-white rounded-lg p-6 max-w-2xl w-full shadow-2xl transition-all duration-300 transform ${searchOpen ? "scale-100 translate-y-0" : "scale-95 -translate-y-4"}`}>
                     <form onSubmit={handleSearch} className="flex items-center gap-4 mb-4">
                         <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -332,20 +336,20 @@ export default function Navbar() {
                             className="flex-1 text-lg outline-none placeholder-gray-400 text-gray-900 font-medium"
                             autoFocus
                         />
-                        <button type="button" onClick={() => setSearchOpen(false)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                             <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </form>
                     <div className="border-t border-gray-100 pt-4">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Popular Searches</p>
+                        <p className="mb-3 text-xs font-bold uppercase text-gray-400">Popular Searches</p>
                         <div className="flex flex-wrap gap-2">
                             {["Electronics", "Courses", "Laptops", "Watches", "Headphones"].map((term) => (
                                 <button
                                     key={term}
                                     onClick={() => handlePopularSearch(term)}
-                                    className="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-sm font-medium text-gray-700 rounded-full transition-colors"
+                                    className="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-sm font-medium text-gray-700 rounded-lg transition-colors"
                                 >
                                     {term}
                                 </button>

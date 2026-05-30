@@ -279,13 +279,14 @@ const getCategories = async (req, res) => {
         // Fetch all active categories from database, sorted by name
         const categories = await Category.find({ isActive: true })
             .sort({ name: 1 })
-            .select('name slug icon description productCount');
+            .select('name slug icon image description productCount');
 
         // Return category data with slugs for backward compatibility
         const categoryData = categories.map(cat => ({
             name: cat.name,
             slug: cat.slug,
             icon: cat.icon,
+            image: cat.image,
             description: cat.description,
             productCount: cat.productCount
         }));
