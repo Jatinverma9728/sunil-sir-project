@@ -5,6 +5,7 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000
 export const SITE_NAME = 'E-Commerce + Course Platform';
 export const SITE_DESCRIPTION = 'Premium products and online courses';
 
+
 // Pagination
 export const ITEMS_PER_PAGE = 12;
 

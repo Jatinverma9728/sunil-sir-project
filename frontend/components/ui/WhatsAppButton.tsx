@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 export default function WhatsAppButton() {
     const [isVisible, setIsVisible] = useState(false);
     // TODO: Replace with actual WhatsApp number
-    const phoneNumber = "919728349291";
+    const phoneNumber = "919355386007";
     const message = "Hello! I have a question about your products.";
 
     useEffect(() => {

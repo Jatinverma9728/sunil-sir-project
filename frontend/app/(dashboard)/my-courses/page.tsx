@@ -18,6 +18,7 @@ interface Course {
     duration: number;
 }
 
+
 export default function MyCoursesPage() {
     const { user, isAuthenticated } = useAuth();
     const router = useRouter();

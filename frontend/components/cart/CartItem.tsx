@@ -14,12 +14,12 @@ interface CartItemProps {
             image?: string;
             images?: Array<{ url: string; alt?: string }>;
         };
+
         quantity: number;
     };
     onUpdateQuantity: (productId: string, quantity: number) => void;
     onRemove: (productId: string) => void;
 }
-
 export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
     const { product, quantity } = item;
     const { getProductOffer } = useOffers();

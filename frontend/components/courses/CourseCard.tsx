@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-
 interface Course {
     _id: string;
     title: string;

@@ -1,15 +1,13 @@
-# E-Commerce + Course Platform
+# E-Commerce + Online Course Platform
 
 Modern scalable MERN stack monorepo for e-commerce and course platform.
-
 ## Tech Stack
-
 ### Frontend
 - **Framework**: Next.js 14+ 
 - **Language**: TypeScript
 - **Styling**: CSS Modules / Tailwind CSS
-- **State Management**: React Context / Redux Toolkit
-
+- **State Management**: React Context / Redux 
+##Toolkit
 ### Backend
 - **Runtime**: Node.js
 - **Framework**: Express.js
@@ -26,6 +24,7 @@ Modern scalable MERN stack monorepo for e-commerce and course platform.
 ```
 
 ## Getting Started
+
 
 ### Prerequisites
 - Node.js 18+ and npm
@@ -46,7 +45,6 @@ npm run dev:frontend
 # Run backend only
 npm run dev:backend
 ```
-
 
 ### Build for Production
 
