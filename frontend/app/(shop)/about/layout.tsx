@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "About Us - Our Story & Mission",
-    description: "Learn about North Tech Hub - India's platform for premium electronics and tech education. Discover our mission, values, and the passionate team behind the platform.",
+    description: "Learn about North Tech Hub, India's platform for electronics, refurbished laptops, tech accessories, and practical online courses.",
     alternates: {
         canonical: "/about",
     },
     openGraph: {
         title: "About Us | North Tech Hub",
-        description: "Learn about North Tech Hub - India's platform for premium electronics and tech education. Our mission: empowering your digital journey.",
+        description: "Learn about North Tech Hub, India's platform for electronics, accessories, and practical online tech courses.",
         url: "/about",
         type: "website",
     },

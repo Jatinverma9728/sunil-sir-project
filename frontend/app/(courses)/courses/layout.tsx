@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 
 export const metadata: Metadata = {
-    title: "Online Tech Courses in India - Learn Programming & Development",
-    description: "Enroll in expert-led online tech courses in India. Learn Python, JavaScript, web development, data science & more. Affordable prices, lifetime access, and certificates.",
+    title: "Online Tech Courses India",
+    description: "Learn Python, JavaScript, web development, data science, design, and mobile apps through practical North Tech Hub courses.",
     keywords: [
         "online courses India",
         "tech courses India",
@@ -32,12 +31,12 @@ export const metadata: Metadata = {
     },
 };
 
-const siteUrl = "https://northtechhub.in";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.northtechhub.in";
 
 export default function CoursesLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
-            <Script id="courses-breadcrumb-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+            <script id="courses-breadcrumb-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
                 __html: JSON.stringify({
                     "@context": "https://schema.org",
                     "@type": "BreadcrumbList",

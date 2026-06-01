@@ -576,6 +576,24 @@ h4 {
   animation: pulse-subtle 2s ease-in-out infinite;
 }
 
+@keyframes testimonial-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.testimonial-marquee {
+  animation: testimonial-marquee 48s linear infinite;
+}
+
+.group:hover .testimonial-marquee {
+  animation-play-state: paused;
+}
+
 /* ========================================
    MOBILE-FIRST UTILITIES
    ======================================== */

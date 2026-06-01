@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://northtechhub.in';
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.northtechhub.in';
 
     // Pages that no bot (including AI) should index
     const disallowedPaths = [

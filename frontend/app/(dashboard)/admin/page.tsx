@@ -18,6 +18,7 @@ import {
     deleteAdminProduct,
     getAdminOrders,
     updateAdminOrderStatus,
+    updateAdminOrderPaymentStatus,
     getAdminCourses,
     createAdminCourse,
     updateAdminCourse,
@@ -274,6 +275,15 @@ export default function AdminDashboard() {
             fetchOrders();
         } else {
             alert(result.message || "Failed to update order status");
+        }
+    };
+
+    const handleUpdateOrderPaymentStatus = async (orderId: string, status: string) => {
+        const result = await updateAdminOrderPaymentStatus(orderId, status);
+        if (result.success) {
+            fetchOrders();
+        } else {
+            alert(result.message || "Failed to update payment status");
         }
     };
 
@@ -774,14 +784,24 @@ export default function AdminDashboard() {
                                                     <td className="py-3 px-4">{order.user?.name || "N/A"}</td>
                                                     <td className="py-3 px-4 font-semibold">₹{order.totalPrice?.toFixed(2)}</td>
                                                     <td className="py-3 px-4">
-                                                        <span
-                                                            className={`px-2 py-1 rounded-full text-xs font-medium ${order.paymentInfo?.status === "completed"
-                                                                ? "bg-green-100 text-green-700"
-                                                                : "bg-yellow-100 text-yellow-700"
-                                                                }`}
+                                                        <select
+                                                            value={order.paymentInfo?.status || "pending"}
+                                                            onChange={(e) => handleUpdateOrderPaymentStatus(order._id, e.target.value)}
+                                                            className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${
+                                                                order.paymentInfo?.status === "completed"
+                                                                    ? "bg-green-100 text-green-700"
+                                                                    : order.paymentInfo?.status === "refunded"
+                                                                        ? "bg-purple-100 text-purple-700"
+                                                                        : order.paymentInfo?.status === "failed"
+                                                                            ? "bg-red-100 text-red-700"
+                                                                            : "bg-yellow-100 text-yellow-700"
+                                                            }`}
                                                         >
-                                                            {order.paymentInfo?.status || "pending"}
-                                                        </span>
+                                                            <option value="pending">Pending</option>
+                                                            <option value="completed">Completed</option>
+                                                            <option value="failed">Failed</option>
+                                                            <option value="refunded">Refunded</option>
+                                                        </select>
                                                     </td>
                                                     <td className="py-3 px-4">
                                                         <select
@@ -877,6 +897,7 @@ export default function AdminDashboard() {
                                 onClose={() => {
                                     setIsOrderModalOpen(false);
                                     setSelectedOrderId(null);
+                                    fetchOrders();
                                 }}
                             />
                         )}

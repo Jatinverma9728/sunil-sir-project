@@ -280,6 +280,16 @@ export const updateAdminOrderStatus = async (id: string, status: string, reason?
     }
 };
 
+export const updateAdminOrderPaymentStatus = async (id: string, status: string) => {
+    try {
+        const response = await apiClient.put<any>(`/admin/orders/${id}/payment-status`, { status }, true);
+        return response;
+    } catch (error) {
+        console.error('Error updating order payment status:', error);
+        return { success: false, message: 'Failed to update order payment status' };
+    }
+};
+
 export const getAdminOrderById = async (id: string) => {
     try {
         const response = await apiClient.get<any>(`/admin/orders/${id}`, true);

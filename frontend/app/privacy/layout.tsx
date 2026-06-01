@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Privacy Policy - How We Protect Your Data",
-    description: "Read North Tech Hub's Privacy Policy to understand how we collect, use, and protect your personal data. Compliant with the Digital Personal Data Protection Act, 2023.",
+    description: "Read how North Tech Hub collects, uses, and protects customer data for electronics orders, course accounts, payments, and support.",
     alternates: {
         canonical: "/privacy",
     },

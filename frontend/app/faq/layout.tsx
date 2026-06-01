@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 
 export const metadata: Metadata = {
     title: "FAQ - Frequently Asked Questions",
@@ -23,7 +22,7 @@ export const metadata: Metadata = {
 export default function FAQLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
-            <Script id="faq-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+            <script id="faq-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
                 __html: JSON.stringify({
                     "@context": "https://schema.org",
                     "@type": "FAQPage",

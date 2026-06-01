@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import Script from "next/script";
+import { notFound } from "next/navigation";
 import CourseDetailClient from "./course-client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://northtechhub.in";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.northtechhub.in";
+const TITLE_SUFFIX = " | North Tech Hub";
+
+type CourseRouteParams = Promise<{ id: string }>;
 
 async function getCourse(id: string) {
     try {
@@ -18,31 +21,51 @@ async function getCourse(id: string) {
     }
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-    const course = await getCourse(params.id);
+function cleanText(value: unknown): string {
+    return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function truncateText(value: string, maxLength: number): string {
+    if (value.length <= maxLength) return value;
+    return `${value.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
+}
+
+function lessonCountFor(course: any): number {
+    if (typeof course.lessons === "number") return course.lessons;
+    if (Array.isArray(course.lessons)) return course.lessons.length;
+    return 0;
+}
+
+function courseTitle(course: any): string {
+    const name = truncateText(cleanText(course.title), 60 - TITLE_SUFFIX.length);
+    return `${name}${TITLE_SUFFIX}`;
+}
+
+function courseDescription(course: any): string {
+    const title = truncateText(cleanText(course.title), 58);
+    const instructor = cleanText(course.instructor?.name || "North Tech Hub");
+    const base = `Learn ${title} with ${instructor}. Includes ${lessonCountFor(course)} lessons, practical projects, certificate guidance, and India-friendly pricing.`;
+    return truncateText(base, 155);
+}
+
+export async function generateMetadata({ params }: { params: CourseRouteParams }): Promise<Metadata> {
+    const { id } = await params;
+    const course = await getCourse(id);
 
     if (!course) {
         return {
             title: "Course Not Found",
             description: "The course you're looking for doesn't exist.",
+            robots: { index: false, follow: true },
         };
     }
 
-    const rating =
-        typeof course.rating === "object"
-            ? course.rating.average
-            : course.rating || 0;
-
-    const lessonCount =
-        typeof course.lessons === "number"
-            ? course.lessons
-            : Array.isArray(course.lessons)
-                ? course.lessons.length
-                : 0;
+    const title = courseTitle(course);
+    const description = courseDescription(course);
 
     return {
-        title: `${course.title} - Online Course`,
-        description: `Enroll in ${course.title} by ${course.instructor?.name || "Expert Instructor"}. ${course.description?.substring(0, 120)}... ${lessonCount} lessons. ₹${course.price} only on North Tech Hub.`,
+        title: { absolute: title },
+        description,
         keywords: [
             course.title,
             `${course.title} course`,
@@ -52,31 +75,39 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             "North Tech Hub courses",
         ].filter(Boolean),
         alternates: {
-            canonical: `/courses/${params.id}`,
+            canonical: `/courses/${id}`,
         },
         openGraph: {
-            title: `${course.title} | North Tech Hub`,
-            description: `${course.description?.substring(0, 150)}`,
-            url: `/courses/${params.id}`,
+            title,
+            description,
+            url: `/courses/${id}`,
             type: "website",
             images: course.thumbnail
-                ? [{ url: course.thumbnail, width: 1280, height: 720, alt: course.title }]
+                ? [{ url: course.thumbnail, width: 1280, height: 720, alt: cleanText(course.title) }]
                 : undefined,
         },
         twitter: {
             card: "summary_large_image",
-            title: `${course.title} | North Tech Hub`,
-            description: `${course.description?.substring(0, 120)}`,
+            title,
+            description,
             images: course.thumbnail ? [course.thumbnail] : undefined,
         },
     };
 }
 
-export default async function CourseDetailPage({ params }: { params: { id: string } }) {
-    const course = await getCourse(params.id);
+export default async function CourseDetailPage({ params }: { params: CourseRouteParams }) {
+    const { id } = await params;
+    const course = await getCourse(id);
 
-    const jsonLd = course
-        ? {
+    if (!course) {
+        notFound();
+    }
+
+    const ratingAverage = typeof course.rating === "object" ? course.rating.average : course.rating;
+    const ratingCount = typeof course.rating === "object" ? course.rating.count : course.reviews;
+
+    const jsonLd = [
+        {
             "@context": "https://schema.org",
             "@type": "Course",
             name: course.title,
@@ -95,64 +126,55 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
             image: course.thumbnail,
             offers: {
                 "@type": "Offer",
-                price: course.price,
+                price: String(course.price),
                 priceCurrency: "INR",
                 availability: "https://schema.org/InStock",
-                url: `${SITE_URL}/courses/${params.id}`,
+                url: `${SITE_URL}/courses/${id}`,
             },
-            aggregateRating:
-                course.rating &&
-                    (typeof course.rating === "object"
-                        ? course.rating.count > 0
-                        : true)
-                    ? {
+            ...(ratingAverage && ratingCount > 0
+                ? {
+                    aggregateRating: {
                         "@type": "AggregateRating",
-                        ratingValue:
-                            typeof course.rating === "object"
-                                ? course.rating.average
-                                : course.rating,
-                        reviewCount:
-                            typeof course.rating === "object"
-                                ? course.rating.count
-                                : course.reviews || 0,
-                    }
-                    : undefined,
+                        ratingValue: ratingAverage,
+                        reviewCount: ratingCount,
+                    },
+                }
+                : {}),
             educationalLevel: course.level,
-            breadcrumb: {
-                "@type": "BreadcrumbList",
-                itemListElement: [
-                    {
-                        "@type": "ListItem",
-                        position: 1,
-                        name: "Home",
-                        item: SITE_URL,
-                    },
-                    {
-                        "@type": "ListItem",
-                        position: 2,
-                        name: "Courses",
-                        item: `${SITE_URL}/courses`,
-                    },
-                    {
-                        "@type": "ListItem",
-                        position: 3,
-                        name: course.title,
-                        item: `${SITE_URL}/courses/${params.id}`,
-                    },
-                ],
-            },
-        }
-        : null;
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+                {
+                    "@type": "ListItem",
+                    position: 1,
+                    name: "Home",
+                    item: SITE_URL,
+                },
+                {
+                    "@type": "ListItem",
+                    position: 2,
+                    name: "Courses",
+                    item: `${SITE_URL}/courses`,
+                },
+                {
+                    "@type": "ListItem",
+                    position: 3,
+                    name: course.title,
+                    item: `${SITE_URL}/courses/${id}`,
+                },
+            ],
+        },
+    ];
 
     return (
         <>
-            {jsonLd && (
-                <Script
-                    id="course-jsonld"
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-                />
-            )}
+            <script
+                id="course-jsonld"
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <CourseDetailClient />
         </>
     );

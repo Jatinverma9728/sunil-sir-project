@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAdminOrderById, Order } from "@/lib/api/admin";
+import { getAdminOrderById, Order, updateAdminOrderPaymentStatus } from "@/lib/api/admin";
 import OrderPrintTemplate from "./OrderPrintTemplate";
 
 interface OrderDetailModalProps {
@@ -27,6 +27,22 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: OrderDeta
         setLoading(false);
     };
 
+    const handlePaymentStatusChange = async (status: string) => {
+        if (!order) return;
+        const response = await updateAdminOrderPaymentStatus(order._id, status);
+        if (response.success) {
+            setOrder({
+                ...order,
+                paymentInfo: {
+                    ...order.paymentInfo,
+                    status
+                }
+            });
+        } else {
+            alert(response.message || "Failed to update payment status");
+        }
+    };
+
     if (!isOpen) return null;
 
     const getStatusColor = (status: string) => {
@@ -46,6 +62,7 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: OrderDeta
             completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
             pending: "bg-amber-50 text-amber-700 border-amber-200",
             failed: "bg-rose-50 text-rose-700 border-rose-200",
+            refunded: "bg-purple-50 text-purple-700 border-purple-200",
         };
         return colors[status as keyof typeof colors] || "bg-gray-50 text-gray-700 border-gray-200";
     };
@@ -125,13 +142,18 @@ export default function OrderDetailModal({ orderId, isOpen, onClose }: OrderDeta
                                         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
                                             Payment Status
                                         </p>
-                                        <span
-                                            className={`inline-flex px-4 py-2 rounded-xl text-sm font-semibold capitalize border ${getPaymentStatusColor(
+                                        <select
+                                            value={order.paymentInfo.status}
+                                            onChange={(e) => handlePaymentStatusChange(e.target.value)}
+                                            className={`px-3 py-1.5 rounded-xl text-sm font-semibold capitalize border cursor-pointer ${getPaymentStatusColor(
                                                 order.paymentInfo.status
                                             )}`}
                                         >
-                                            {order.paymentInfo.status}
-                                        </span>
+                                            <option value="pending">Pending</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="failed">Failed</option>
+                                            <option value="refunded">Refunded</option>
+                                        </select>
                                     </div>
                                     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                                         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { getProducts } from "@/lib/api/products";
 
 interface Product {
@@ -16,6 +15,11 @@ interface Product {
     rating?: { average: number; count: number };
     createdAt?: string;
     updatedAt?: string;
+}
+
+function displayTitle(title: string, maxLength = 82) {
+    if (title.length <= maxLength) return title;
+    return `${title.slice(0, maxLength - 3).trimEnd()}...`;
 }
 
 export default function HeroBanner() {
@@ -107,12 +111,7 @@ export default function HeroBanner() {
     }
 
     return (
-        <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-            className="py-4 sm:py-6 md:py-8"
-        >
+        <section className="py-4 sm:py-6 md:py-8">
             <div className="max-w-[1600px] mx-auto px-3 sm:px-4">
                 <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 h-auto md:h-[500px] lg:h-[600px]">
                     {/* Main Slideshow - New Arrivals */}
@@ -145,7 +144,7 @@ export default function HeroBanner() {
                                             New Arrival
                                         </span>
                                         <h2 className="font-heading mb-2 line-clamp-2 text-2xl font-bold leading-tight text-white sm:mb-3 sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
-                                            {product.title}
+                                            {displayTitle(product.title)}
                                         </h2>
                                         <p className="text-white/90 text-sm sm:text-base md:text-lg mb-1 sm:mb-2 font-medium">
                                             {product.category}
@@ -178,12 +177,16 @@ export default function HeroBanner() {
                                     <button
                                         key={index}
                                         onClick={() => setCurrentSlide(index)}
-                                        className={`h-1.5 sm:h-2 rounded-full transition-all duration-200 ease-out ${index === currentSlide
-                                            ? "w-6 sm:w-8 bg-white"
-                                            : "w-1.5 sm:w-2 bg-white/40 hover:bg-white/60"
-                                            }`}
+                                        className="flex h-11 w-11 items-center justify-center rounded-lg"
                                         aria-label={`Go to slide ${index + 1}`}
-                                    />
+                                    >
+                                        <span
+                                            className={`h-2 rounded-full transition-all duration-200 ease-out ${index === currentSlide
+                                                ? "w-8 bg-white"
+                                                : "w-2 bg-white/40"
+                                                }`}
+                                        />
+                                    </button>
                                 ))}
                             </div>
                         )}
@@ -193,12 +196,7 @@ export default function HeroBanner() {
                     <div className="hidden lg:flex flex-col gap-6 h-full">
                         {/* Top Card - Trending Product */}
                         {trendingProduct && (
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-                                className="flex-1"
-                            >
+                            <div className="flex-1">
                                 <Link
                                     href={`/products/${trendingProduct._id}`}
                                     className="group relative block h-full overflow-hidden rounded-lg border border-gray-100 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg"
@@ -230,24 +228,19 @@ export default function HeroBanner() {
                                             )}
                                         </div>
                                         <h3 className="font-heading text-base sm:text-lg md:text-xl font-bold text-white mb-1 line-clamp-2">
-                                            {trendingProduct.title}
+                                            {displayTitle(trendingProduct.title, 64)}
                                         </h3>
                                         <p className="text-white/90 font-semibold text-sm sm:text-base md:text-lg">
                                             From {"\u20B9"}{trendingProduct.price.toLocaleString("en-IN")}
                                         </p>
                                     </div>
                                 </Link>
-                            </motion.div>
+                            </div>
                         )}
 
                         {/* Bottom Card - Best Seller */}
                         {bestSeller && (
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.5, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-                                className="flex-1"
-                            >
+                            <div className="flex-1">
                                 <Link
                                     href={`/products/${bestSeller._id}`}
                                     className="group relative block h-full overflow-hidden rounded-lg border border-gray-100 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg"
@@ -279,18 +272,18 @@ export default function HeroBanner() {
                                             )}
                                         </div>
                                         <h3 className="font-heading text-base sm:text-lg md:text-xl font-bold text-white mb-1 line-clamp-2">
-                                            {bestSeller.title}
+                                            {displayTitle(bestSeller.title, 64)}
                                         </h3>
                                         <p className="text-white/90 font-semibold text-sm sm:text-base md:text-lg">
                                             {"\u20B9"}{bestSeller.price.toLocaleString("en-IN")}
                                         </p>
                                     </div>
                                 </Link>
-                            </motion.div>
+                            </div>
                         )}
                     </div>
                 </div>
             </div>
-        </motion.section>
+        </section>
     );
 }

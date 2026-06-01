@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { useCart } from "@/lib/context/CartContext";
 import { useWishlist } from "@/lib/context/WishlistContext";
 import { useOffers } from "@/lib/hooks/useOffers";
@@ -29,7 +28,6 @@ const formatPrice = (price: number) => `${"\u20B9"}${price.toLocaleString("en-IN
 export default function ProductCard({
     product,
     onAddToCart,
-    index = 0,
     disableOfferPricing = false,
     badgeLabel,
 }: ProductCardProps) {
@@ -111,11 +109,7 @@ export default function ProductCard({
     };
 
     return (
-        <motion.article
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 0.45, delay: index * 0.04, ease: [0.21, 0.47, 0.32, 0.98] }}
+        <article
             className="group flex h-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[var(--primary-electric)]/30 hover:shadow-xl"
         >
             <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-b from-gray-50 to-white">
@@ -126,7 +120,6 @@ export default function ProductCard({
                             alt={product.title}
                             fill
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 280px"
-                            unoptimized
                             className="object-contain p-5 mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.04]"
                         />
                     ) : (
@@ -232,6 +225,6 @@ export default function ProductCard({
                     </button>
                 </div>
             </div>
-        </motion.article>
+        </article>
     );
 }

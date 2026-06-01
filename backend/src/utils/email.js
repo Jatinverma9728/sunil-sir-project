@@ -1,1097 +1,360 @@
-// Using Resend API (HTTP port 443) to bypass Render's SMTP outbound blocks
 const { Resend } = require('resend');
 
 /**
- * Create a Resend transporter proxy that mimics Nodemailer's sendMail signature
- * This ensures all of our old HTML emails work identically but are routed through Resend's API.
+ * Initialize Resend with the API key from environment variables
  */
-const createTransporter = () => {
+const getResendInstance = () => {
     if (!process.env.RESEND_API_KEY) {
-        console.warn('⚠️ RESEND_API_KEY is not defined. Please add it to your .env file or Render dashboard.');
+        throw new Error('❌ RESEND_API_KEY is not defined in the environment variables.');
     }
-    
-    // Initialize Resend with the API key from environment variables
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    
-    return {
-        sendMail: async (mailOptions) => {
-            // Note: If you do not have a verified domain, you MUST use onboarding@resend.dev as the from address,
-            // and you can only send to your own registered email.
-            // When you verify your domain, change EMAIL_FROM to "North Tech Hub <noreply@northtechhub.com>"
-            const fromAddress = process.env.EMAIL_FROM || 'North Tech Hub <onboarding@resend.dev>';
-            
-            // Resend SDK requires an array or string for 'to'
-            const toArray = Array.isArray(mailOptions.to) ? mailOptions.to : [mailOptions.to];
-            
-            const { data, error } = await resend.emails.send({
-                from: fromAddress,
-                to: toArray,
-                subject: mailOptions.subject,
-                html: mailOptions.html,
-                text: mailOptions.text || ''
-            });
-            
-            if (error) {
-                console.error('❌ Resend API Error:', error);
-                throw new Error(error.message);
-            }
-            
-            return { messageId: data.id };
-        }
-    };
+    return new Resend(process.env.RESEND_API_KEY);
 };
 
 /**
- * Professional color palette - Sophisticated, corporate, modern
- * Primary: Deep Navy (#1a2332)
- * Secondary: Slate Blue (#475569)
- * Accent: Royal Blue (#3b82f6)
- * Success: Forest Green (#047857)
- * Warning: Amber (#d97706)
+ * Premium Cohesive Email Template Shell
+ * Wraps content in a highly-polished, modern, tech-oriented responsive design.
  */
-
-/**
-
- * Send OTP email with copy button
- */
-const sendOTPEmail = async (to, otp, name = 'User') => {
-    try {
-        const transporter = createTransporter();
-
-        const mailOptions = {
-            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
-            to,
-            subject: 'Verification Code - North Tech Hub',
-            html: `
+const getEmailLayout = (title, subtitle, contentHtml, cta = null, themeColor = '#6366f1') => {
+    return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Verification Code</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+        @media only screen and (max-width: 600px) {
+            .container { width: 100% !important; border-radius: 0 !important; border-left: none !important; border-right: none !important; }
+            .header, .body, .footer { padding: 30px 20px !important; }
+        }
+    </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc; line-height: 1.6;">
-    
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; line-height: 1.6; color: #334155; -webkit-font-smoothing: antialiased;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 0;">
         <tr>
             <td align="center">
-                
                 <!-- Main Container -->
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
-                    
+                <table class="container" role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04); border: 1px solid #e2e8f0;">
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 48px 48px 40px 48px; text-align: center; border-bottom: 4px solid #3b82f6;">
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-                                <tr>
-                                    <td align="center">
-                                        <!-- Logo/Brand -->
-                                        <div style="background: white; width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);">
-                                            <span style="font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px;">N</span>
-                                        </div>
-                                        
-                                        <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">North Tech Hub</h1>
-                                        <p style="margin: 8px 0 0 0; color: #cbd5e1; font-size: 14px; font-weight: 500; letter-spacing: 0.5px;">VERIFICATION CODE</p>
-                                    </td>
-                                </tr>
-                            </table>
+                        <td class="header" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 48px 48px 40px 48px; text-align: center; border-bottom: 4px solid ${themeColor};">
+                            <div style="background: linear-gradient(135deg, ${themeColor} 0%, #4F46E5 100%); width: 60px; height: 60px; border-radius: 18px; margin: 0 auto 18px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);">
+                                <span style="font-family: 'Outfit', sans-serif; font-size: 30px; font-weight: 800; color: white; line-height: 60px;">N</span>
+                            </div>
+                            <h1 style="margin: 0; color: white; font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2;">North Tech Hub</h1>
+                            ${subtitle ? `<p style="margin: 8px 0 0 0; color: #94a3b8; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">${subtitle}</p>` : ''}
                         </td>
                     </tr>
-
-                    <!-- Content -->
+                    <!-- Body -->
                     <tr>
-                        <td style="padding: 48px 48px 32px 48px;">
+                        <td class="body" style="padding: 48px 48px 36px 48px;">
+                            ${contentHtml}
                             
-                            <!-- Greeting -->
-                            <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 24px; font-weight: 700; line-height: 1.2;">
-                                Hello, ${name}
-                            </h2>
-                            
-                            <p style="margin: 0 0 32px 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                                We received a request to verify your account. Please use the code below to complete your verification.
-                            </p>
-
-                            <!-- OTP Container -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
-                                <tr>
-                                    <td style="background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%); border: 2px solid #e2e8f0; border-radius: 12px; padding: 32px; text-align: center; position: relative;">
-                                        
-                                        <p style="margin: 0 0 16px 0; color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px;">
-                                            Your Verification Code
-                                        </p>
-                                        
-                                        <!-- OTP Code -->
-                                        <div id="otp-code" style="background: white; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; margin: 0 0 20px 0; display: inline-block; min-width: 240px;">
-                                            <span style="color: #1e293b; font-size: 42px; font-weight: 800; letter-spacing: 12px; font-family: 'Courier New', monospace; line-height: 1;">
-                                                ${otp}
-                                            </span>
-                                        </div>
-                                        
-                                        <!-- Copy Button -->
-                                        <div style="margin: 0;">
-                                            <button onclick="copyOTP()" id="copy-btn" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); outline: none;">
-                                                <span style="display: inline-flex; align-items: center; gap: 8px;">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align: middle;">
-                                                        <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
-                                                        <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" stroke-width="2"/>
-                                                    </svg>
-                                                    Copy Code
-                                                </span>
-                                            </button>
-                                        </div>
-                                        
-                                        <p style="margin: 20px 0 0 0; color: #64748b; font-size: 13px; font-weight: 500;">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align: middle; margin-right: 4px;">
-                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                                <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                            </svg>
-                                            Expires in 10 minutes
-                                        </p>
-                                        
-                                        <!-- JavaScript for Copy Functionality -->
-                                        <script>
-                                            function copyOTP() {
-                                                const otp = '${otp}';
-                                                const btn = document.getElementById('copy-btn');
-                                                
-                                                // Modern Clipboard API
-                                                if (navigator.clipboard && navigator.clipboard.writeText) {
-                                                    navigator.clipboard.writeText(otp).then(function() {
-                                                        // Success feedback
-                                                        btn.style.background = 'linear-gradient(135deg, #047857 0%, #059669 100%)';
-                                                        btn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align: middle;"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied!</span>';
-                                                        
-                                                        setTimeout(function() {
-                                                            btn.style.background = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
-                                                            btn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align: middle;"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" stroke-width="2"/></svg> Copy Code</span>';
-                                                        }, 2000);
-                                                    }).catch(function() {
-                                                        // Fallback
-                                                        fallbackCopy(otp, btn);
-                                                    });
-                                                } else {
-                                                    // Fallback for older browsers
-                                                    fallbackCopy(otp, btn);
-                                                }
-                                            }
-                                            
-                                            function fallbackCopy(text, btn) {
-                                                const textArea = document.createElement('textarea');
-                                                textArea.value = text;
-                                                textArea.style.position = 'fixed';
-                                                textArea.style.left = '-999999px';
-                                                document.body.appendChild(textArea);
-                                                textArea.select();
-                                                
-                                                try {
-                                                    document.execCommand('copy');
-                                                    btn.style.background = 'linear-gradient(135deg, #047857 0%, #059669 100%)';
-                                                    btn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied!</span>';
-                                                    
-                                                    setTimeout(function() {
-                                                        btn.style.background = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
-                                                        btn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" stroke-width="2"/></svg> Copy Code</span>';
-                                                    }, 2000);
-                                                } catch (err) {
-                                                    alert('Code copied: ' + text);
-                                                }
-                                                
-                                                document.body.removeChild(textArea);
-                                            }
-                                        </script>
-                                        
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- Security Info -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
-                                <tr>
-                                    <td style="background: linear-gradient(to bottom, #fef2f2 0%, #fee2e2 100%); border-left: 4px solid #dc2626; border-radius: 8px; padding: 20px 24px;">
-                                        <p style="margin: 0 0 12px 0; color: #7f1d1d; font-size: 14px; font-weight: 700; display: flex; align-items: center;">
-                                            <span style="display: inline-block; width: 20px; height: 20px; background: #dc2626; border-radius: 50%; margin-right: 10px; text-align: center; line-height: 20px; color: white; font-size: 12px;">!</span>
-                                            Security Notice
-                                        </p>
-                                        <ul style="margin: 0; padding-left: 20px; color: #991b1b; font-size: 13px; line-height: 1.8;">
-                                            <li style="margin-bottom: 4px;">Never share this code with anyone, including North Tech Hub support</li>
-                                            <li style="margin-bottom: 4px;">This code will expire in 10 minutes</li>
-                                            <li>If you didn't request this code, please ignore this email</li>
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- Help Text -->
-                            <div style="text-align: center; padding: 24px 0; border-top: 1px solid #e2e8f0;">
-                                <p style="margin: 0 0 8px 0; color: #64748b; font-size: 14px;">
-                                    Need assistance?
-                                </p>
-                                <a href="mailto:hello.averiq@gmail.com" style="color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 14px;">
-                                    Contact Support →
+                            ${cta ? `
+                            <div style="text-align: center; margin: 36px 0 20px;">
+                                <a href="${cta.url}" style="display: inline-block; background: linear-gradient(135deg, ${themeColor} 0%, #4F46E5 100%); color: white; text-decoration: none; padding: 15px 36px; border-radius: 14px; font-weight: 600; font-size: 15px; box-shadow: 0 6px 20px rgba(99, 102, 241, 0.25); transition: all 0.2s;">
+                                    ${cta.text}
                                 </a>
                             </div>
-
+                            ` : ''}
                         </td>
                     </tr>
-
                     <!-- Footer -->
                     <tr>
-                        <td style="background: #f8fafc; padding: 32px 48px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 12px; line-height: 1.5;">
-                                This is an automated message. Please do not reply to this email.
+                        <td class="footer" style="background: #f8fafc; padding: 36px 48px; text-align: center; border-top: 1px solid #f1f5f9; border-radius: 0 0 24px 24px;">
+                            <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 13px;">
+                                Need help? Contact us at <a href="mailto:northtechhub2003@gmail.com" style="color: ${themeColor}; text-decoration: none; font-weight: 600;">northtechhub2003@gmail.com</a>
                             </p>
                             <p style="margin: 0 0 16px 0; color: #cbd5e1; font-size: 11px;">
+                                This is an automated notification from North Tech Hub. Please do not reply.
+                            </p>
+                            <p style="margin: 0; color: #94a3b8; font-size: 11px;">
                                 © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
                             </p>
-                            <div style="margin-top: 16px;">
-                                <a href="${process.env.FRONTEND_URL || '#'}/privacy" style="color: #94a3b8; text-decoration: none; font-size: 11px; margin: 0 8px;">Privacy Policy</a>
+                            <div style="margin-top: 16px; font-size: 11px;">
+                                <a href="${process.env.FRONTEND_URL || 'https://northtechhub.in'}/privacy" style="color: #94a3b8; text-decoration: none; margin: 0 8px;">Privacy Policy</a>
                                 <span style="color: #cbd5e1;">•</span>
-                                <a href="${process.env.FRONTEND_URL || '#'}/terms" style="color: #94a3b8; text-decoration: none; font-size: 11px; margin: 0 8px;">Terms of Service</a>
-                                <span style="color: #cbd5e0;">•</span>
-                                <a href="${process.env.FRONTEND_URL || '#'}/help" style="color: #94a3b8; text-decoration: none; font-size: 11px; margin: 0 8px;">Help Center</a>
+                                <a href="${process.env.FRONTEND_URL || 'https://northtechhub.in'}/terms" style="color: #94a3b8; text-decoration: none; margin: 0 8px;">Terms of Service</a>
                             </div>
                         </td>
                     </tr>
-
                 </table>
-                
             </td>
         </tr>
     </table>
-
 </body>
 </html>
-            `,
-            text: `North Tech Hub - Verification Code\n\nHello ${name},\n\nYour verification code is: ${otp}\n\nThis code is valid for 10 minutes.\n\nSecurity Tips:\n• Never share this code\n• North Tech Hub support will never ask for this\n• Ignore if you didn't request this\n\n© ${new Date().getFullYear()} North Tech Hub.`,
-        };
+    `;
+};
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Email sent successfully:', info.messageId);
-        return { success: true, messageId: info.messageId };
+/**
+ * Dispatch an email using the Resend SDK
+ */
+const sendResendEmail = async (to, subject, html) => {
+    try {
+        const resend = getResendInstance();
+        const fromAddress = process.env.EMAIL_FROM || 'North Tech Hub <onboarding@resend.dev>';
+        const toArray = Array.isArray(to) ? to : [to];
+
+        console.log(`📧 Sending email: "${subject}" to ${toArray.join(', ')}`);
+        
+        const { data, error } = await resend.emails.send({
+            from: fromAddress,
+            to: toArray,
+            subject,
+            html,
+        });
+
+        if (error) {
+            console.error('❌ Resend API returned error:', error);
+            throw new Error(error.message);
+        }
+
+        console.log('✅ Resend email dispatched successfully, Message ID:', data.id);
+        return { success: true, messageId: data.id };
     } catch (error) {
-        console.error('❌ Error sending email:', error);
+        console.error('❌ Failed to dispatch email via Resend:', error.message);
         throw error;
     }
+};
+
+/**
+ * Send OTP email
+ */
+const sendOTPEmail = async (to, otp, name = 'User') => {
+    const title = 'Verification Code';
+    const content = `
+        <h2 style="margin: 0 0 16px 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 600;">Hello ${name},</h2>
+        <p style="margin: 0 0 24px 0; color: #475569; font-size: 15px; line-height: 1.6;">We received a request to verify your account. Please use the following one-time verification code to proceed.</p>
+        
+        <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 28px; text-align: center; margin: 24px 0;">
+            <span style="color: #0f172a; font-family: monospace; font-size: 38px; font-weight: 700; letter-spacing: 8px; line-height: 1;">${otp}</span>
+            <p style="margin: 12px 0 0 0; color: #64748b; font-size: 12px; font-weight: 500;">Valid for 10 minutes</p>
+        </div>
+        
+        <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin: 24px 0;">
+            <h4 style="margin: 0 0 6px 0; color: #78350f; font-size: 14px; font-weight: 600;">Security Notice</h4>
+            <p style="margin: 0; color: #92400e; font-size: 13px; line-height: 1.5;">Never share this OTP code with anyone, including North Tech Hub support staff. If you did not request this, please ignore this email.</p>
+        </div>
+    `;
+    const html = getEmailLayout(title, 'Verification Required', content, null, '#6366f1');
+    return sendResendEmail(to, 'Verification Code - North Tech Hub', html);
 };
 
 /**
  * Send welcome email
  */
 const sendWelcomeEmail = async (to, name) => {
-    try {
-        const transporter = createTransporter();
-
-        const mailOptions = {
-            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
-            to,
-            subject: 'Welcome to North Tech Hub - Your Journey Begins',
-            html: `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
-    
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                    
-                    <!-- Header -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 48px; text-align: center; border-bottom: 4px solid #3b82f6;">
-                            <div style="background: white; width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);">
-                                <span style="font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">N</span>
-                            </div>
-                            <h1 style="margin: 0; color: white; font-size: 32px; font-weight: 700;">Welcome to North Tech Hub</h1>
-                            <p style="margin: 12px 0 0 0; color: #cbd5e1; font-size: 16px;">Your premium shopping experience starts here</p>
-                        </td>
-                    </tr>
-
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding: 48px;">
-                            
-                            <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 24px; font-weight: 700;">
-                                Hello, ${name}!
-                            </h2>
-                            
-                            <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                                We're thrilled to have you join our community. Get ready to discover premium products and exclusive courses.
-                            </p>
-
-                            <!-- Features -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 32px 0;">
-                                <tr>
-                                    <td style="background: linear-gradient(to bottom, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; padding: 24px;">
-                                        <h3 style="margin: 0 0 16px 0; color: #0c4a6e; font-size: 18px; font-weight: 700;">What's Next?</h3>
-                                        <ul style="margin: 0; padding-left: 20px; color: #0369a1; font-size: 14px; line-height: 2;">
-                                            <li>Browse our curated product collection</li>
-                                            <li>Enroll in premium courses</li>
-                                            <li>Track your orders in real-time</li>
-                                            <li>Enjoy exclusive member benefits</li>
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- CTA Button -->
-                            <div style="text-align: center; margin: 32px 0;">
-                                <a href="${process.env.FRONTEND_URL || '#'}/products" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
-                                    Start Shopping →
-                                </a>
-                            </div>
-
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-
-                </table>
-                
-            </td>
-        </tr>
-    </table>
-
-</body>
-</html>
-            `,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Welcome email sent:', info.messageId);
-        return { success: true };
-    } catch (error) {
-        console.error('❌ Error sending welcome email:', error);
-        return { success: false };
-    }
+    const title = 'Welcome to North Tech Hub';
+    const content = `
+        <h2 style="margin: 0 0 16px 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 600;">Welcome, ${name}!</h2>
+        <p style="margin: 0 0 24px 0; color: #475569; font-size: 15px; line-height: 1.6;">We are thrilled to have you join our community. Get ready to explore premium products and expert-led tech courses designed to accelerate your career.</p>
+        
+        <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 16px; padding: 24px; border: 1px solid #bfdbfe; margin: 24px 0;">
+            <h3 style="margin: 0 0 12px 0; color: #1e3a8a; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 600;">What's in store for you?</h3>
+            <ul style="margin: 0; padding-left: 20px; color: #1e40af; font-size: 14px; line-height: 1.8;">
+                <li>Genuine electronics, accessories, & gadgets at best prices</li>
+                <li>Expert-led programming, coding, and web development courses</li>
+                <li>Fast shipping and dedicated support to help you along the way</li>
+            </ul>
+        </div>
+    `;
+    const cta = { text: 'Explore Products', url: `${process.env.FRONTEND_URL || 'https://northtechhub.in'}/products` };
+    const html = getEmailLayout(title, 'Onboarding Started', content, cta, '#3b82f6');
+    return sendResendEmail(to, 'Welcome to North Tech Hub', html);
 };
 
 /**
  * Send password reset confirmation
  */
 const sendPasswordResetConfirmation = async (to, name = 'User') => {
-    try {
-        const transporter = createTransporter();
-
-        const mailOptions = {
-            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
-            to,
-            subject: 'Password Reset Successful - North Tech Hub',
-            html: `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
-    
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                    
-                    <!-- Header -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #047857 0%, #059669 100%); padding: 48px; text-align: center; border-bottom: 4px solid #10b981;">
-                            <div style="font-size: 64px; margin-bottom: 16px;">✓</div>
-                            <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">Password Reset Successful</h1>
-                            <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Your account is secure</p>
-                        </td>
-                    </tr>
-
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding: 48px;">
-                            
-                            <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 24px; font-weight: 700;">
-                                All set, ${name}!
-                            </h2>
-                            
-                            <p style="margin: 0 0 32px 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                                Your password has been successfully reset. You can now log in with your new password.
-                            </p>
-
-                            <!-- CTA -->
-                            <div style="text-align: center; margin: 32px 0;">
-                                <a href="${process.env.FRONTEND_URL || '#'}/login" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
-                                    Login Now →
-                                </a>
-                            </div>
-
-                            <!-- Warning -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 32px 0 0 0;">
-                                <tr>
-                                    <td style="background: linear-gradient(to bottom, #fef2f2 0%, #fee2e2 100%); border-left: 4px solid #dc2626; border-radius: 8px; padding: 20px;">
-                                        <p style="margin: 0; color: #7f1d1d; font-size: 14px; font-weight: 600;">
-                                            ⚠️ Didn't make this change?
-                                        </p>
-                                        <p style="margin: 12px 0 0 0; color: #991b1b; font-size: 13px; line-height: 1.6;">
-                                            If you didn't reset your password, please contact our support team immediately to secure your account.
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-
-                </table>
-                
-            </td>
-        </tr>
-    </table>
-
-</body>
-</html>
-            `,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Password reset confirmation sent:', info.messageId);
-        return { success: true };
-    } catch (error) {
-        console.error('❌ Error sending password reset confirmation:', error);
-        return { success: false };
-    }
+    const title = 'Password Reset Successful';
+    const content = `
+        <h2 style="margin: 0 0 16px 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 600;">Hi ${name},</h2>
+        <p style="margin: 0 0 24px 0; color: #475569; font-size: 15px; line-height: 1.6;">Your password has been successfully reset. You can now log back into your account using your new credentials.</p>
+        
+        <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 16px; text-align: center; margin: 24px 0; color: #065f46; font-size: 14px; font-weight: 500;">
+            ✅ Account security updated successfully
+        </div>
+        
+        <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; border-radius: 8px; margin: 24px 0;">
+            <h4 style="margin: 0 0 6px 0; color: #7f1d1d; font-size: 14px; font-weight: 600;">Didn't make this change?</h4>
+            <p style="margin: 0; color: #991b1b; font-size: 13px; line-height: 1.5;">If you did not request a password reset, please secure your account by contacting our support team immediately.</p>
+        </div>
+    `;
+    const cta = { text: 'Login to Account', url: `${process.env.FRONTEND_URL || 'https://northtechhub.in'}/login` };
+    const html = getEmailLayout(title, 'Security Update', content, cta, '#10b981');
+    return sendResendEmail(to, 'Password Reset Successful - North Tech Hub', html);
 };
 
 /**
  * Send order confirmation email
  */
 const sendOrderConfirmationEmail = async (to, order, name = 'Customer') => {
-    try {
-        const transporter = createTransporter();
-
-        // Format order items HTML
-        const itemsHtml = order.orderItems.map(item => `
-            <tr>
-                <td style="padding: 16px; border-bottom: 1px solid #e2e8f0;">
-                    <div style="display: flex; align-items: center;">
-                        <span style="font-weight: 600; color: #1e293b;">${item.title}</span>
-                    </div>
-                    <p style="margin: 4px 0 0 0; color: #64748b; font-size: 13px;">Qty: ${item.quantity}</p>
-                </td>
-                <td style="padding: 16px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; color: #1e293b;">
-                    ₹${(item.price * item.quantity).toFixed(2)}
-                </td>
-            </tr>
-        `).join('');
-
-        const mailOptions = {
-            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
-            to,
-            subject: `Order Confirmed - #${order._id.toString().slice(-8).toUpperCase()}`,
-            html: `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
+    const title = 'Order Confirmed';
     
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
+    // Format order items HTML
+    const itemsHtml = order.orderItems.map(item => `
         <tr>
-            <td align="center">
-                
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                    
-                    <!-- Header -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #047857 0%, #059669 100%); padding: 48px; text-align: center; border-bottom: 4px solid #10b981;">
-                            <div style="font-size: 64px; margin-bottom: 16px;">✓</div>
-                            <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">Order Confirmed!</h1>
-                            <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Thank you for your purchase</p>
-                        </td>
-                    </tr>
-
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding: 48px;">
-                            
-                            <h2 style="margin: 0 0 8px 0; color: #0f172a; font-size: 24px; font-weight: 700;">
-                                Hello, ${name}!
-                            </h2>
-                            
-                            <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                                We've received your order and it's being processed. Here are your order details:
-                            </p>
-
-                            <!-- Order ID -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 24px 0;">
-                                <tr>
-                                    <td style="background: #f1f5f9; border-radius: 8px; padding: 16px;">
-                                        <p style="margin: 0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Order ID</p>
-                                        <p style="margin: 8px 0 0 0; color: #1e293b; font-size: 18px; font-weight: 700; font-family: monospace;">#${order._id.toString().slice(-8).toUpperCase()}</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- Order Items -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 24px 0; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-                                <tr>
-                                    <td style="background: #f8fafc; padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">
-                                        <strong style="color: #475569; font-size: 14px;">Items</strong>
-                                    </td>
-                                    <td style="background: #f8fafc; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; text-align: right;">
-                                        <strong style="color: #475569; font-size: 14px;">Price</strong>
-                                    </td>
-                                </tr>
-                                ${itemsHtml}
-                            </table>
-
-                            <!-- Order Summary -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
-                                <tr>
-                                    <td style="padding: 8px 0; color: #64748b;">Subtotal</td>
-                                    <td style="padding: 8px 0; text-align: right; color: #1e293b;">₹${order.itemsPrice.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px 0; color: #64748b;">Shipping</td>
-                                    <td style="padding: 8px 0; text-align: right; color: #1e293b;">${order.shippingPrice === 0 ? 'FREE' : '₹' + order.shippingPrice.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px 0; color: #64748b;">Tax</td>
-                                    <td style="padding: 8px 0; text-align: right; color: #1e293b;">₹${order.taxPrice.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 16px 0 0 0; border-top: 2px solid #e2e8f0; font-weight: 700; color: #0f172a; font-size: 18px;">Total</td>
-                                    <td style="padding: 16px 0 0 0; border-top: 2px solid #e2e8f0; text-align: right; font-weight: 700; color: #047857; font-size: 18px;">₹${order.totalPrice.toFixed(2)}</td>
-                                </tr>
-                            </table>
-
-                            <!-- Shipping Address -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
-                                <tr>
-                                    <td style="background: linear-gradient(to bottom, #f0f9ff 0%, #e0f2fe 100%); border-radius: 8px; padding: 20px;">
-                                        <h3 style="margin: 0 0 12px 0; color: #0c4a6e; font-size: 14px; font-weight: 700;">📦 Shipping Address</h3>
-                                        <p style="margin: 0; color: #0369a1; font-size: 14px; line-height: 1.6;">
-                                            ${order.shippingAddress.fullName || name}<br>
-                                            ${order.shippingAddress.address}<br>
-                                            ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}<br>
-                                            ${order.shippingAddress.country}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- CTA Button -->
-                            <div style="text-align: center; margin: 32px 0;">
-                                <a href="${process.env.FRONTEND_URL || '#'}/orders/${order._id}" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
-                                    Track Your Order →
-                                </a>
-                            </div>
-
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-
-                </table>
-                
+            <td style="padding: 14px 0; border-bottom: 1px solid #f1f5f9;">
+                <div style="font-weight: 600; color: #0f172a; font-size: 14px;">${item.title}</div>
+                <div style="color: #64748b; font-size: 12px; margin-top: 2px;">Quantity: ${item.quantity}</div>
+            </td>
+            <td style="padding: 14px 0; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: 600; color: #0f172a; font-size: 14px;">
+                ₹${(item.price * item.quantity).toFixed(2)}
             </td>
         </tr>
-    </table>
+    `).join('');
 
-</body>
-</html>
-            `,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Order confirmation email sent:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Error sending order confirmation email:', error);
-        return { success: false };
-    }
+    const content = `
+        <h2 style="margin: 0 0 8px 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 600;">Thank you for your order, ${name}!</h2>
+        <p style="margin: 0 0 24px 0; color: #475569; font-size: 15px; line-height: 1.6;">We have received your order and are preparing it for shipment. Below is your order summary.</p>
+        
+        <div style="background: #f8fafc; border-radius: 12px; padding: 16px; margin: 24px 0; border: 1px solid #e2e8f0;">
+            <span style="color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase;">Order Number</span>
+            <div style="color: #0f172a; font-family: monospace; font-size: 18px; font-weight: 700; margin-top: 4px;">#${order._id.toString().slice(-8).toUpperCase()}</div>
+        </div>
+        
+        <h3 style="color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 600; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin: 24px 0 12px 0;">Items Ordered</h3>
+        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 24px;">
+            ${itemsHtml}
+        </table>
+        
+        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 24px; font-size: 14px;">
+            <tr>
+                <td style="padding: 6px 0; color: #64748b;">Subtotal</td>
+                <td style="padding: 6px 0; text-align: right; color: #0f172a; font-weight: 500;">₹${order.itemsPrice.toFixed(2)}</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px 0; color: #64748b;">Shipping</td>
+                <td style="padding: 6px 0; text-align: right; color: #0f172a; font-weight: 500;">${order.shippingPrice === 0 ? 'FREE' : '₹' + order.shippingPrice.toFixed(2)}</td>
+            </tr>
+            <tr>
+                <td style="padding: 6px 0; color: #64748b;">Tax (GST 10%)</td>
+                <td style="padding: 6px 0; text-align: right; color: #0f172a; font-weight: 500;">₹${order.taxPrice.toFixed(2)}</td>
+            </tr>
+            ${order.discountPrice > 0 ? `
+            <tr>
+                <td style="padding: 6px 0; color: #10b981; font-weight: 500;">Discount</td>
+                <td style="padding: 6px 0; text-align: right; color: #10b981; font-weight: 600;">-₹${order.discountPrice.toFixed(2)}</td>
+            </tr>
+            ` : ''}
+            <tr>
+                <td style="padding: 16px 0 0 0; border-top: 2px solid #e2e8f0; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; color: #0f172a;">Total</td>
+                <td style="padding: 16px 0 0 0; border-top: 2px solid #e2e8f0; text-align: right; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; color: #10b981;">₹${order.totalPrice.toFixed(2)}</td>
+            </tr>
+        </table>
+        
+        <div style="background: #f8fafc; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-top: 24px;">
+            <h4 style="margin: 0 0 8px 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;">📍 Delivery Address</h4>
+            <p style="margin: 0; color: #475569; font-size: 13px; line-height: 1.6;">
+                <strong>${order.shippingAddress.fullName || name}</strong><br>
+                ${order.shippingAddress.address}<br>
+                ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.postalCode}<br>
+                ${order.shippingAddress.country}
+            </p>
+        </div>
+    `;
+    const cta = { text: 'Track Order Details', url: `${process.env.FRONTEND_URL || 'https://northtechhub.in'}/orders/${order._id}` };
+    const html = getEmailLayout(title, 'Receipt & Details', content, cta, '#10b981');
+    return sendResendEmail(to, `Order Confirmed - #${order._id.toString().slice(-8).toUpperCase()}`, html);
 };
 
 /**
  * Send shipping update email
  */
 const sendShippingUpdateEmail = async (to, order, name = 'Customer', trackingInfo = null) => {
-    try {
-        const transporter = createTransporter();
-
-        const mailOptions = {
-            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
-            to,
-            subject: `Your Order Has Been Shipped! - #${order._id.toString().slice(-8).toUpperCase()}`,
-            html: `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
-    
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                    
-                    <!-- Header -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 48px; text-align: center; border-bottom: 4px solid #1d4ed8;">
-                            <div style="font-size: 64px; margin-bottom: 16px;">🚚</div>
-                            <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">Your Order is On Its Way!</h1>
-                            <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Estimated delivery in 3-5 business days</p>
-                        </td>
-                    </tr>
-
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding: 48px;">
-                            
-                            <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 24px; font-weight: 700;">
-                                Great news, ${name}!
-                            </h2>
-                            
-                            <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                                Your order <strong>#${order._id.toString().slice(-8).toUpperCase()}</strong> has been shipped and is on its way to you.
-                            </p>
-
-                            ${trackingInfo ? `
-                            <!-- Tracking Info -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 24px 0;">
-                                <tr>
-                                    <td style="background: linear-gradient(to bottom, #fef3c7 0%, #fde68a 100%); border-radius: 8px; padding: 20px; border-left: 4px solid #f59e0b;">
-                                        <h3 style="margin: 0 0 12px 0; color: #92400e; font-size: 14px; font-weight: 700;">📍 Tracking Information</h3>
-                                        <p style="margin: 0 0 8px 0; color: #a16207; font-size: 14px;">
-                                            <strong>Carrier:</strong> ${trackingInfo.carrier || 'Standard Shipping'}
-                                        </p>
-                                        <p style="margin: 0; color: #a16207; font-size: 14px;">
-                                            <strong>Tracking Number:</strong> ${trackingInfo.trackingNumber || 'Will be updated soon'}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-                            ` : ''}
-
-                            <!-- Shipping Address -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
-                                <tr>
-                                    <td style="background: #f1f5f9; border-radius: 8px; padding: 20px;">
-                                        <h3 style="margin: 0 0 12px 0; color: #475569; font-size: 14px; font-weight: 700;">📦 Delivering To</h3>
-                                        <p style="margin: 0; color: #1e293b; font-size: 14px; line-height: 1.6;">
-                                            ${order.shippingAddress.fullName || name}<br>
-                                            ${order.shippingAddress.address}<br>
-                                            ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- CTA Button -->
-                            <div style="text-align: center; margin: 32px 0;">
-                                <a href="${process.env.FRONTEND_URL || '#'}/orders/${order._id}" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
-                                    Track Your Order →
-                                </a>
-                            </div>
-
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-
-                </table>
-                
-            </td>
-        </tr>
-    </table>
-
-</body>
-</html>
-            `,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Shipping update email sent:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Error sending shipping update email:', error);
-        return { success: false };
-    }
+    const title = 'Order Shipped';
+    const content = `
+        <h2 style="margin: 0 0 16px 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 600;">Your Order is on its way, ${name}!</h2>
+        <p style="margin: 0 0 24px 0; color: #475569; font-size: 15px; line-height: 1.6;">Your package has been handed over to our delivery partner. You can track your shipment using the tracking credentials below.</p>
+        
+        <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 16px; padding: 24px; border: 1px solid #bfdbfe; margin: 24px 0;">
+            <h3 style="margin: 0 0 12px 0; color: #1e3a8a; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 600;">📍 Shipping & Delivery Info</h3>
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-size: 14px; color: #1e40af;">
+                <tr>
+                    <td style="padding: 4px 0; width: 140px;"><strong>Order Reference:</strong></td>
+                    <td style="padding: 4px 0;">#${order._id.toString().slice(-8).toUpperCase()}</td>
+                </tr>
+                ${trackingInfo ? `
+                <tr>
+                    <td style="padding: 4px 0;"><strong>Shipping Carrier:</strong></td>
+                    <td style="padding: 4px 0;">${trackingInfo.carrier}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 0;"><strong>Tracking Number:</strong></td>
+                    <td style="padding: 4px 0;"><code style="background: white; padding: 2px 6px; border-radius: 4px; border: 1px solid #bfdbfe; font-family: monospace;">${trackingInfo.trackingNumber}</code></td>
+                </tr>
+                ` : ''}
+            </table>
+        </div>
+    `;
+    const cta = { text: 'Track Shipment Progress', url: trackingInfo?.trackingUrl || `${process.env.FRONTEND_URL || 'https://northtechhub.in'}/orders/${order._id}` };
+    const html = getEmailLayout(title, 'Package Out for Delivery', content, cta, '#3b82f6');
+    return sendResendEmail(to, `Your Order Has Been Shipped! - #${order._id.toString().slice(-8).toUpperCase()}`, html);
 };
 
 /**
- * Send course enrollment confirmation email
+ * Send course enrollment email
  */
-const sendCourseEnrollmentEmail = async (to, course, name = 'Student') => {
-    try {
-        const transporter = createTransporter();
-
-        const mailOptions = {
-            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
-            to,
-            subject: `🎉 You're Enrolled! - ${course.title}`,
-            html: `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
-    
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                    
-                    <!-- Header -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); padding: 48px; text-align: center; border-bottom: 4px solid #6d28d9;">
-                            <div style="font-size: 64px; margin-bottom: 16px;">🎓</div>
-                            <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">Welcome to Your Course!</h1>
-                            <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">You're all set to start learning</p>
-                        </td>
-                    </tr>
-
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding: 48px;">
-                            
-                            <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 24px; font-weight: 700;">
-                                Congratulations, ${name}!
-                            </h2>
-                            
-                            <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                                You've successfully enrolled in <strong>${course.title}</strong>. Your learning journey begins now!
-                            </p>
-
-                            <!-- Course Info -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 24px 0;">
-                                <tr>
-                                    <td style="background: linear-gradient(to bottom, #faf5ff 0%, #f3e8ff 100%); border-radius: 8px; padding: 24px; border-left: 4px solid #7c3aed;">
-                                        <h3 style="margin: 0 0 16px 0; color: #6b21a8; font-size: 18px; font-weight: 700;">${course.title}</h3>
-                                        <p style="margin: 0 0 12px 0; color: #7e22ce; font-size: 14px; line-height: 1.6;">
-                                            ${course.description?.substring(0, 150) || 'Start your learning journey today!'}...
-                                        </p>
-                                        <p style="margin: 0; color: #9333ea; font-size: 13px;">
-                                            <strong>Instructor:</strong> ${course.instructor || 'Expert Instructor'}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- What's Next -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
-                                <tr>
-                                    <td style="background: #f1f5f9; border-radius: 8px; padding: 20px;">
-                                        <h3 style="margin: 0 0 16px 0; color: #475569; font-size: 14px; font-weight: 700;">📚 What's Next?</h3>
-                                        <ul style="margin: 0; padding-left: 20px; color: #1e293b; font-size: 14px; line-height: 2;">
-                                            <li>Access your course from My Courses dashboard</li>
-                                            <li>Complete lessons at your own pace</li>
-                                            <li>Track your progress and earn certificates</li>
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- CTA Button -->
-                            <div style="text-align: center; margin: 32px 0;">
-                                <a href="${process.env.FRONTEND_URL || '#'}/my-courses" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);">
-                                    Start Learning →
-                                </a>
-                            </div>
-
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-
-                </table>
-                
-            </td>
-        </tr>
-    </table>
-
-</body>
-</html>
-            `,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Course enrollment email sent:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Error sending course enrollment email:', error);
-        return { success: false };
-    }
+const sendCourseEnrollmentEmail = async (to, course, name = 'User') => {
+    const title = 'Course Enrollment Confirmed';
+    const content = `
+        <h2 style="margin: 0 0 16px 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 600;">Let's start learning, ${name}!</h2>
+        <p style="margin: 0 0 24px 0; color: #475569; font-size: 15px; line-height: 1.6;">You have successfully enrolled in <strong>${course.title}</strong>. Your curriculum and video streaming dashboard are now fully unlocked.</p>
+        
+        <div style="background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 16px; padding: 24px; margin: 24px 0;">
+            <h3 style="margin: 0 0 12px 0; color: #581c87; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700;">${course.title}</h3>
+            <p style="margin: 0 0 12px 0; color: #6b21a8; font-size: 14px; line-height: 1.5;">${course.description?.substring(0, 150) || 'Unlock your potential with this comprehensive program.'}...</p>
+            <div style="font-size: 13px; color: #7c3aed; font-weight: 500;">
+                <strong>Instructor:</strong> ${course.instructor || 'Expert Instructor'}
+            </div>
+        </div>
+    `;
+    const cta = { text: 'Start Learning Now', url: `${process.env.FRONTEND_URL || 'https://northtechhub.in'}/my-courses` };
+    const html = getEmailLayout(title, 'Curriculum Activated', content, cta, '#8b5cf6');
+    return sendResendEmail(to, `Enrolled in Course - ${course.title}`, html);
 };
 
 /**
  * Send password change notification email
  */
 const sendPasswordChangeNotification = async (to, name = 'User') => {
-    try {
-        const transporter = createTransporter();
-
-        const mailOptions = {
-            from: `"North Tech Hub Security" <${process.env.EMAIL_USER}>`,
-            to,
-            subject: '⚠️ Password Changed - North Tech Hub Account',
-            html: `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
-    
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                    
-                    <!-- Header -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 48px; text-align: center; border-bottom: 4px solid #b45309;">
-                            <div style="font-size: 64px; margin-bottom: 16px;">🔐</div>
-                            <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">Password Changed</h1>
-                            <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">Security notification</p>
-                        </td>
-                    </tr>
-
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding: 48px;">
-                            
-                            <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 24px; font-weight: 700;">
-                                Hello, ${name}
-                            </h2>
-                            
-                            <p style="margin: 0 0 24px 0; color: #475569; font-size: 16px; line-height: 1.6;">
-                                Your North Tech Hub account password was recently changed. If you made this change, you can safely ignore this email.
-                            </p>
-
-                            <!-- Change Details -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 24px 0;">
-                                <tr>
-                                    <td style="background: #f1f5f9; border-radius: 8px; padding: 20px;">
-                                        <p style="margin: 0 0 8px 0; color: #64748b; font-size: 13px;">Change Details</p>
-                                        <p style="margin: 0 0 4px 0; color: #1e293b; font-size: 14px;"><strong>Date:</strong> ${new Date().toLocaleString()}</p>
-                                        <p style="margin: 0; color: #1e293b; font-size: 14px;"><strong>Action:</strong> Password Changed</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- Warning -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0 0 32px 0;">
-                                <tr>
-                                    <td style="background: linear-gradient(to bottom, #fef2f2 0%, #fee2e2 100%); border-left: 4px solid #dc2626; border-radius: 8px; padding: 20px;">
-                                        <p style="margin: 0 0 8px 0; color: #7f1d1d; font-size: 14px; font-weight: 700;">
-                                            ⚠️ Didn't make this change?
-                                        </p>
-                                        <p style="margin: 0; color: #991b1b; font-size: 13px; line-height: 1.6;">
-                                            If you did not change your password, your account may have been compromised. Please reset your password immediately and contact our support team.
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- CTA Button -->
-                            <div style="text-align: center; margin: 32px 0;">
-                                <a href="${process.env.FRONTEND_URL || '#'}/forgot-password" style="display: inline-block; background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3);">
-                                    Secure My Account →
-                                </a>
-                            </div>
-
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background: #f8fafc; padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="margin: 0 0 12px 0; color: #64748b; font-size: 12px;">
-                                Need help? Contact us at <a href="mailto:northtechhub2003@gmail.com" style="color: #3b82f6;">northtechhub2003@gmail.com</a>
-                            </p>
-                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
-                                © ${new Date().getFullYear()} North Tech Hub. All rights reserved.
-                            </p>
-                        </td>
-                    </tr>
-
-                </table>
-                
-            </td>
-        </tr>
-    </table>
-
-</body>
-</html>
-            `,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Password change notification sent:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ Error sending password change notification:', error);
-        return { success: false };
-    }
+    const title = 'Password Security Notice';
+    const content = `
+        <h2 style="margin: 0 0 16px 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 600;">Hi ${name},</h2>
+        <p style="margin: 0 0 24px 0; color: #475569; font-size: 15px; line-height: 1.6;">Your North Tech Hub account password was recently updated. If you made this change, you can safely ignore this alert.</p>
+        
+        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 16px; margin: 24px 0; font-size: 14px; color: #92400e; font-weight: 500;">
+            🔐 Security Alert: Password update successful.
+        </div>
+        
+        <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; border-radius: 8px; margin: 24px 0;">
+            <h4 style="margin: 0 0 6px 0; color: #7f1d1d; font-size: 14px; font-weight: 600;">Didn't make this change?</h4>
+            <p style="margin: 0; color: #991b1b; font-size: 13px; line-height: 1.5;">If you did not execute this update, someone else might have accessed your account. Secure your credentials immediately.</p>
+        </div>
+    `;
+    const cta = { text: 'Secure My Account', url: `${process.env.FRONTEND_URL || 'https://northtechhub.in'}/forgot-password` };
+    const html = getEmailLayout(title, 'Password Updated', content, cta, '#f59e0b');
+    return sendResendEmail(to, 'Account Password Changed - North Tech Hub', html);
 };
 
 /**
  * Send email verification link
  */
 const sendVerificationEmail = async (to, verificationLink, name = 'User') => {
-    try {
-        console.log('📧 [Email] Sending verification email to:', to);
-        const transporter = createTransporter();
-        console.log('📧 [Email] Transporter created successfully');
-
-        const mailOptions = {
-            from: `"North Tech Hub" <${process.env.EMAIL_USER}>`,
-            to,
-            subject: 'Verify Your Email - North Tech Hub',
-            html: `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f8fafc; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);">
-                    <!-- Header -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #1a2332 0%, #475569 100%); padding: 40px 20px; border-radius: 12px 12px 0 0; text-align: center;">
-                            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">Verify Your Email</h1>
-                        </td>
-                    </tr>
-                    
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding: 40px 30px;">
-                            <p style="color: #475569; font-size: 16px; margin: 0 0 20px 0;">Hi <strong>${name}</strong>,</p>
-                            
-                            <p style="color: #64748b; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">
-                                Welcome to North Tech Hub! To complete your registration and unlock full access to our platform, please verify your email address by clicking the button below.
-                            </p>
-                            
-                            <p style="color: #64748b; font-size: 15px; line-height: 1.6; margin: 0 0 30px 0;">
-                                This verification link will expire in <strong>24 hours</strong>.
-                            </p>
-                            
-                            <!-- CTA Button -->
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
-                                <tr>
-                                    <td style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 8px; padding: 0; text-align: center;">
-                                        <a href="${verificationLink}" style="color: #ffffff; text-decoration: none; display: inline-block; padding: 14px 40px; font-size: 16px; font-weight: 600; border-radius: 8px;">
-                                            Verify Email
-                                        </a>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <!-- Divider -->
-                            <div style="border-top: 1px solid #e2e8f0; margin: 30px 0;"></div>
-                            
-                            <!-- Alternative Link -->
-                            <p style="color: #64748b; font-size: 13px; margin: 0 0 10px 0;">
-                                Or copy and paste this link in your browser:
-                            </p>
-                            <p style="color: #3b82f6; font-size: 12px; word-break: break-all; margin: 0 0 20px 0;">
-                                <a href="${verificationLink}" style="color: #3b82f6; text-decoration: none;">${verificationLink}</a>
-                            </p>
-                            
-                            <!-- Security Note -->
-                            <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 4px; margin: 20px 0;">
-                                <p style="color: #0c4a6e; font-size: 13px; margin: 0;">
-                                    <strong>Security Tip:</strong> If you didn't create this account, please ignore this email or contact our support team.
-                                </p>
-                            </div>
-                        </td>
-                    </tr>
-                    
-                    <!-- Footer -->
-                    <tr>
-                        <td style="padding: 20px 30px; border-top: 1px solid #e2e8f0; background-color: #f8fafc; border-radius: 0 0 12px 12px;">
-                            <p style="color: #94a3b8; font-size: 12px; text-align: center; margin: 0 0 10px 0;">
-                                © 2026 North Tech Hub. All rights reserved.
-                            </p>
-                            <p style="color: #cbd5e1; font-size: 11px; text-align: center; margin: 0;">
-                                <a href="${process.env.FRONTEND_URL}/privacy" style="color: #3b82f6; text-decoration: none;">Privacy Policy</a> | 
-                                <a href="${process.env.FRONTEND_URL}/terms" style="color: #3b82f6; text-decoration: none;">Terms of Service</a>
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-            `,
-        };
-
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ [Email] Verification email sent successfully');
-        console.log('✅ [Email] Message ID:', info.messageId);
-        return { success: true, messageId: info.messageId };
-    } catch (error) {
-        console.error('❌ [Email] Failed to send verification email');
-        console.error('❌ [Email] Error message:', error.message);
-        console.error('❌ [Email] Error code:', error.code);
-        console.error('❌ [Email] Full error:', error);
-        throw error;  // Re-throw to be caught in authController
-    }
+    const title = 'Verify Your Email Address';
+    const content = `
+        <h2 style="margin: 0 0 16px 0; color: #0f172a; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 600;">Hi ${name},</h2>
+        <p style="margin: 0 0 24px 0; color: #475569; font-size: 15px; line-height: 1.6;">Welcome to North Tech Hub! To finalize your registration and activate your account, please click the button below to verify your email address.</p>
+        
+        <p style="margin: 0 0 12px 0; color: #64748b; font-size: 14px;">This link is valid for <strong>24 hours</strong>. If the button doesn't work, copy and paste this URL into your browser:</p>
+        <p style="word-break: break-all; margin: 0 0 24px 0; font-size: 13px;"><a href="${verificationLink}" style="color: #6366f1; text-decoration: none;">${verificationLink}</a></p>
+    `;
+    const cta = { text: 'Verify Email Address', url: verificationLink };
+    const html = getEmailLayout(title, 'Activate Account', content, cta, '#6366f1');
+    return sendResendEmail(to, 'Verify Your Email - North Tech Hub', html);
 };
 
 /**

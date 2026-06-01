@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 
 export const metadata: Metadata = {
-    title: "Buy Electronics & Tech Gadgets Online in India",
-    description: "Shop genuine electronics, smartphones, headphones, laptops, and tech gadgets at the best prices in India. Free shipping available. Authentic products with manufacturer warranty.",
+    title: "Electronics & Tech Gadgets India",
+    description: "Shop genuine electronics, smartphones, headphones, laptops, and tech gadgets in India with secure checkout and warranty support.",
     keywords: [
         "buy electronics India",
         "electronics online shopping",
@@ -30,12 +29,12 @@ export const metadata: Metadata = {
     },
 };
 
-const siteUrl = "https://northtechhub.in";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.northtechhub.in";
 
 export default function ProductsLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
-            <Script id="products-breadcrumb-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+            <script id="products-breadcrumb-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
                 __html: JSON.stringify({
                     "@context": "https://schema.org",
                     "@type": "BreadcrumbList",

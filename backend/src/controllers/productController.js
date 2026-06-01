@@ -291,6 +291,7 @@ const getCategories = async (req, res) => {
             productCount: cat.productCount
         }));
 
+        console.log("GET /api/products/categories data:", JSON.stringify(categoryData, null, 2));
         res.status(200).json({
             success: true,
             count: categories.length,

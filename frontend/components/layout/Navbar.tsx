@@ -17,8 +17,9 @@ export default function Navbar() {
 
     // Smart Scroll State
     const [isVisible, setIsVisible] = useState(true);
-    const [lastScrollY, setLastScrollY] = useState(0);
     const [isScrolled, setIsScrolled] = useState(false);
+    const lastScrollYRef = useRef(0);
+    const tickingRef = useRef(false);
 
     const navLinks = [
         { href: "/", label: "Home" },
@@ -34,26 +35,27 @@ export default function Navbar() {
     // Smart Scroll Logic
     useEffect(() => {
         const handleScroll = () => {
-            const currentScrollY = window.scrollY;
+            if (tickingRef.current) return;
 
-            // Determine if scrolled (for background style)
-            setIsScrolled(currentScrollY > 10);
+            tickingRef.current = true;
+            window.requestAnimationFrame(() => {
+                const currentScrollY = window.scrollY;
+                const shouldBeScrolled = currentScrollY > 10;
+                const shouldBeVisible =
+                    currentScrollY < 10 ||
+                    currentScrollY <= lastScrollYRef.current ||
+                    currentScrollY <= 100;
 
-            // Determine visibility (hide on scroll down, show on scroll up)
-            if (currentScrollY < 10) {
-                setIsVisible(true);
-            } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                setIsVisible(false); // Scrolling DOWN
-            } else {
-                setIsVisible(true); // Scrolling UP
-            }
-
-            setLastScrollY(currentScrollY);
+                setIsScrolled((current) => current === shouldBeScrolled ? current : shouldBeScrolled);
+                setIsVisible((current) => current === shouldBeVisible ? current : shouldBeVisible);
+                lastScrollYRef.current = currentScrollY;
+                tickingRef.current = false;
+            });
         };
 
         window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
-    }, [lastScrollY]);
+    }, []);
 
     // Close menus on route change
     useEffect(() => {
@@ -98,9 +100,9 @@ export default function Navbar() {
                         {/* Logo - Enhanced with Hover */}
                         <Link
                             href="/"
-                            className="group text-xl lg:text-2xl font-bold text-gray-900 hover:text-[var(--primary-electric)] transition-all duration-300 flex items-center gap-2"
+                            className="group flex min-h-11 items-center gap-2 text-xl font-bold text-gray-900 transition-all duration-300 hover:text-[var(--primary-electric)] lg:text-2xl"
                         >
-                            <span className="w-8 h-8 lg:w-9 lg:h-9 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                            <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-to-br from-gray-900 to-gray-700 text-sm font-bold text-white shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl lg:h-11 lg:w-11">
                                 N
                             </span>
                             <span className="hidden sm:inline">North Tech Hub<span className="text-[var(--secondary-pop)] group-hover:animate-bounce">.</span></span>

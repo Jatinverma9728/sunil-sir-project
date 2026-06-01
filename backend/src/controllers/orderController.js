@@ -240,6 +240,30 @@ const createOrder = async (req, res) => {
 
         logTime('Order saved: ' + order._id);
 
+        // For Cash on Delivery, send confirmation email and update coupon usage immediately
+        if (paymentMethod === 'cod') {
+            if (appliedCoupon) {
+                const Coupon = require('../models/Coupon');
+                console.log('Updating coupon usage for COD order...');
+                await Coupon.findByIdAndUpdate(appliedCoupon, {
+                    $inc: { usedCount: 1 },
+                    $push: {
+                        usedBy: {
+                            user: req.user._id,
+                            count: 1
+                        }
+                    }
+                });
+            }
+
+            if (req.user && req.user.email) {
+                console.log('📧 Queuing COD order confirmation email for:', req.user.email);
+                sendOrderConfirmationEmail(req.user.email, order, req.user.name)
+                    .then(() => console.log('✅ COD Order confirmation email sent successfully'))
+                    .catch(err => console.error('❌ Failed to send COD order confirmation email:', err.message));
+            }
+        }
+
         res.status(201).json({
             success: true,
             message: 'Order created successfully',

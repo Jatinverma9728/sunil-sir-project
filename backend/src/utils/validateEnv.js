@@ -7,6 +7,8 @@
 const requiredEnvVars = [
     'MONGODB_URI',
     'JWT_SECRET',
+    'RESEND_API_KEY',
+    'EMAIL_FROM',
 ];
 
 const recommendedEnvVars = [
@@ -19,8 +21,6 @@ const recommendedEnvVars = [
     'GOOGLE_CLIENT_ID',
     'GOOGLE_CLIENT_SECRET',
     'GOOGLE_CALLBACK_URL',
-    'EMAIL_USER',
-    'EMAIL_PASSWORD',
 ];
 
 const validateEnv = () => {

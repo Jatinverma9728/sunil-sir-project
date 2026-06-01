@@ -86,7 +86,7 @@ export default function AnnouncementBar() {
                     {current.link && (
                         <Link
                             href={current.link}
-                            className="underline hover:no-underline ml-2 font-semibold"
+                            className="ml-2 inline-flex min-h-11 items-center font-semibold underline hover:no-underline"
                             style={{ color: current.textColor }}
                         >
                             {current.linkText}
@@ -98,7 +98,7 @@ export default function AnnouncementBar() {
             {current.isCloseable && (
                 <button
                     onClick={() => handleDismiss(current._id)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 hover:opacity-70 transition-opacity p-1"
+                    className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg transition-opacity hover:opacity-70"
                     style={{ color: current.textColor }}
                     aria-label="Dismiss announcement"
                 >
@@ -110,16 +110,20 @@ export default function AnnouncementBar() {
 
             {/* Multiple announcements indicator */}
             {announcements.length > 1 && (
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 flex gap-1">
+                <div className="absolute left-1 top-1/2 flex -translate-y-1/2 gap-1">
                     {announcements.map((_, i) => (
                         <button
                             key={i}
                             onClick={() => setCurrentIndex(i)}
-                            className={`w-1.5 h-1.5 rounded-full transition-opacity ${i === currentIndex ? 'opacity-100' : 'opacity-40'
-                                }`}
-                            style={{ backgroundColor: current.textColor }}
+                            className="flex h-11 w-11 items-center justify-center rounded-lg"
                             aria-label={`View announcement ${i + 1}`}
-                        />
+                        >
+                            <span
+                                className={`block h-2 w-2 rounded-full transition-opacity ${i === currentIndex ? 'opacity-100' : 'opacity-40'
+                                    }`}
+                                style={{ backgroundColor: current.textColor }}
+                            />
+                        </button>
                     ))}
                 </div>
             )}

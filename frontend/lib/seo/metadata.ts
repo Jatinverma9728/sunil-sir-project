@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
 
+const TITLE_SUFFIX = " | North Tech Hub";
+
+function cleanText(value: string | undefined): string {
+    return (value || "").replace(/\s+/g, " ").trim();
+}
+
+function truncateText(value: string, maxLength: number): string {
+    if (value.length <= maxLength) return value;
+    return `${value.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
+}
+
 /**
- * Generate product-specific metadata for SEO
+ * Generate product-specific metadata for SEO.
  */
 export function generateProductMetadata(product: {
     title: string;
@@ -14,10 +25,15 @@ export function generateProductMetadata(product: {
     const imageUrl = product.images[0]?.url || "/placeholder.png";
     const rating = product.rating?.average || 0;
     const reviewCount = product.rating?.count || 0;
+    const title = `${truncateText(cleanText(product.title), 60 - TITLE_SUFFIX.length)}${TITLE_SUFFIX}`;
+    const description = truncateText(
+        `Buy ${cleanText(product.title)} for Rs. ${product.price}. ${cleanText(product.description)}`,
+        155
+    );
 
     return {
-        title: `${product.title} | North Tech Hub Shop`,
-        description: product.description.substring(0, 160), // Google preview is ~160 chars
+        title: { absolute: title },
+        description,
         keywords: [
             product.title,
             product.category,
@@ -27,8 +43,8 @@ export function generateProductMetadata(product: {
             "gadgets",
         ],
         openGraph: {
-            title: product.title,
-            description: product.description,
+            title,
+            description,
             type: "website",
             images: [
                 {
@@ -38,17 +54,17 @@ export function generateProductMetadata(product: {
                     alt: product.title,
                 },
             ],
-            siteName: "North Tech Hub Shop",
+            siteName: "North Tech Hub",
         },
         twitter: {
             card: "summary_large_image",
-            title: product.title,
-            description: product.description.substring(0, 200),
+            title,
+            description,
             images: [imageUrl],
         },
         other: {
             "product:price:amount": product.price.toString(),
-            "product:price:currency": "USD",
+            "product:price:currency": "INR",
             "product:availability": "in stock",
             "product:rating": rating.toString(),
             "product:rating:count": reviewCount.toString(),
@@ -57,7 +73,7 @@ export function generateProductMetadata(product: {
 }
 
 /**
- * Generate course-specific metadata for SEO
+ * Generate course-specific metadata for SEO.
  */
 export function generateCourseMetadata(course: {
     title: string;
@@ -69,10 +85,15 @@ export function generateCourseMetadata(course: {
     duration?: number;
 }): Metadata {
     const imageUrl = course.thumbnail || "/placeholder-course.png";
+    const title = `${truncateText(cleanText(course.title), 60 - TITLE_SUFFIX.length)}${TITLE_SUFFIX}`;
+    const description = truncateText(
+        `Learn ${cleanText(course.title)} with ${course.instructor.name}. ${cleanText(course.description)}`,
+        155
+    );
 
     return {
-        title: `${course.title} - Online Course | North Tech Hub Learn`,
-        description: course.description.substring(0, 160),
+        title: { absolute: title },
+        description,
         keywords: [
             course.title,
             "online course",
@@ -82,8 +103,8 @@ export function generateCourseMetadata(course: {
             "north tech hub learn",
         ],
         openGraph: {
-            title: course.title,
-            description: course.description,
+            title,
+            description,
             type: "website",
             images: [
                 {
@@ -93,40 +114,41 @@ export function generateCourseMetadata(course: {
                     alt: course.title,
                 },
             ],
-            siteName: "North Tech Hub Learn",
+            siteName: "North Tech Hub",
         },
         twitter: {
             card: "summary_large_image",
-            title: course.title,
-            description: course.description.substring(0, 200),
+            title,
+            description,
             images: [imageUrl],
         },
     };
 }
 
 /**
- * Generate category page metadata
+ * Generate category page metadata.
  */
 export function generateCategoryMetadata(
     category: string,
     productCount: number
 ): Metadata {
     const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
+    const title = `${truncateText(categoryTitle, 60 - TITLE_SUFFIX.length - 9)} Products${TITLE_SUFFIX}`;
 
     return {
-        title: `${categoryTitle} - Shop ${productCount}+ Products | North Tech Hub`,
-        description: `Browse ${productCount}+ ${categoryTitle.toLowerCase()} products. Find the best deals on electronics, gadgets, and more. Free shipping on orders over ₹50.`,
+        title: { absolute: title },
+        description: `Browse ${productCount}+ ${categoryTitle.toLowerCase()} products with secure checkout, warranty support, and delivery across India.`,
         keywords: [category, "buy", "shop", "online", "north tech hub", "deals"],
         openGraph: {
-            title: `${categoryTitle} Products`,
-            description: `Shop ${productCount}+ ${categoryTitle.toLowerCase()} products`,
+            title,
+            description: `Shop ${productCount}+ ${categoryTitle.toLowerCase()} products at North Tech Hub.`,
             type: "website",
             siteName: "North Tech Hub",
         },
         twitter: {
             card: "summary",
-            title: `${categoryTitle} Products`,
-            description: `Shop ${productCount}+ products`,
+            title,
+            description: `Shop ${productCount}+ ${categoryTitle.toLowerCase()} products at North Tech Hub.`,
         },
     };
 }

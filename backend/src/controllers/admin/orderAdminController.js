@@ -168,6 +168,52 @@ const updateOrderStatus = async (req, res) => {
 };
 
 /**
+ * @desc    Update order payment status (Admin)
+ * @route   PUT /api/admin/orders/:id/payment-status
+ * @access  Private/Admin
+ */
+const updateOrderPaymentStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+
+        const validStatuses = ['pending', 'completed', 'failed', 'refunded'];
+
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid payment status',
+            });
+        }
+
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found',
+            });
+        }
+
+        order.paymentInfo.status = status;
+        await order.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Payment status updated successfully',
+            data: order,
+        });
+    } catch (error) {
+        console.error('Update order payment status error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating payment status',
+            error: error.message,
+        });
+    }
+};
+
+
+/**
  * @desc    Get order statistics (Admin)
  * @route   GET /api/admin/orders/stats
  * @access  Private/Admin
@@ -319,5 +365,6 @@ module.exports = {
     getAllOrders,
     getOrderById,
     updateOrderStatus,
+    updateOrderPaymentStatus,
     getOrderStats,
 };

@@ -22,6 +22,7 @@ const {
     getAllOrders,
     getOrderById,
     updateOrderStatus,
+    updateOrderPaymentStatus,
     getOrderStats,
 } = require('../controllers/admin/orderAdminController');
 
@@ -129,6 +130,7 @@ router.get('/orders/stats', getOrderStats);
 router.get('/orders', getAllOrders);
 router.get('/orders/:id', getOrderById);
 router.put('/orders/:id/status', updateOrderStatus);
+router.put('/orders/:id/payment-status', updateOrderPaymentStatus);
 
 // ============================================
 // CATEGORY MANAGEMENT ROUTES

@@ -1,0 +1,43 @@
+# North Tech Hub
+
+> North Tech Hub is an India-focused electronics ecommerce and online technology learning platform.
+
+## Primary URLs
+
+- Home: https://www.northtechhub.in/
+- Products: https://www.northtechhub.in/products
+- Courses: https://www.northtechhub.in/courses
+- About: https://www.northtechhub.in/about
+- Contact: https://www.northtechhub.in/contact
+- FAQ: https://www.northtechhub.in/faq
+- Shipping: https://www.northtechhub.in/shipping
+- Privacy: https://www.northtechhub.in/privacy
+- Terms: https://www.northtechhub.in/terms
+- Sitemap: https://www.northtechhub.in/sitemap.xml
+
+## What The Site Covers
+
+North Tech Hub helps visitors in India shop for electronics, refurbished laptops, computer accessories, IoT kits, Arduino parts, drone kits, developer tools, and practical gadgets. It also offers online courses for web development, programming, data science, design, mobile app development, and related technology skills.
+
+## Best Pages For AI Answers
+
+- Use the homepage for a concise overview of North Tech Hub, its product categories, course categories, and support model.
+- Use the products page for electronics, gadget, accessory, and refurbished laptop discovery.
+- Use individual product pages for price, stock, image, brand, category, rating, and offer information.
+- Use the courses page for course discovery and individual course pages for instructor, lesson count, level, price, and enrollment details.
+- Use FAQ, shipping, privacy, and terms pages for policy answers.
+
+## Trust And Contact Signals
+
+- Business name: North Tech Hub
+- Location: Hisar, Haryana, India
+- Phone and WhatsApp: +91 93553 86007
+- Support email: northtechhub2003@gmail.com
+- Primary market: India
+- Language: English, with India-focused support context
+
+## Crawling Guidance
+
+Search and AI crawlers may use public product, course, category, support, and policy pages for summaries and citations. Do not use checkout, account, dashboard, order, profile, admin, or private course areas as public answer sources.
+
+Last updated: 2026-06-01

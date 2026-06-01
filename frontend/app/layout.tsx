@@ -9,9 +9,10 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/home/Footer";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
-import PageTransition from "@/components/ui/PageTransition";
 import "../src/styles/globals.css";
 import "../src/styles/premium-polish.css";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.northtechhub.in";
 
 // Playful Tech Fonts
 const inter = Inter({
@@ -29,12 +30,12 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://northtechhub.in'),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "North Tech Hub - Buy Electronics & Learn Tech Online in India",
+    default: "North Tech Hub: Electronics & Tech Courses India",
     template: "%s | North Tech Hub"
   },
-  description: "North Tech Hub is India's premier platform to buy genuine electronics, gadgets & accessories online. Enroll in expert-led coding, programming & tech courses at affordable prices. Free delivery available.",
+  description: "Shop genuine electronics and refurbished laptops in India, and learn coding with practical courses. Browse North Tech Hub deals today.",
   keywords: [
     "buy electronics online India",
     "tech gadgets online",
@@ -57,7 +58,7 @@ export const metadata: Metadata = {
     "e-learning platform India",
     "developer tools online"
   ],
-  authors: [{ name: "North Tech Hub", url: "https://northtechhub.in" }],
+  authors: [{ name: "North Tech Hub", url: SITE_URL }],
   creator: "North Tech Hub",
   publisher: "North Tech Hub",
   category: "Technology",
@@ -70,8 +71,8 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "North Tech Hub - Buy Electronics & Learn Tech Online in India",
-    description: "North Tech Hub is India's premier platform to buy genuine electronics, gadgets & accessories online. Enroll in expert-led coding, programming & tech courses at affordable prices.",
+    title: "North Tech Hub: Electronics & Tech Courses India",
+    description: "Shop genuine electronics and refurbished laptops in India, and learn coding with practical courses from North Tech Hub.",
     url: "/",
     siteName: "North Tech Hub",
     images: [
@@ -79,7 +80,7 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "North Tech Hub - Buy Electronics & Learn Tech Online in India",
+        alt: "North Tech Hub electronics and tech courses in India",
       },
     ],
     locale: "en_IN",
@@ -87,8 +88,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "North Tech Hub - Buy Electronics & Learn Tech Online in India",
-    description: "India's premier platform to buy genuine electronics & enroll in expert-led tech courses. Free delivery. Affordable prices.",
+    title: "North Tech Hub: Electronics & Courses",
+    description: "Buy genuine electronics and refurbished laptops, then learn practical coding skills with North Tech Hub.",
     images: ["/og-image.jpg"],
     creator: "@northtechhub",
     site: "@northtechhub",
@@ -142,9 +143,7 @@ export default function RootLayout({
                     <Navbar />
                   </header>
                   <main className="flex-grow">
-                    <PageTransition>
-                      {children}
-                    </PageTransition>
+                    {children}
                   </main>
                   <Footer />
                   <WhatsAppButton />

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 
 export const metadata: Metadata = {
     title: "Contact Us - Get Support",
@@ -21,24 +20,27 @@ export const metadata: Metadata = {
 };
 
 export default function ContactLayout({ children }: { children: React.ReactNode }) {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://northtechhub.in";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.northtechhub.in";
 
     return (
         <>
-            <Script id="contact-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
+            <script id="contact-jsonld" type="application/ld+json" dangerouslySetInnerHTML={{
                 __html: JSON.stringify({
                     "@context": "https://schema.org",
                     "@type": "LocalBusiness",
                     "name": "North Tech Hub",
                     "url": siteUrl,
-                    "telephone": "+91 9876543210",
-                    "email": "support@northtechhub.in",
+                    "telephone": "+91 93553 86007",
+                    "email": "northtechhub2003@gmail.com",
                     "address": {
                         "@type": "PostalAddress",
+                        "streetAddress": "Nalka Chowk, 12 Quarter, Near Sector 1-4",
+                        "addressLocality": "Hisar",
+                        "addressRegion": "Haryana",
                         "addressCountry": "IN"
                     },
                     "openingHours": "Mo-Su 09:00-21:00",
-                    "priceRange": "₹₹",
+                    "priceRange": "INR",
                     "description": "North Tech Hub is India's premier platform for genuine electronics and expert-led tech courses.",
                     "sameAs": [
                         "https://www.facebook.com/northtechhub",

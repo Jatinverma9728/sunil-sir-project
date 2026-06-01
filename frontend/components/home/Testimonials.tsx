@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { getTestimonials, Review } from "@/lib/api/reviews";
-import { motion } from "framer-motion";
 
 export default function Testimonials() {
     const [reviews, setReviews] = useState<Review[]>([]);
@@ -63,32 +62,15 @@ export default function Testimonials() {
             <div className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 relative z-10">
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <motion.span
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="mb-3 inline-block rounded-md bg-blue-50 px-3 py-1 text-xs font-bold uppercase text-[var(--primary-electric)]"
-                    >
+                    <span className="mb-3 inline-block rounded-md bg-blue-50 px-3 py-1 text-xs font-bold uppercase text-[var(--primary-electric)]">
                         Testimonials
-                    </motion.span>
-                    <motion.h2
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1 }}
-                        className="mb-6 text-3xl font-bold text-gray-900 md:text-5xl"
-                    >
+                    </span>
+                    <h2 className="mb-6 text-3xl font-bold text-gray-900 md:text-5xl">
                         Loved by thousands of learners
-                    </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
-                        className="text-gray-500 text-lg max-w-2xl mx-auto"
-                    >
+                    </h2>
+                    <p className="text-gray-500 text-lg max-w-2xl mx-auto">
                         Join our community of verified customers and successful students improving their lives.
-                    </motion.p>
+                    </p>
                 </div>
 
                 {/* Infinite Marquee Container */}
@@ -101,24 +83,7 @@ export default function Testimonials() {
                 >
                     {/* Removed overlapping gradient divs for better background compatibility */}
 
-                    <motion.div
-                        className="flex gap-6 py-10"
-                        animate={{
-                            x: ["0%", "-50%"], // Move half way because list is doubled
-                        }}
-                        transition={{
-                            x: {
-                                repeat: Infinity,
-                                repeatType: "loop",
-                                duration: Math.max(40, reviews.length * 5), // Adjust speed based on content
-                                ease: "linear",
-                            },
-                        }}
-                        whileHover={{ animationPlayState: "paused" }} // This actually needs CSS to pause, Framer motion pause on hover is tricky simply like this without custom logic, using a wrapper typically. 
-                    // Note: Framer motion `animate` prop overrides CSS. To pause on hover with framer motion requires useAnimation controls or simpler CSS approach.
-                    // Let's stick to a robust CSS-like animation logic via Framer or just accept it flows. 
-                    // Actually, easier to use a wide container and translate.
-                    >
+                    <div className="testimonial-marquee flex gap-6 py-10">
                         {/* We need two sets of the data for seamless looping if using 0 to -50% logic with doubled content. */}
                         {/* Actually, let's just map the large array `marqueeReviews` and scroll it. */}
                         {marqueeReviews.map((testimonial, idx) => {
@@ -188,7 +153,7 @@ export default function Testimonials() {
                                 </div>
                             );
                         })}
-                    </motion.div>
+                    </div>
                 </div>
             </div>
         </section>

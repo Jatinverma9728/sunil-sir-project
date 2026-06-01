@@ -29,7 +29,11 @@ interface Product {
     brand?: string;
 }
 
-export default function ProductDetailClient() {
+interface ProductDetailClientProps {
+    initialProduct?: Product | null;
+}
+
+export default function ProductDetailClient({ initialProduct = null }: ProductDetailClientProps) {
     const params = useParams();
     const router = useRouter();
     const { addToCart } = useCart();
@@ -37,9 +41,11 @@ export default function ProductDetailClient() {
     const { getProductOffer, loading: offersLoading } = useOffers();
     const productId = params.id as string;
 
-    const [product, setProduct] = useState<Product | null>(null);
+    const [product, setProduct] = useState<Product | null>(
+        initialProduct ? { ...initialProduct, inStock: initialProduct.stock ? initialProduct.stock > 0 : true } : null
+    );
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!initialProduct);
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [adding, setAdding] = useState(false);
@@ -48,8 +54,35 @@ export default function ProductDetailClient() {
     const [checkingDelivery, setCheckingDelivery] = useState(false);
 
     useEffect(() => {
-        if (productId) fetchProduct();
-    }, [productId]);
+        if (!productId) return;
+        if (initialProduct) {
+            fetchRelatedProducts(initialProduct.category);
+            return;
+        }
+        fetchProduct();
+    }, [productId, initialProduct?._id]);
+
+    const fetchRelatedProducts = async (category: string) => {
+        try {
+            const { getProducts } = await import("@/lib/api/products");
+            const relatedRes = await getProducts({
+                category,
+                limit: 12
+            });
+            if (relatedRes.success && relatedRes.data) {
+                const transformedRelated = relatedRes.data
+                    .filter((p: any) => p._id !== productId)
+                    .slice(0, 6)
+                    .map((p: any) => ({
+                        ...p,
+                        inStock: p.stock ? p.stock > 0 : true,
+                    }));
+                setRelatedProducts(transformedRelated);
+            }
+        } catch (error) {
+            console.error("Error fetching related products:", error);
+        }
+    };
 
     const fetchProduct = async () => {
         setLoading(true);
@@ -62,21 +95,7 @@ export default function ProductDetailClient() {
                     inStock: response.data.stock ? response.data.stock > 0 : true,
                 };
                 setProduct(productData);
-
-                const relatedRes = await getProducts({
-                    category: response.data.category,
-                    limit: 12
-                });
-                if (relatedRes.success && relatedRes.data) {
-                    const transformedRelated = relatedRes.data
-                        .filter((p: any) => p._id !== productId)
-                        .slice(0, 6)
-                        .map((p: any) => ({
-                            ...p,
-                            inStock: p.stock ? p.stock > 0 : true,
-                        }));
-                    setRelatedProducts(transformedRelated);
-                }
+                fetchRelatedProducts(response.data.category);
             }
         } catch (error) {
             console.error("Error fetching product:", error);

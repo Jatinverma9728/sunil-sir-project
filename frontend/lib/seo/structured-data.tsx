@@ -1,3 +1,5 @@
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.northtechhub.in";
+
 /**
  * Generate JSON-LD structured data for products
  * Helps search engines understand product information
@@ -26,9 +28,9 @@ export function generateProductSchema(product: {
         },
         offers: {
             "@type": "Offer",
-            url: `${process.env.NEXT_PUBLIC_SITE_URL}/products/${product._id}`,
-            priceCurrency: "USD",
-            price: product.price,
+            url: `${SITE_URL}/products/${product._id}`,
+            priceCurrency: "INR",
+            price: String(product.price),
             priceValidUntil: new Date(
                 Date.now() + 30 * 24 * 60 * 60 * 1000
             ).toISOString(), // 30 days
@@ -74,7 +76,7 @@ export function generateCourseSchema(course: {
         provider: {
             "@type": "Organization",
             name: "North Tech Hub Learn",
-            sameAs: process.env.NEXT_PUBLIC_SITE_URL,
+            sameAs: SITE_URL,
         },
         instructor: {
             "@type": "Person",
@@ -88,8 +90,8 @@ export function generateCourseSchema(course: {
         }),
         offers: {
             "@type": "Offer",
-            price: course.price,
-            priceCurrency: "USD",
+            price: String(course.price),
+            priceCurrency: "INR",
             availability: "https://schema.org/InStock",
         },
     };
@@ -106,7 +108,7 @@ export function generateBreadcrumbSchema(items: Array<{ name: string; url: strin
             "@type": "ListItem",
             position: index + 1,
             name: item.name,
-            item: `${process.env.NEXT_PUBLIC_SITE_URL}${item.url}`,
+            item: `${SITE_URL}${item.url}`,
         })),
     };
 }
@@ -120,17 +122,17 @@ export function generateOrganizationSchema() {
         "@type": "Organization",
         name: "North Tech Hub",
         description: "Your destination for premium gadgets and online learning",
-        url: process.env.NEXT_PUBLIC_SITE_URL,
-        logo: `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`,
+        url: SITE_URL,
+        logo: `${SITE_URL}/logo.png`,
         contactPoint: {
             "@type": "ContactPoint",
             contactType: "Customer Service",
-            email: "support@flash.com",
+            email: "support@northtechhub.in",
         },
         sameAs: [
-            "https://twitter.com/flash",
-            "https://facebook.com/flash",
-            "https://instagram.com/flash",
+            "https://twitter.com/northtechhub",
+            "https://facebook.com/northtechhub",
+            "https://instagram.com/northtechhub",
         ],
     };
 }

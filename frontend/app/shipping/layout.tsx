@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Shipping Information - Fast Delivery Across India",
-    description: "Learn about North Tech Hub's shipping options: Standard (free), Express (2-3 days), and Overnight delivery. Track your order and get fast, reliable delivery.",
+    title: "Shipping & Delivery India",
+    description: "Review North Tech Hub shipping options, delivery timelines, tracking support, and order handling for electronics across India.",
     alternates: {
         canonical: "/shipping",
     },
