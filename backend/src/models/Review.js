@@ -65,6 +65,7 @@ const reviewSchema = new mongoose.Schema(
     }
 );
 
+
 // Compound index to ensure one review per user per product
 reviewSchema.index({ product: 1, user: 1 }, { unique: true });
 
