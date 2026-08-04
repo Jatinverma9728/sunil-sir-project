@@ -19,6 +19,7 @@ export function CourseCardSkeleton() {
                     <div className="h-5 w-4/5 bg-gray-100 rounded animate-pulse" />
                 </div>
 
+
                 {/* Description */}
                 <div className="space-y-2">
                     <div className="h-3 w-full bg-gray-100 rounded animate-pulse" />

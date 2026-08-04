@@ -6,7 +6,6 @@ interface GoogleButtonProps {
     onLoading?: (loading: boolean) => void;
     text?: string;
 }
-
 export default function GoogleButton({ onLoading, text = "Continue with Google" }: GoogleButtonProps) {
     const handleGoogleLogin = () => {
         if (onLoading) onLoading(true);
@@ -14,7 +13,6 @@ export default function GoogleButton({ onLoading, text = "Continue with Google" 
         // Redirect to backend Google OAuth endpoint
         window.location.href = `${API_URL}/auth/google`;
     };
-
 
     return (
         <button

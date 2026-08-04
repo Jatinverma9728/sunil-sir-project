@@ -11,6 +11,7 @@ export const forgotPassword = async (email: string): Promise<ApiResponse> => {
     return await apiClient.post('/auth/forgot-password', { email });
 };
 
+
 /**
  * Verify OTP and get reset token
  */

@@ -18,6 +18,7 @@ interface Product {
     tags?: string[];
 }
 
+
 interface ProductsResponse {
     success: boolean;
     data: Product[];

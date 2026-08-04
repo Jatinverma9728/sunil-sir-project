@@ -20,7 +20,6 @@ export interface Product {
     inStock: boolean;
     createdAt: string;
 }
-
 export interface ProductsResponse {
     success: boolean;
     count: number;
