@@ -33,7 +33,7 @@ export default function AnnouncementBar() {
     }, []);
 
     // Rotate through announcements
-    
+
     useEffect(() => {
         if (announcements.length <= 1) return;
 

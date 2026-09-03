@@ -8,6 +8,7 @@ interface ProductGalleryProps {
     productName: string;
 }
 
+
 export default function ProductGallery({ images, productName }: ProductGalleryProps) {
     const [selectedImage, setSelectedImage] = useState(0);
     const [isZoomed, setIsZoomed] = useState(false);
