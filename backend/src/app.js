@@ -45,6 +45,7 @@ const createApp = () => {
         crossOriginResourcePolicy: { policy: "cross-origin" },
     }));
 
+    
     // Data Sanitization against NoSQL Injection
     app.use(mongoSanitize());
 
