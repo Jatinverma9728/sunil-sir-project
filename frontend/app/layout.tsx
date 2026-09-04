@@ -10,7 +10,6 @@ import Footer from "@/components/home/Footer";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import "../src/styles/globals.css";
-import "../src/styles/premium-polish.css";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.northtechhub.in";
 

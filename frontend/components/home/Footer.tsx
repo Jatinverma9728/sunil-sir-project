@@ -1,4 +1,15 @@
 import Link from "next/link";
+import {
+    MessageSquare,
+    MapPin,
+    Laptop,
+    GraduationCap,
+    ShieldCheck,
+    Scale,
+    Lock,
+    BadgeCheck,
+    CreditCard
+} from "lucide-react";
 
 const footerLinks = {
     hardware: [
@@ -40,8 +51,8 @@ export default function Footer() {
             <div className="border-b border-slate-900 py-8 bg-slate-900/40">
                 <div className="max-w-[1600px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-4 text-left">
-                        <div className="w-12 h-12 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-2xl shrink-0">
-                            💬
+                        <div className="w-12 h-12 rounded-2xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center shrink-0">
+                            <MessageSquare className="w-5 h-5 text-blue-400" />
                         </div>
                         <div>
                             <h4 className="text-base font-extrabold text-white">Need advice picking a laptop or course?</h4>
@@ -84,15 +95,19 @@ export default function Footer() {
                             India's trusted platform for Certified Refurbished Laptops, Computer Accessories, and Practical Tech & Coding Courses.
                         </p>
                         <div className="text-xs text-slate-400 space-y-1 pt-2">
-                            <p className="font-semibold text-slate-300">📍 Hub Location:</p>
-                            <p>Nalka Chowk, 12 Quarter, Near Sector 1-4, Hisar, Haryana - 125001, India</p>
+                            <p className="font-semibold text-slate-300 flex items-center gap-1.5">
+                                <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                                <span>Hub Location:</span>
+                            </p>
+                            <p className="pl-5 text-slate-400">Nalka Chowk, 12 Quarter, Near Sector 1-4, Hisar, Haryana - 125001, India</p>
                         </div>
                     </div>
 
                     {/* Links Columns */}
                     <div>
-                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4">
-                            💻 Tech Hardware
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4 flex items-center gap-1.5">
+                            <Laptop className="w-4 h-4 text-blue-400" />
+                            <span>Tech Hardware</span>
                         </h4>
                         <ul className="space-y-2.5 text-xs font-medium">
                             {footerLinks.hardware.map((item) => (
@@ -106,8 +121,9 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4">
-                            🎓 Digital Skills
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4 flex items-center gap-1.5">
+                            <GraduationCap className="w-4 h-4 text-blue-400" />
+                            <span>Digital Skills</span>
                         </h4>
                         <ul className="space-y-2.5 text-xs font-medium">
                             {footerLinks.courses.map((item) => (
@@ -121,8 +137,9 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4">
-                            🛡️ Assurance & Care
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4 flex items-center gap-1.5">
+                            <ShieldCheck className="w-4 h-4 text-blue-400" />
+                            <span>Assurance & Care</span>
                         </h4>
                         <ul className="space-y-2.5 text-xs font-medium">
                             {footerLinks.trust.map((item) => (
@@ -136,8 +153,9 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4">
-                            ⚖️ Policies & Contact
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4 flex items-center gap-1.5">
+                            <Scale className="w-4 h-4 text-blue-400" />
+                            <span>Policies & Contact</span>
                         </h4>
                         <ul className="space-y-2.5 text-xs font-medium">
                             {footerLinks.legal.map((item) => (
@@ -154,12 +172,21 @@ export default function Footer() {
                 {/* Bottom Bar with Security & Copyright */}
                 <div className="mt-12 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
                     <p>© {currentYear} North Tech Hub. All rights reserved.</p>
-                    <div className="flex items-center gap-4 text-slate-400">
-                        <span>🔒 100% Safe & Secure Checkout</span>
+                    <div className="flex flex-wrap items-center gap-3 text-slate-400">
+                        <span className="inline-flex items-center gap-1">
+                            <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Safe & Secure Checkout</span>
+                        </span>
                         <span>•</span>
-                        <span>🇮🇳 Made for India</span>
+                        <span className="inline-flex items-center gap-1">
+                            <BadgeCheck className="w-3.5 h-3.5 text-blue-400" />
+                            <span>Made for India</span>
+                        </span>
                         <span>•</span>
-                        <span>UPI / Cards / NetBanking</span>
+                        <span className="inline-flex items-center gap-1">
+                            <CreditCard className="w-3.5 h-3.5 text-indigo-400" />
+                            <span>UPI / Cards / NetBanking</span>
+                        </span>
                     </div>
                 </div>
             </div>
