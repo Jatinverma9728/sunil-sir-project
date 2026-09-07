@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,6 +9,18 @@ import { useWishlist } from "@/lib/context/WishlistContext";
 import { useOffers } from "@/lib/hooks/useOffers";
 import ReviewSection from "@/components/products/ReviewSection";
 import ImageZoom from "@/components/products/ImageZoom";
+import { 
+    ChevronRight, 
+    Heart, 
+    ShoppingBag, 
+    Zap, 
+    ShieldCheck, 
+    Truck, 
+    RotateCcw, 
+    CreditCard, 
+    Star,
+    Sparkles
+} from "lucide-react";
 
 interface Product {
     _id: string;
@@ -38,7 +50,7 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
     const router = useRouter();
     const { addToCart } = useCart();
     const { isInWishlist, toggleWishlist } = useWishlist();
-    const { getProductOffer, loading: offersLoading } = useOffers();
+    const { getProductOffer } = useOffers();
     const productId = params.id as string;
 
     const [product, setProduct] = useState<Product | null>(
@@ -87,7 +99,7 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
     const fetchProduct = async () => {
         setLoading(true);
         try {
-            const { getProduct: fetchProductAPI, getProducts } = await import("@/lib/api/products");
+            const { getProduct: fetchProductAPI } = await import("@/lib/api/products");
             const response = await fetchProductAPI(productId);
             if (response.success && response.data) {
                 const productData = {
@@ -158,12 +170,12 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                     <div className="animate-pulse grid lg:grid-cols-[auto_1fr] gap-6">
                         <div className="flex gap-4">
                             <div className="flex flex-col gap-2">
-                                {[...Array(4)].map((_, i) => <div key={i} className="w-16 h-16 bg-gray-100" />)}
+                                {[...Array(4)].map((_, i) => <div key={i} className="w-16 h-16 bg-gray-100 rounded-xl" />)}
                             </div>
-                            <div className="w-full lg:w-96 aspect-square bg-gray-100" />
+                            <div className="w-full lg:w-96 aspect-square bg-gray-100 rounded-2xl" />
                         </div>
                         <div className="space-y-4">
-                            {[...Array(8)].map((_, i) => <div key={i} className="h-10 bg-gray-100" />)}
+                            {[...Array(8)].map((_, i) => <div key={i} className="h-10 bg-gray-100 rounded-xl" />)}
                         </div>
                     </div>
                 </div>
@@ -175,10 +187,10 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
         return (
             <div className="min-h-screen bg-white flex items-center justify-center p-4">
                 <div className="text-center max-w-md" role="alert">
-                    <h1 className="text-2xl font-semibold text-gray-900 mb-4">Product Not Found</h1>
-                    <p className="text-gray-600 mb-6">The product you're looking for doesn't exist or has been removed.</p>
-                    <Link href="/products" className="text-blue-600 hover:underline font-medium">
-                        ← Back to Products
+                    <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
+                    <p className="text-gray-600 mb-6">The product you are looking for does not exist or has been removed.</p>
+                    <Link href="/products" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold hover:underline">
+                        <span>← Back to Products</span>
                     </Link>
                 </div>
             </div>
@@ -193,13 +205,13 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
     return (
         <div className="min-h-screen bg-white">
             {/* Breadcrumb */}
-            <nav className="bg-gray-50 border-b border-gray-200" aria-label="Breadcrumb">
+            <nav className="bg-slate-50 border-b border-slate-200" aria-label="Breadcrumb">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-                    <ol className="flex items-center gap-2 text-sm text-gray-600 overflow-x-auto whitespace-nowrap pb-1">
-                        <li><Link href="/" className="hover:text-blue-600 hover:underline">Home</Link></li>
-                        <li aria-hidden="true">›</li>
-                        <li><Link href="/products" className="hover:text-blue-600 hover:underline">Products</Link></li>
-                        <li aria-hidden="true">›</li>
+                    <ol className="flex items-center gap-2 text-sm text-gray-500 overflow-x-auto whitespace-nowrap pb-1">
+                        <li><Link href="/" className="hover:text-blue-600 transition-colors">Home</Link></li>
+                        <li aria-hidden="true"><ChevronRight className="w-3.5 h-3.5 text-gray-400" /></li>
+                        <li><Link href="/products" className="hover:text-blue-600 transition-colors">Products</Link></li>
+                        <li aria-hidden="true"><ChevronRight className="w-3.5 h-3.5 text-gray-400" /></li>
                         <li>
                             <Link
                                 href={
@@ -211,7 +223,7 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                                         ? '/computer-accessories'
                                         : `/products?category=${product.category}`
                                 }
-                                className="hover:text-blue-600 hover:underline capitalize"
+                                className="hover:text-blue-600 transition-colors capitalize"
                             >
                                 {product.category === 'laptops'
                                     ? 'Refurbished Laptops'
@@ -222,8 +234,8 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                                     : product.category}
                             </Link>
                         </li>
-                        <li aria-hidden="true">›</li>
-                        <li className="text-gray-900 truncate max-w-[200px] sm:max-w-none" aria-current="page">{product.title.substring(0, 50)}</li>
+                        <li aria-hidden="true"><ChevronRight className="w-3.5 h-3.5 text-gray-400" /></li>
+                        <li className="text-gray-900 font-medium truncate max-w-[200px] sm:max-w-none" aria-current="page">{product.title.substring(0, 50)}</li>
                     </ol>
                 </div>
             </nav>
@@ -239,9 +251,9 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                                         key={i}
                                         onClick={() => setSelectedImage(i)}
                                         onMouseEnter={() => setSelectedImage(i)}
-                                        className={`w-16 h-16 border-2 transition-all ${selectedImage === i
-                                            ? 'border-blue-600 shadow-md'
-                                            : 'border-gray-200 hover:border-gray-400'
+                                        className={`w-16 h-16 rounded-xl border-2 overflow-hidden transition-all ${selectedImage === i
+                                            ? 'border-blue-600 shadow-md ring-2 ring-blue-100'
+                                            : 'border-slate-200 hover:border-slate-300'
                                             }`}
                                         aria-label={`View image ${i + 1} of ${images.length}`}
                                     >
@@ -255,7 +267,7 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                     {/* Center: Main Image */}
                     <div className="w-full lg:max-w-xl">
                         <div className="sticky top-6">
-                            <div className="bg-white border border-gray-200 p-6 lg:p-10 relative">
+                            <div className="bg-white border border-slate-200 rounded-2xl p-6 lg:p-8 relative shadow-xs">
                                 <div className="aspect-square relative">
                                     {images.length > 0 ? (
                                         <>
@@ -277,7 +289,7 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                                             </div>
                                         </>
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-gray-50">
+                                        <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded-xl">
                                             <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7.5 12 3 4 7.5m16 0v9L12 21m8-13.5-8 4.5m0 9v-9m0 0L4 7.5m8 4.5-8-4.5m0 0v9L12 21" />
                                             </svg>
@@ -295,19 +307,17 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                                             images: product.images as Array<{ url: string; alt?: string }>,
                                             inStock: product.inStock,
                                         })}
-                                        className={`absolute top-2 right-2 p-2.5 bg-white border transition ${isInWishlist(product._id)
-                                            ? 'text-red-500 border-red-500'
-                                            : 'text-gray-400 border-gray-300 hover:border-red-500 hover:text-red-500'
+                                        className={`absolute top-3 right-3 p-2.5 bg-white/90 backdrop-blur-sm border rounded-xl shadow-xs transition-all ${isInWishlist(product._id)
+                                            ? 'text-rose-600 border-rose-200 bg-rose-50/70'
+                                            : 'text-gray-400 border-slate-200 hover:border-rose-300 hover:text-rose-500'
                                             }`}
                                         aria-label={isInWishlist(product._id) ? "Remove from wishlist" : "Add to wishlist"}
                                     >
-                                        <svg className="w-5 h-5" fill={isInWishlist(product._id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                        </svg>
+                                        <Heart className={`w-5 h-5 ${isInWishlist(product._id) ? 'fill-rose-600' : ''}`} />
                                     </button>
 
                                     {images.length > 1 && (
-                                        <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1">
+                                        <div className="absolute bottom-3 left-3 bg-slate-900/70 backdrop-blur-xs text-white text-xs px-2.5 py-1 rounded-md font-medium">
                                             {selectedImage + 1} / {images.length}
                                         </div>
                                     )}
@@ -321,7 +331,7 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                                         <button
                                             key={i}
                                             onClick={() => setSelectedImage(i)}
-                                            className={`flex-shrink-0 w-16 h-16 border-2 transition ${selectedImage === i ? 'border-blue-600' : 'border-gray-200'}`}
+                                            className={`flex-shrink-0 w-16 h-16 rounded-xl border-2 overflow-hidden transition ${selectedImage === i ? 'border-blue-600 shadow-sm' : 'border-slate-200'}`}
                                             aria-label={`View image ${i + 1}`}
                                         >
                                             <img src={img} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-contain p-1" />
@@ -335,24 +345,27 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                                 <button
                                     onClick={handleAddToCart}
                                     disabled={!product.inStock || adding}
-                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    className="flex-1 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-semibold py-3.5 px-6 rounded-xl shadow-sm hover:shadow transition-all disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {adding ? (
                                         <span className="flex items-center justify-center gap-2">
-                                            <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                            ADDING...
+                                            <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                                            <span>ADDING...</span>
                                         </span>
-                                    ) : 'ADD TO CART'}
+                                    ) : (
+                                        <>
+                                            <ShoppingBag className="w-5 h-5" />
+                                            <span>ADD TO CART</span>
+                                        </>
+                                    )}
                                 </button>
                                 <button
                                     onClick={handleBuyNow}
                                     disabled={!product.inStock}
-                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-full shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:opacity-95 text-white font-bold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
-                                    BUY NOW
+                                    <Zap className="w-5 h-5" />
+                                    <span>BUY NOW</span>
                                 </button>
                             </div>
                         </div>
@@ -362,27 +375,25 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                     <div className="space-y-5">
                         {product.brand && (
                             <div>
-                                <Link href={`/products?brand=${product.brand}`} className="text-sm text-blue-600 hover:underline font-medium">
+                                <Link href={`/products?brand=${product.brand}`} className="text-sm text-blue-600 hover:underline font-semibold tracking-wide">
                                     Visit {product.brand} Store
                                 </Link>
                             </div>
                         )}
 
                         <div>
-                            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-tight">
+                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
                                 {product.title}
                             </h1>
                         </div>
 
                         {count > 0 && (
                             <div className="flex items-center gap-4 pb-5 border-b border-gray-200">
-                                <div className="flex items-center gap-1 bg-blue-700 text-white px-2.5 py-1.5 text-sm font-bold shadow-sm">
+                                <div className="flex items-center gap-1.5 bg-blue-600 text-white px-3 py-1 text-sm font-bold rounded-lg shadow-xs">
                                     <span>{avg.toFixed(1)}</span>
-                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                    </svg>
+                                    <Star className="w-3.5 h-3.5 fill-white text-white" />
                                 </div>
-                                <span className="text-sm text-gray-600">{count.toLocaleString()} Ratings</span>
+                                <span className="text-sm text-gray-600 font-medium">{count.toLocaleString()} Ratings & Reviews</span>
                             </div>
                         )}
 
@@ -390,16 +401,17 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                         <div className="pb-6 border-b border-gray-200">
                             {activeOffer && (
                                 <div className="mb-3 flex flex-wrap gap-2">
-                                    <span className="bg-gradient-to-r from-rose-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 inline-block shadow-sm rounded-sm">
+                                    <span className="bg-gradient-to-r from-rose-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 inline-flex items-center gap-1 shadow-xs rounded-lg">
+                                        <Sparkles className="w-3.5 h-3.5" />
                                         {activeOffer.offerName}
                                     </span>
-                                    <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 inline-block shadow-sm">
+                                    <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 inline-block shadow-xs rounded-lg">
                                         {discount}% OFF
                                     </span>
                                 </div>
                             )}
                             <div className="flex flex-wrap items-baseline gap-2 sm:gap-4 mb-2">
-                                <span className="text-2xl sm:text-4xl font-semibold text-gray-900">
+                                <span className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
                                     {"\u20B9"}{finalPrice.toLocaleString('en-IN')}
                                 </span>
                                 {displayOriginalPrice && displayOriginalPrice > finalPrice && (
@@ -407,49 +419,52 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                                         <span className="text-xl text-gray-400 line-through">
                                             {"\u20B9"}{displayOriginalPrice.toLocaleString('en-IN')}
                                         </span>
-                                        <span className="text-lg text-green-600 font-semibold">
+                                        <span className="text-lg text-emerald-600 font-bold">
                                             {discount}% off
                                         </span>
                                     </>
                                 )}
                             </div>
                             {savings > 0 && (
-                                <p className="text-green-700 font-semibold text-sm">
+                                <p className="text-emerald-700 font-semibold text-sm">
                                     You Save: {"\u20B9"}{savings.toLocaleString('en-IN')} ({discount}%)
                                 </p>
                             )}
-                            <p className="text-sm text-gray-600 mt-2">Inclusive of all taxes</p>
+                            <p className="text-xs text-gray-500 mt-2 font-medium">Inclusive of all taxes</p>
                         </div>
 
                         {/* Stock */}
                         <div className="pb-6 border-b border-gray-200">
-                            <h2 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wide">Availability</h2>
+                            <h2 className="font-bold text-gray-900 mb-3 text-xs uppercase tracking-wider text-gray-500">Availability</h2>
                             {product.inStock ? (
-                                <div className="flex items-center gap-2 text-green-700">
-                                    <div className="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
-                                    <span className="font-semibold">In Stock</span>
+                                <div className="flex items-center gap-2 text-emerald-700">
+                                    <span className="relative flex h-3 w-3">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                                    </span>
+                                    <span className="font-semibold text-sm">In Stock</span>
                                 </div>
                             ) : (
-                                <div className="flex items-center gap-2 text-red-700">
-                                    <div className="w-2.5 h-2.5 bg-red-600 rounded-full"></div>
-                                    <span className="font-semibold">Out of Stock</span>
+                                <div className="flex items-center gap-2 text-rose-700">
+                                    <div className="w-2.5 h-2.5 bg-rose-600 rounded-full"></div>
+                                    <span className="font-semibold text-sm">Out of Stock</span>
                                 </div>
                             )}
                             {product.stock && product.stock < 10 && product.inStock && (
-                                <p className="text-orange-600 font-medium mt-2 text-sm">
-                                    Only {product.stock} left - order soon.
+                                <p className="text-amber-600 font-medium mt-2 text-sm">
+                                    Only {product.stock} left in stock - order soon.
                                 </p>
                             )}
                         </div>
 
                         {/* Quantity */}
                         <div className="pb-6 border-b border-gray-200">
-                            <label htmlFor="quantity" className="block text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">Quantity</label>
+                            <label htmlFor="quantity" className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Quantity</label>
                             <select
                                 id="quantity"
                                 value={quantity}
                                 onChange={(e) => setQuantity(Number(e.target.value))}
-                                className="border border-gray-300 px-4 py-2.5 w-full lg:w-32 focus:outline-none focus:border-blue-500"
+                                className="border border-slate-300 rounded-xl px-4 py-2.5 w-full lg:w-36 font-medium text-gray-800 bg-white shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
                                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
                                     <option key={num} value={num}>Qty: {num}</option>
@@ -459,7 +474,7 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
 
                         {/* Delivery */}
                         <div className="pb-6 border-b border-gray-200">
-                            <h2 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Delivery Options</h2>
+                            <h2 className="font-bold text-gray-500 mb-4 text-xs uppercase tracking-wider">Delivery Options</h2>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
@@ -468,22 +483,22 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                                         setPincode(e.target.value.replace(/\D/g, '').slice(0, 6));
                                         setDeliveryInfo(null);
                                     }}
-                                    placeholder="Enter Pincode"
-                                    className="flex-1 border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500"
+                                    placeholder="Enter 6-digit Pincode"
+                                    className="flex-1 border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-xs"
                                     maxLength={6}
                                 />
                                 <button
                                     onClick={checkDelivery}
                                     disabled={pincode.length !== 6 || checkingDelivery}
-                                    className="px-6 py-2.5 text-sm font-semibold text-blue-600 border border-gray-300 hover:bg-gray-50 disabled:opacity-50"
+                                    className="px-6 py-2.5 text-sm font-semibold text-blue-600 border border-slate-300 rounded-xl hover:bg-blue-50 hover:border-blue-300 disabled:opacity-50 transition-all shadow-xs"
                                 >
                                     {checkingDelivery ? 'Checking...' : 'Check'}
                                 </button>
                             </div>
                             {deliveryInfo && (
-                                <div className="mt-3 p-4 bg-green-50 border border-green-200 text-green-900">
-                                    <p className="font-semibold">Delivery by {deliveryInfo.date}</p>
-                                    <p className="text-sm mt-1">if ordered today</p>
+                                <div className="mt-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900">
+                                    <p className="font-semibold text-sm">Delivery by {deliveryInfo.date}</p>
+                                    <p className="text-xs text-emerald-700 mt-1">if ordered today</p>
                                 </div>
                             )}
                         </div>
@@ -491,12 +506,12 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                         {/* Features */}
                         {product.features && product.features.length > 0 && (
                             <div className="pb-6 border-b border-gray-200">
-                                <h2 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Key Features</h2>
-                                <ul className="space-y-2 text-sm text-gray-700">
+                                <h2 className="font-bold text-gray-500 mb-4 text-xs uppercase tracking-wider">Key Features</h2>
+                                <ul className="space-y-2.5 text-sm text-gray-700">
                                     {product.features.map((feature, i) => (
-                                        <li key={i} className="flex gap-2">
-                                            <span className="text-gray-400 flex-shrink-0">•</span>
-                                            <span>{feature}</span>
+                                        <li key={i} className="flex gap-2.5 items-start">
+                                            <span className="text-blue-600 font-bold">•</span>
+                                            <span className="leading-snug">{feature}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -505,28 +520,31 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
 
                         {/* Policies */}
                         <div>
-                            <h2 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Services & Policies</h2>
-                            <ul className="space-y-2.5 text-sm text-gray-700">
+                            <h2 className="font-bold text-gray-500 mb-4 text-xs uppercase tracking-wider">Services & Policies</h2>
+                            <ul className="space-y-3 text-sm text-gray-700">
                                 {[
-                                    { label: "7 Days Replacement", desc: "Hassle-free replacement for damaged or defective products" },
-                                    { label: "Cash on Delivery", desc: "Pay when you receive the product at your doorstep" },
-                                    { label: "Secure Payments", desc: "All transactions are encrypted and 100% secure" },
-                                    { label: "Free Shipping", desc: "No delivery charges on this product" },
-                                ].map((item, i) => (
-                                    <li key={i} className="flex items-start gap-2.5">
-                                        <svg className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                        </svg>
-                                        <span><strong>{item.label}:</strong> {item.desc}</span>
-                                    </li>
-                                ))}
+                                    { icon: RotateCcw, label: "7 Days Replacement", desc: "Hassle-free replacement for damaged or defective products" },
+                                    { icon: CreditCard, label: "Cash on Delivery", desc: "Pay when you receive the product at your doorstep" },
+                                    { icon: ShieldCheck, label: "Secure Payments", desc: "All transactions are encrypted and 100% secure" },
+                                    { icon: Truck, label: "Free Shipping", desc: "No delivery charges on this product" },
+                                ].map((item, i) => {
+                                    const IconComponent = item.icon;
+                                    return (
+                                        <li key={i} className="flex items-start gap-3">
+                                            <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 mt-0.5 shrink-0">
+                                                <IconComponent className="w-4 h-4" />
+                                            </div>
+                                            <span className="leading-snug"><strong>{item.label}:</strong> {item.desc}</span>
+                                        </li>
+                                    );
+                                })}
                             </ul>
                         </div>
 
                         {(product.sku || product.category) && (
-                            <div className="pt-5 border-t border-gray-200 text-sm text-gray-600">
-                                {product.sku && <p><strong>SKU:</strong> {product.sku}</p>}
-                                {product.category && <p className="mt-1"><strong>Category:</strong> {product.category}</p>}
+                            <div className="pt-5 border-t border-gray-200 text-xs text-gray-500 space-y-1">
+                                {product.sku && <p><strong className="text-gray-700">SKU:</strong> {product.sku}</p>}
+                                {product.category && <p><strong className="text-gray-700">Category:</strong> {product.category}</p>}
                             </div>
                         )}
                     </div>
@@ -534,9 +552,9 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
 
                 {/* Full-Width Sections */}
                 <div className="mt-12 space-y-6">
-                    <section className="border border-gray-300 shadow-sm bg-white" aria-labelledby="description-heading">
-                        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                            <h2 id="description-heading" className="text-lg font-semibold text-gray-900">Product Description</h2>
+                    <section className="rounded-2xl border border-slate-200 shadow-xs bg-white overflow-hidden" aria-labelledby="description-heading">
+                        <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                            <h2 id="description-heading" className="text-lg font-bold text-gray-900">Product Description</h2>
                         </div>
                         <div className="px-6 py-5">
                             <p className="text-gray-700 leading-relaxed whitespace-pre-line">{product.description}</p>
@@ -544,15 +562,15 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                     </section>
 
                     {product.specifications && product.specifications.length > 0 && (
-                        <section className="border border-gray-300 shadow-sm bg-white" aria-labelledby="specs-heading">
-                            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                                <h2 id="specs-heading" className="text-lg font-semibold text-gray-900">Technical Specifications</h2>
+                        <section className="rounded-2xl border border-slate-200 shadow-xs bg-white overflow-hidden" aria-labelledby="specs-heading">
+                            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                                <h2 id="specs-heading" className="text-lg font-bold text-gray-900">Technical Specifications</h2>
                             </div>
                             <div className="px-4 sm:px-6 py-5 overflow-x-auto">
                                 <table className="w-full min-w-[300px]">
                                     <tbody>
                                         {product.specifications.map((spec, i) => (
-                                            <tr key={i} className="border-b border-gray-100 last:border-0">
+                                            <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
                                                 <th scope="row" className="py-3 pr-4 font-semibold text-gray-700 w-1/3 text-left text-sm">{spec.label}</th>
                                                 <td className="py-3 text-gray-900 text-sm">{spec.value}</td>
                                             </tr>
@@ -563,9 +581,9 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                         </section>
                     )}
 
-                    <section className="border border-gray-300 shadow-sm bg-white" aria-labelledby="reviews-heading">
-                        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                            <h2 id="reviews-heading" className="text-lg font-semibold text-gray-900">Customer Reviews</h2>
+                    <section className="rounded-2xl border border-slate-200 shadow-xs bg-white overflow-hidden" aria-labelledby="reviews-heading">
+                        <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                            <h2 id="reviews-heading" className="text-lg font-bold text-gray-900">Customer Reviews</h2>
                         </div>
                         <div className="px-6 py-5">
                             <ReviewSection
@@ -579,25 +597,25 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                 {/* Related Products */}
                 {relatedProducts.length > 0 && (
                     <section className="mt-12" aria-labelledby="related-heading">
-                        <h2 id="related-heading" className="text-2xl font-semibold text-gray-900 mb-6">You May Also Like</h2>
+                        <h2 id="related-heading" className="text-2xl font-bold text-gray-900 mb-6">You May Also Like</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                             {relatedProducts.map((rp: any) => (
-                                <article key={rp._id} className="border border-gray-200 hover:shadow-md transition bg-white">
-                                    <Link href={`/products/${rp._id}`} className="block p-3">
-                                        <div className="aspect-square mb-3 bg-gray-50">
+                                <article key={rp._id} className="rounded-xl border border-slate-200 hover:shadow-md hover:border-blue-200 transition-all bg-white overflow-hidden flex flex-col">
+                                    <Link href={`/products/${rp._id}`} className="block p-3 flex-1 flex flex-col">
+                                        <div className="aspect-square mb-3 bg-slate-50 rounded-lg overflow-hidden flex items-center justify-center">
                                             {rp.images?.[0] && (
                                                 <img
                                                     src={typeof rp.images[0] === 'string' ? rp.images[0] : rp.images[0].url}
                                                     alt={rp.title}
-                                                    className="w-full h-full object-contain p-2"
+                                                    className="w-full h-full object-contain p-2 hover:scale-105 transition-transform"
                                                 />
                                             )}
                                         </div>
-                                        <h3 className="text-sm text-gray-900 line-clamp-2 mb-2">{rp.title}</h3>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="font-semibold text-gray-900">{"\u20B9"}{rp.price.toLocaleString('en-IN')}</span>
+                                        <h3 className="text-xs sm:text-sm font-medium text-gray-900 line-clamp-2 mb-2 hover:text-blue-600 transition-colors">{rp.title}</h3>
+                                        <div className="mt-auto flex items-baseline gap-2">
+                                            <span className="font-bold text-gray-900 text-sm">{"\u20B9"}{rp.price.toLocaleString('en-IN')}</span>
                                             {rp.originalPrice && rp.originalPrice > rp.price && (
-                                                <span className="text-xs text-green-600">{Math.round((1 - rp.price / rp.originalPrice) * 100)}% off</span>
+                                                <span className="text-xs text-emerald-600 font-semibold">{Math.round((1 - rp.price / rp.originalPrice) * 100)}% off</span>
                                             )}
                                         </div>
                                     </Link>

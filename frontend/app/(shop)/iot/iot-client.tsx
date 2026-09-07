@@ -10,6 +10,15 @@ import ViewToggle from "@/components/products/ViewToggle";
 import SortDropdown from "@/components/products/SortDropdown";
 import Pagination from "@/components/products/Pagination";
 import type { Product } from "@/lib/api/products";
+import { 
+    Cpu, 
+    PackageCheck, 
+    Wrench, 
+    Truck, 
+    ChevronRight, 
+    Search,
+    Boxes
+} from "lucide-react";
 
 const IOT_SUB_FILTERS = [
     { id: "all", label: "All IoT & Robotics" },
@@ -21,10 +30,10 @@ const IOT_SUB_FILTERS = [
 ];
 
 const IOT_TRUST_POINTS = [
-    { icon: "⚡", title: "Tested Silicon", desc: "100% genuine ICs & verified pinouts" },
-    { icon: "📦", title: "Same-Day Dispatch", desc: "Orders packed within 4 hours" },
-    { icon: "🔧", title: "Maker Friendly", desc: "Tutorials & GitHub library support" },
-    { icon: "🚚", title: "Pan-India Courier", desc: "Reliable BlueDart & Delhivery" },
+    { icon: Cpu, title: "Tested Silicon", desc: "100% genuine ICs & verified pinouts" },
+    { icon: PackageCheck, title: "Same-Day Dispatch", desc: "Orders packed within 4 hours" },
+    { icon: Wrench, title: "Maker Friendly", desc: "Tutorials & GitHub library support" },
+    { icon: Truck, title: "Pan-India Courier", desc: "Reliable BlueDart & Delhivery" },
 ];
 
 interface IoTClientProps {
@@ -136,9 +145,9 @@ function IoTContent({ initialProducts = [], totalCount = 0 }: IoTClientProps) {
                 <div className="mx-auto max-w-[1600px] px-4 py-3 sm:px-6">
                     <nav className="flex items-center gap-2 text-xs font-medium text-slate-500">
                         <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
-                        <span>›</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                         <Link href="/products" className="hover:text-blue-600 transition-colors">Products</Link>
-                        <span>›</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                         <span className="font-bold text-slate-900">IoT, Robotics & Kits</span>
                     </nav>
                 </div>
@@ -181,17 +190,20 @@ function IoTContent({ initialProducts = [], totalCount = 0 }: IoTClientProps) {
 
                     {/* Trust Strip */}
                     <div className="mt-8 pt-6 border-t border-slate-800 grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {IOT_TRUST_POINTS.map((tp, idx) => (
-                            <div key={idx} className="flex items-center gap-2.5">
-                                <div className="w-7 h-7 rounded-full bg-teal-600/20 text-teal-400 border border-teal-500/30 flex items-center justify-center text-xs font-bold shrink-0">
-                                    {tp.icon}
+                        {IOT_TRUST_POINTS.map((tp, idx) => {
+                            const IconComponent = tp.icon;
+                            return (
+                                <div key={idx} className="flex items-center gap-2.5">
+                                    <div className="w-7 h-7 rounded-lg bg-teal-600/20 text-teal-400 border border-teal-500/30 flex items-center justify-center shrink-0">
+                                        <IconComponent className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-xs font-bold text-slate-100">{tp.title}</h4>
+                                        <p className="text-[11px] text-slate-400">{tp.desc}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 className="text-xs font-bold text-slate-100">{tp.title}</h4>
-                                    <p className="text-[11px] text-slate-400">{tp.desc}</p>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </section>
@@ -232,9 +244,7 @@ function IoTContent({ initialProducts = [], totalCount = 0 }: IoTClientProps) {
                             placeholder="Search ESP32, Raspberry Pi, Sensor, Camera..."
                             className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
                         />
-                        <svg className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3 justify-between md:justify-end">
@@ -268,9 +278,9 @@ function IoTContent({ initialProducts = [], totalCount = 0 }: IoTClientProps) {
                         />
                     )
                 ) : (
-                    <div className="p-12 text-center rounded-xl bg-white border border-slate-200/80 my-8">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-2xl">
-                            📦
+                    <div className="p-12 text-center rounded-2xl bg-white border border-slate-200/80 my-8 shadow-xs">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                            <Boxes className="w-8 h-8 stroke-[1.5]" />
                         </div>
                         <h3 className="text-lg font-bold text-slate-800">No matching IoT components found</h3>
                         <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
@@ -281,7 +291,7 @@ function IoTContent({ initialProducts = [], totalCount = 0 }: IoTClientProps) {
                                 setActiveSubFilter("all");
                                 setSearchQuery("");
                             }}
-                            className="mt-4 px-4 py-2 rounded-lg bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition-colors"
+                            className="mt-4 px-4 py-2 rounded-lg bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition-colors shadow-xs"
                         >
                             Reset Filter
                         </button>

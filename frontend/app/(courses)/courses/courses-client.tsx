@@ -5,6 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import CourseCard from "@/components/courses/CourseCard";
 import { API_URL } from "@/lib/constants";
+import {
+    ChevronRight,
+    Search,
+    SlidersHorizontal,
+    X,
+    GraduationCap,
+    Laptop,
+    Users,
+    Award,
+    Clock,
+    Check
+} from "lucide-react";
 
 // Interface matching the API response
 export interface APICourse {
@@ -166,24 +178,22 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
         <div className="space-y-8">
             {/* Search */}
             <div>
-                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Search</h3>
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Search</h3>
                 <div className="relative">
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Keywords..."
-                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-gray-900 outline-none"
+                        placeholder="Search courses..."
+                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all outline-none"
                     />
-                    <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
             </div>
 
             {/* Categories */}
             <div>
-                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Categories</h3>
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Categories</h3>
                 <div className="space-y-2">
                     <label className="flex items-center gap-3 cursor-pointer group">
                         <input
@@ -194,10 +204,10 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                             onChange={(e) => setSelectedCategory(e.target.value)}
                             className="hidden"
                         />
-                        <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedCategory === "all" ? "border-gray-900" : "border-gray-300 group-hover:border-gray-400"}`}>
-                            {selectedCategory === "all" && <div className="w-2.5 h-2.5 rounded-full bg-gray-900" />}
+                        <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedCategory === "all" ? "border-blue-600" : "border-slate-300 group-hover:border-slate-400"}`}>
+                            {selectedCategory === "all" && <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />}
                         </span>
-                        <span className={`text-sm font-medium transition-colors ${selectedCategory === "all" ? "text-gray-900" : "text-gray-500 group-hover:text-gray-700"}`}>All Categories</span>
+                        <span className={`text-sm font-medium transition-colors ${selectedCategory === "all" ? "text-slate-900 font-bold" : "text-slate-600 group-hover:text-slate-900"}`}>All Categories</span>
                     </label>
                     {categories.map((cat) => (
                         <label key={cat} className="flex items-center gap-3 cursor-pointer group">
@@ -209,10 +219,10 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                                 onChange={(e) => setSelectedCategory(e.target.value)}
                                 className="hidden"
                             />
-                            <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedCategory === cat ? "border-gray-900" : "border-gray-300 group-hover:border-gray-400"}`}>
-                                {selectedCategory === cat && <div className="w-2.5 h-2.5 rounded-full bg-gray-900" />}
+                            <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${selectedCategory === cat ? "border-blue-600" : "border-slate-300 group-hover:border-slate-400"}`}>
+                                {selectedCategory === cat && <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />}
                             </span>
-                            <span className={`text-sm font-medium transition-colors ${selectedCategory === cat ? "text-gray-900" : "text-gray-500 group-hover:text-gray-700"}`}>{cat}</span>
+                            <span className={`text-sm font-medium transition-colors ${selectedCategory === cat ? "text-slate-900 font-bold" : "text-slate-600 group-hover:text-slate-900"}`}>{cat}</span>
                         </label>
                     ))}
                 </div>
@@ -220,7 +230,7 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
 
             {/* Levels */}
             <div>
-                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Level</h3>
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Level</h3>
                 <div className="space-y-2">
                     <label className="flex items-center gap-3 cursor-pointer group">
                         <input
@@ -231,10 +241,10 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                             onChange={(e) => setSelectedLevel(e.target.value)}
                             className="hidden"
                         />
-                        <span className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${selectedLevel === "all" ? "border-gray-900 bg-gray-900 text-white" : "border-gray-300 group-hover:border-gray-400"}`}>
-                            {selectedLevel === "all" && <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                        <span className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-colors ${selectedLevel === "all" ? "border-blue-600 bg-blue-600 text-white" : "border-slate-300 group-hover:border-slate-400"}`}>
+                            {selectedLevel === "all" && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                         </span>
-                        <span className={`text-sm font-medium transition-colors ${selectedLevel === "all" ? "text-gray-900" : "text-gray-500 group-hover:text-gray-700"}`}>All Levels</span>
+                        <span className={`text-sm font-medium transition-colors ${selectedLevel === "all" ? "text-slate-900 font-bold" : "text-slate-600 group-hover:text-slate-900"}`}>All Levels</span>
                     </label>
                     {levels.map((level) => (
                         <label key={level} className="flex items-center gap-3 cursor-pointer group">
@@ -246,10 +256,10 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                                 onChange={(e) => setSelectedLevel(e.target.value)}
                                 className="hidden"
                             />
-                            <span className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${selectedLevel === level ? "border-gray-900 bg-gray-900 text-white" : "border-gray-300 group-hover:border-gray-400"}`}>
-                                {selectedLevel === level && <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                            <span className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-colors ${selectedLevel === level ? "border-blue-600 bg-blue-600 text-white" : "border-slate-300 group-hover:border-slate-400"}`}>
+                                {selectedLevel === level && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </span>
-                            <span className={`text-sm font-medium transition-colors ${selectedLevel === level ? "text-gray-900" : "text-gray-500 group-hover:text-gray-700"}`}>{level}</span>
+                            <span className={`text-sm font-medium transition-colors ${selectedLevel === level ? "text-slate-900 font-bold" : "text-slate-600 group-hover:text-slate-900"}`}>{level}</span>
                         </label>
                     ))}
                 </div>
@@ -258,8 +268,8 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
             {/* Price Range */}
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Price</h3>
-                    <span className="text-sm font-bold bg-gray-100 px-2 py-1 rounded-md">₹0 - ₹{priceRange[1]}</span>
+                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Price</h3>
+                    <span className="text-xs font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">₹0 - ₹{priceRange[1].toLocaleString("en-IN")}</span>
                 </div>
                 <input
                     type="range"
@@ -268,29 +278,29 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                     step="100"
                     value={priceRange[1]}
                     onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                    className="w-full accent-gray-900 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    className="w-full accent-blue-600 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
                 />
             </div>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-white font-sans">
+        <div className="min-h-screen bg-slate-50/50 font-sans">
             {/* Breadcrumb Bar */}
             <div className="border-b border-slate-200/80 bg-white">
                 <div className="mx-auto max-w-[1400px] px-4 py-3 sm:px-6 md:px-8">
                     <nav className="flex items-center gap-2 text-xs font-medium text-slate-500">
                         <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
-                        <span>›</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span className="font-bold text-slate-900">Online Tech Courses</span>
                     </nav>
                 </div>
             </div>
 
-            {/* Minimal Dark Hero */}
+            {/* Hero */}
             <div className="bg-slate-900 text-white py-12 lg:py-16 relative overflow-hidden border-b border-slate-800">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[128px] opacity-20 -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600 rounded-full blur-[96px] opacity-20 translate-y-1/2 -translate-x-1/2"></div>
+                <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[128px] opacity-20 -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600 rounded-full blur-[96px] opacity-20 translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
 
                 <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 relative z-10">
                     <div className="max-w-2xl">
@@ -309,32 +319,46 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                     {/* Trust Strip */}
                     <div className="mt-8 pt-6 border-t border-slate-800 grid grid-cols-2 md:grid-cols-4 gap-4">
                         {[
-                            { title: "Real-World Projects", desc: "Build production apps" },
-                            { title: "Instructor Support", desc: "Direct code guidance" },
-                            { title: "Skill Certification", desc: "Verifiable student diploma" },
-                            { title: "Lifetime Access", desc: "Self-paced video lessons" }
-                        ].map((tp, idx) => (
-                            <div key={idx} className="flex items-center gap-2.5">
-                                <div className="w-7 h-7 rounded-full bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-xs font-bold shrink-0">
-                                    ✓
+                            { title: "Real-World Projects", desc: "Build production apps", icon: Laptop },
+                            { title: "Instructor Support", desc: "Direct code guidance", icon: Users },
+                            { title: "Skill Certification", desc: "Verifiable student diploma", icon: Award },
+                            { title: "Lifetime Access", desc: "Self-paced video lessons", icon: Clock }
+                        ].map((tp, idx) => {
+                            const Icon = tp.icon;
+                            return (
+                                <div key={idx} className="flex items-center gap-2.5">
+                                    <div className="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center shrink-0">
+                                        <Icon className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-xs font-bold text-slate-100">{tp.title}</h4>
+                                        <p className="text-[11px] text-slate-400">{tp.desc}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 className="text-xs font-bold text-slate-100">{tp.title}</h4>
-                                    <p className="text-[11px] text-slate-400">{tp.desc}</p>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-12">
-                <div className="lg:grid lg:grid-cols-4 gap-12">
+            <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-10">
+                <div className="lg:grid lg:grid-cols-4 gap-8">
                     {/* Desktop Sidebar */}
                     <aside className="hidden lg:block lg:col-span-1">
-                        <div className="sticky top-24">
-                            <div className="pb-6 border-b border-gray-100 mb-6">
-                                <h2 className="text-xl font-bold text-gray-900">Filters</h2>
+                        <div className="sticky top-24 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+                            <div className="pb-4 border-b border-slate-100 mb-6 flex items-center justify-between">
+                                <h2 className="text-base font-bold text-slate-900">Filters</h2>
+                                <button
+                                    onClick={() => {
+                                        setSearchQuery("");
+                                        setSelectedCategory("all");
+                                        setSelectedLevel("all");
+                                        setPriceRange([0, 10000]);
+                                    }}
+                                    className="text-xs font-semibold text-blue-600 hover:text-blue-700"
+                                >
+                                    Reset
+                                </button>
                             </div>
                             <FilterContent />
                         </div>
@@ -343,30 +367,34 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                     {/* Main Content */}
                     <div className="lg:col-span-3">
                         {/* Top Bar */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                            <p className="text-gray-500 font-medium text-sm">
-                                Showing <span className="text-gray-900 font-bold">{filteredCourses.length}</span> results
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+                            <p className="text-slate-500 font-medium text-sm">
+                                Showing <span className="text-slate-900 font-bold">{filteredCourses.length}</span> results
                             </p>
 
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-3">
                                 <button
-                                    className="lg:hidden px-4 py-2 bg-gray-100 rounded-lg text-sm font-bold text-gray-900"
+                                    className="lg:hidden inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-xs font-bold text-slate-900 transition-colors"
                                     onClick={() => setMobileFiltersOpen(true)}
                                 >
-                                    Filters
+                                    <SlidersHorizontal className="w-3.5 h-3.5" />
+                                    <span>Filters</span>
                                 </button>
 
-                                <select
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value)}
-                                    className="bg-transparent text-sm font-bold text-gray-900 border-none outline-none cursor-pointer focus:ring-0 text-right pr-8"
-                                >
-                                    <option value="popular">Most Popular</option>
-                                    <option value="rating">Highest Rated</option>
-                                    <option value="price-asc">Price: Low to High</option>
-                                    <option value="price-desc">Price: High to Low</option>
-                                    <option value="newest">Newest</option>
-                                </select>
+                                <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                                    <span className="hidden sm:inline">Sort:</span>
+                                    <select
+                                        value={sortBy}
+                                        onChange={(e) => setSortBy(e.target.value)}
+                                        className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 outline-none cursor-pointer focus:ring-2 focus:ring-blue-600"
+                                    >
+                                        <option value="popular">Most Popular</option>
+                                        <option value="rating">Highest Rated</option>
+                                        <option value="price-asc">Price: Low to High</option>
+                                        <option value="price-desc">Price: High to Low</option>
+                                        <option value="newest">Newest</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -374,7 +402,7 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                         {loading ? (
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {[...Array(6)].map((_, i) => (
-                                    <div key={i} className="bg-gray-50 rounded-3xl h-[400px] animate-pulse" />
+                                    <div key={i} className="bg-white rounded-2xl h-[380px] border border-slate-200/80 animate-pulse" />
                                 ))}
                             </div>
                         ) : filteredCourses.length > 0 ? (
@@ -386,8 +414,12 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                                <p className="text-gray-500 font-medium">No courses found matching your criteria.</p>
+                            <div className="text-center py-16 px-4 bg-white rounded-2xl border border-dashed border-slate-200 shadow-xs">
+                                <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                                <h3 className="text-base font-bold text-slate-900 mb-1">No courses found</h3>
+                                <p className="text-sm text-slate-500 max-w-sm mx-auto mb-5">
+                                    We couldn't find any courses matching your selected criteria. Try adjusting your filters or search terms.
+                                </p>
                                 <button
                                     onClick={() => {
                                         setSearchQuery("");
@@ -395,7 +427,7 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                                         setSelectedLevel("all");
                                         setPriceRange([0, 10000]);
                                     }}
-                                    className="mt-4 text-sm font-bold text-gray-900 underline"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold transition-colors shadow-xs"
                                 >
                                     Clear all filters
                                 </button>
@@ -408,17 +440,15 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
             {/* Mobile Filter Drawer */}
             {mobileFiltersOpen && (
                 <div className="fixed inset-0 z-50 flex lg:hidden">
-                    <div className="fixed inset-0 bg-black/50" onClick={() => setMobileFiltersOpen(false)} />
-                    <div className="relative ml-auto w-full max-w-xs h-full bg-white p-6 overflow-y-auto z-10">
-                        <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
-                            <h2 className="text-lg font-bold text-gray-900">Filters</h2>
+                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs" onClick={() => setMobileFiltersOpen(false)} />
+                    <div className="relative ml-auto w-full max-w-xs h-full bg-white p-6 overflow-y-auto z-10 shadow-2xl">
+                        <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                            <h2 className="text-base font-bold text-slate-900">Filters</h2>
                             <button
                                 onClick={() => setMobileFiltersOpen(false)}
-                                className="p-2 text-gray-400 hover:text-gray-600"
+                                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
                         <FilterContent />

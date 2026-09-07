@@ -10,6 +10,16 @@ import ViewToggle from "@/components/products/ViewToggle";
 import SortDropdown from "@/components/products/SortDropdown";
 import Pagination from "@/components/products/Pagination";
 import type { Product } from "@/lib/api/products";
+import { 
+    CheckCircle2, 
+    ShieldCheck, 
+    BatteryCharging, 
+    RotateCcw, 
+    Truck, 
+    ChevronRight, 
+    Laptop, 
+    Search 
+} from "lucide-react";
 
 const QUICK_FILTERS = [
     { id: "all", label: "All Certified Laptops" },
@@ -22,11 +32,11 @@ const QUICK_FILTERS = [
 ];
 
 const TRUST_POINTS = [
-    { icon: "✓", title: "32-Point Inspected", desc: "Motherboard, thermal & display tested" },
-    { icon: "★", title: "1-Year Warranty", desc: "Comprehensive hardware coverage" },
-    { icon: "⚡", title: "Battery Health ≥ 80%", desc: "Verified original battery backup" },
-    { icon: "↺", title: "7-Day Replacement", desc: "No questions asked rapid exchange" },
-    { icon: "🚚", title: "Free Express Shipping", desc: "Insured transit across India" },
+    { icon: CheckCircle2, title: "32-Point Inspected", desc: "Motherboard, thermal & display tested" },
+    { icon: ShieldCheck, title: "1-Year Warranty", desc: "Comprehensive hardware coverage" },
+    { icon: BatteryCharging, title: "Battery Health ≥ 80%", desc: "Verified original battery backup" },
+    { icon: RotateCcw, title: "7-Day Replacement", desc: "No questions asked rapid exchange" },
+    { icon: Truck, title: "Free Express Shipping", desc: "Insured transit across India" },
 ];
 
 interface LaptopsClientProps {
@@ -129,9 +139,9 @@ function LaptopsContent({ initialProducts = [], totalCount = 0 }: LaptopsClientP
                 <div className="mx-auto max-w-[1600px] px-4 py-3 sm:px-6">
                     <nav className="flex items-center gap-2 text-xs font-medium text-slate-500">
                         <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
-                        <span>›</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                         <Link href="/products" className="hover:text-blue-600 transition-colors">Products</Link>
-                        <span>›</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                         <span className="font-bold text-slate-900">Refurbished Laptops</span>
                     </nav>
                 </div>
@@ -174,17 +184,20 @@ function LaptopsContent({ initialProducts = [], totalCount = 0 }: LaptopsClientP
 
                     {/* Trust Strip */}
                     <div className="mt-8 pt-6 border-t border-slate-800 grid grid-cols-2 md:grid-cols-5 gap-4">
-                        {TRUST_POINTS.map((tp, idx) => (
-                            <div key={idx} className="flex items-center gap-2.5">
-                                <div className="w-7 h-7 rounded-full bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-xs font-bold shrink-0">
-                                    {tp.icon}
+                        {TRUST_POINTS.map((tp, idx) => {
+                            const IconComponent = tp.icon;
+                            return (
+                                <div key={idx} className="flex items-center gap-2.5">
+                                    <div className="w-7 h-7 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center shrink-0">
+                                        <IconComponent className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-xs font-bold text-slate-100">{tp.title}</h4>
+                                        <p className="text-[11px] text-slate-400">{tp.desc}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 className="text-xs font-bold text-slate-100">{tp.title}</h4>
-                                    <p className="text-[11px] text-slate-400">{tp.desc}</p>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </section>
@@ -226,9 +239,7 @@ function LaptopsContent({ initialProducts = [], totalCount = 0 }: LaptopsClientP
                             placeholder="Search ThinkPad, i5, 16GB, SSD..."
                             className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                         />
-                        <svg className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3 justify-between md:justify-end">
@@ -265,9 +276,9 @@ function LaptopsContent({ initialProducts = [], totalCount = 0 }: LaptopsClientP
                         />
                     )
                 ) : (
-                    <div className="p-12 text-center rounded-xl bg-white border border-slate-200/80 my-8">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
-                            💻
+                    <div className="p-12 text-center rounded-2xl bg-white border border-slate-200/80 my-8 shadow-xs">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <Laptop className="w-8 h-8 stroke-[1.5]" />
                         </div>
                         <h3 className="text-lg font-bold text-slate-800">No matching certified laptops found</h3>
                         <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
@@ -280,7 +291,7 @@ function LaptopsContent({ initialProducts = [], totalCount = 0 }: LaptopsClientP
                                 setSelectedBrand("all");
                                 setMaxPrice(null);
                             }}
-                            className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors"
+                            className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors shadow-xs"
                         >
                             Reset All Filters
                         </button>
