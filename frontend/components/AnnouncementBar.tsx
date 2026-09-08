@@ -125,3 +125,4 @@ export default function AnnouncementBar() {
         </div>
     );
 }
+// Notice: Top alert banner maintains 5s cycle interval for multiple promotions
