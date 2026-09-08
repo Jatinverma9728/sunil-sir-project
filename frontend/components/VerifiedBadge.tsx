@@ -50,3 +50,4 @@ export const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
 };
 
 export default VerifiedBadge;
+// Verified badge icon uses currentColor to adapt across dark and light surfaces
