@@ -115,3 +115,4 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
         </div>
     );
 }
+// Fallback placeholder image ensures layout stability when image array is empty
