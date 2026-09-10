@@ -170,3 +170,4 @@ function SamsungToast({ toast, onRemove, index }: { toast: Toast; onRemove: (id:
     );
 }
 
+// Toast notification provider manages non-blocking floating alerts with auto-dismiss
