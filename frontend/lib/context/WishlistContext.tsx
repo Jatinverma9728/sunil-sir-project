@@ -187,3 +187,4 @@ export const useWishlist = () => {
     }
     return context;
 };
+// Synchronize in-memory wishlist with cloud endpoint whenever auth state updates
