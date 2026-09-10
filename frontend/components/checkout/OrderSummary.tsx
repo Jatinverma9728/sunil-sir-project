@@ -1,5 +1,7 @@
 "use client";
 
+import { Package, ShieldCheck, Truck, Tag } from "lucide-react";
+
 interface OrderItem {
     product: {
         _id: string;
@@ -36,33 +38,31 @@ export default function OrderSummary({
     appliedCoupon,
 }: OrderSummaryProps) {
     return (
-        <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-20">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
+        <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs sticky top-24">
+            <h2 className="text-lg font-bold text-slate-900 mb-5">Order Summary</h2>
 
             {/* Items List */}
-            <div className="space-y-4 mb-6 pb-6 border-b border-gray-200 max-h-64 overflow-y-auto">
+            <div className="space-y-3.5 mb-6 pb-6 border-b border-slate-100 max-h-64 overflow-y-auto pr-1">
                 {items.map((item) => (
-                    <div key={item.product._id} className="flex gap-4">
-                        <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                    <div key={item.product._id} className="flex gap-3.5 items-center">
+                        <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-xl shrink-0 flex items-center justify-center overflow-hidden">
                             {(item.product.images?.[0]?.url || item.product.image) ? (
                                 <img
                                     src={item.product.images?.[0]?.url || item.product.image}
                                     alt={item.product.title}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-contain p-1"
                                 />
                             ) : (
-                                <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7.5 12 3 4 7.5m16 0v9L12 21m8-13.5-8 4.5m0 9v-9m0 0L4 7.5m8 4.5-8-4.5m0 0v9L12 21" />
-                                </svg>
+                                <Package className="w-6 h-6 text-slate-300" />
                             )}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 text-sm line-clamp-2">
+                            <p className="font-semibold text-slate-900 text-xs line-clamp-2 leading-snug">
                                 {item.product.title}
                             </p>
-                            <p className="text-xs text-gray-600 mt-1">Qty: {item.quantity}</p>
+                            <p className="text-[11px] text-slate-500 mt-0.5">Qty: {item.quantity}</p>
                         </div>
-                        <p className="font-bold text-gray-900 text-sm">
+                        <p className="font-bold text-slate-900 text-xs shrink-0">
                             ₹{(item.product.price * item.quantity).toFixed(2)}
                         </p>
                     </div>
@@ -70,45 +70,48 @@ export default function OrderSummary({
             </div>
 
             {/* Price Breakdown */}
-            <div className="space-y-3 mb-6 pb-6 border-b border-gray-200">
-                <div className="flex justify-between text-gray-700">
-                    <span>Subtotal ({items.length} items)</span>
-                    <span className="font-medium">₹{subtotal.toFixed(2)}</span>
+            <div className="space-y-3 mb-6 pb-6 border-b border-slate-100 text-xs">
+                <div className="flex justify-between text-slate-600">
+                    <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'items'})</span>
+                    <span className="font-bold text-slate-900">₹{subtotal.toFixed(2)}</span>
                 </div>
 
-                <div className="flex justify-between text-gray-700">
+                <div className="flex justify-between text-slate-600">
                     <span>Shipping</span>
-                    <span className="font-medium">
+                    <span className="font-bold">
                         {shipping === 0 ? (
-                            <span className="text-green-600">FREE</span>
+                            <span className="text-emerald-600">FREE</span>
                         ) : (
-                            `₹${shipping.toFixed(2)}`
+                            <span className="text-slate-900">₹{shipping.toFixed(2)}</span>
                         )}
                     </span>
                 </div>
 
-                <div className="flex justify-between text-gray-700">
+                <div className="flex justify-between text-slate-600">
                     <span>Tax (GST 10%)</span>
-                    <span className="font-medium">₹{tax.toFixed(2)}</span>
+                    <span className="font-bold text-slate-900">₹{tax.toFixed(2)}</span>
                 </div>
 
                 {discount > 0 && (
-                    <div className="flex justify-between text-green-600">
-                        <span>Discount</span>
-                        <span className="font-medium">₹{discount.toFixed(2)}</span>
+                    <div className="flex justify-between text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200/60 font-semibold">
+                        <span className="flex items-center gap-1">
+                            <Tag className="w-3 h-3 text-emerald-600" />
+                            Discount
+                        </span>
+                        <span>-₹{discount.toFixed(2)}</span>
                     </div>
                 )}
 
                 {appliedCoupon && (
-                    <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-600 font-semibold">Coupon</span>
-                                <span className="text-sm font-medium text-green-900">
+                    <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-200/60">
+                        <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-1.5">
+                                <span className="font-bold text-emerald-800">Coupon</span>
+                                <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-emerald-300 text-emerald-800">
                                     {appliedCoupon.code}
                                 </span>
                             </div>
-                            <span className="text-sm font-bold text-green-600">
+                            <span className="font-bold text-emerald-700">
                                 -₹{appliedCoupon.discount.toFixed(2)}
                             </span>
                         </div>
@@ -117,23 +120,26 @@ export default function OrderSummary({
             </div>
 
             {/* Total */}
-            <div className="flex justify-between text-xl font-bold text-gray-900 mb-4">
-                <span>Total</span>
-                <span>₹{total.toFixed(2)}</span>
+            <div className="flex justify-between items-baseline text-base font-black text-slate-900 mb-5">
+                <span>Total Amount</span>
+                <span className="text-xl font-black text-blue-600">₹{total.toFixed(2)}</span>
             </div>
 
             {/* Estimated Delivery */}
-            <div className="bg-blue-50 rounded-lg p-4 mb-4">
-                <p className="text-sm font-medium text-blue-900 mb-1">
-                    Estimated delivery
-                </p>
-                <p className="text-xs text-blue-700">3-5 business days</p>
+            <div className="bg-blue-50/70 border border-blue-100 rounded-xl p-3.5 mb-4 flex items-start gap-2.5">
+                <Truck className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                <div>
+                    <p className="text-xs font-bold text-blue-900">
+                        Estimated Delivery
+                    </p>
+                    <p className="text-[11px] text-blue-700">Dispatched in 24 hours (3-5 business days)</p>
+                </div>
             </div>
 
             {/* Security Badge */}
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="text-green-600 font-semibold">Secure</span>
-                <span>Secure Checkout</span>
+            <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 pt-2 border-t border-slate-100">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span className="font-semibold text-slate-700">Bank-grade 256-bit encryption</span>
             </div>
         </div>
     );

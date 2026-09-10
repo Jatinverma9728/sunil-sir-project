@@ -6,6 +6,16 @@ import { useCart } from "@/lib/context/CartContext";
 import { useOffers } from "@/lib/hooks/useOffers";
 import CartItem from "@/components/cart/CartItem";
 import { validateCoupon } from "@/lib/api/promotions";
+import {
+    ShoppingBag,
+    Trash2,
+    ShieldCheck,
+    Truck,
+    RotateCcw,
+    ArrowRight,
+    Tag,
+    Sparkles
+} from "lucide-react";
 
 export default function CartPage() {
     const {
@@ -87,22 +97,21 @@ export default function CartPage() {
 
     if (items.length === 0) {
         return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
-                <div className="text-center max-w-md">
-                    <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
+            <div className="min-h-screen bg-slate-50/50 flex items-center justify-center p-4">
+                <div className="text-center max-w-md w-full bg-white p-8 sm:p-10 rounded-2xl border border-slate-200/80 shadow-xs">
+                    <div className="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-blue-600">
+                        <ShoppingBag className="w-10 h-10" />
                     </div>
-                    <h1 className="text-3xl font-medium text-gray-900 mb-3">Your cart is empty</h1>
-                    <p className="text-gray-500 mb-8">
-                        Add some products to get started shopping!
+                    <h1 className="text-2xl font-black text-slate-900 mb-2">Your cart is empty</h1>
+                    <p className="text-sm text-slate-500 mb-6">
+                        Looks like you haven't added any items yet. Discover our latest products and deals.
                     </p>
                     <Link
                         href="/products"
-                        className="inline-block px-8 py-4 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-800 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+                        className="inline-flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/20 transition-all"
                     >
-                        Browse Products
+                        <span>Browse Products</span>
+                        <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>
             </div>
@@ -110,34 +119,35 @@ export default function CartPage() {
     }
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-slate-50/50 font-sans">
             {/* Header */}
-            <div className="border-b border-gray-100">
-                <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-12">
+            <div className="border-b border-slate-200/80 bg-white">
+                <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-8 sm:py-10">
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                         <div>
-                            <p className="text-sm font-medium text-gray-400 uppercase tracking-[0.2em] mb-2 sm:mb-3">
-                                Shopping
+                            <p className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-1">
+                                North Tech Hub
                             </p>
-                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium text-gray-900 tracking-tight">
-                                Your Cart
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+                                Shopping Cart
                             </h1>
-                            <p className="text-gray-500 mt-2">
-                                <span className="font-semibold text-gray-900">{items.length}</span> {items.length === 1 ? "item" : "items"}
+                            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                                <span className="font-bold text-slate-900">{items.length}</span> {items.length === 1 ? "item" : "items"} in your order
                             </p>
                         </div>
                         <button
                             onClick={clearCart}
-                            className="self-start sm:self-auto px-5 py-2.5 text-sm text-gray-500 hover:text-red-600 font-medium transition-colors border border-gray-200 rounded-full hover:border-red-200 hover:bg-red-50"
+                            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-600 hover:text-rose-600 transition-colors border border-slate-200 rounded-xl hover:border-rose-200 hover:bg-rose-50"
                         >
-                            Clear Cart
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Clear Cart</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
+            <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-8 sm:py-10">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Cart Items */}
                     <div className="lg:col-span-2 space-y-4">
                         {items.map((item) => (
@@ -152,75 +162,77 @@ export default function CartPage() {
 
                     {/* Order Summary */}
                     <div className="lg:col-span-1">
-                        <div className="bg-gray-50 rounded-3xl p-8 sticky top-24">
-                            <h2 className="text-xl font-medium text-gray-900 mb-6">Order Summary</h2>
+                        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-7 shadow-xs sticky top-24">
+                            <h2 className="text-lg font-bold text-slate-900 mb-5">Order Summary</h2>
 
                             {/* Price Breakdown */}
-                            <div className="space-y-4 mb-6 pb-6 border-b border-gray-200">
-                                <div className="flex justify-between text-gray-600">
+                            <div className="space-y-3.5 mb-6 pb-6 border-b border-slate-100 text-sm">
+                                <div className="flex justify-between text-slate-600">
                                     <span>Subtotal</span>
                                     <div className="text-right">
                                         {offerSavings > 0 && (
-                                            <span className="text-sm text-gray-400 line-through mr-2">
+                                            <span className="text-xs text-slate-400 line-through mr-2">
                                                 ₹{originalSubtotal.toFixed(2)}
                                             </span>
                                         )}
-                                        <span className="font-medium text-gray-900">₹{subtotal.toFixed(2)}</span>
+                                        <span className="font-bold text-slate-900">₹{subtotal.toFixed(2)}</span>
                                     </div>
                                 </div>
 
                                 {/* Offer Savings */}
                                 {offerSavings > 0 && (
-                                    <div className="flex justify-between text-green-600 bg-green-50 p-3 rounded-xl">
-                                        <span className="flex items-center gap-2">
+                                    <div className="flex justify-between items-center text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200/60 text-xs font-semibold">
+                                        <span className="flex items-center gap-1.5">
+                                            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                                             Offer savings
                                         </span>
-                                        <span className="font-semibold">-₹{offerSavings.toFixed(2)}</span>
+                                        <span className="font-bold">-₹{offerSavings.toFixed(2)}</span>
                                     </div>
                                 )}
 
-                                <div className="flex justify-between text-gray-600">
+                                <div className="flex justify-between text-slate-600">
                                     <span>Shipping</span>
-                                    <span className="font-medium">
+                                    <span className="font-bold">
                                         {shipping === 0 ? (
-                                            <span className="text-green-600">FREE</span>
+                                            <span className="text-emerald-600">FREE</span>
                                         ) : (
-                                            <span className="text-gray-900">₹{shipping.toFixed(2)}</span>
+                                            <span className="text-slate-900">₹{shipping.toFixed(2)}</span>
                                         )}
                                     </span>
                                 </div>
 
                                 {shipping > 0 && (
-                                    <div className="text-sm text-gray-500 bg-blue-50 p-4 rounded-2xl">
-                                        <span className="font-medium text-blue-600">Almost there</span>
-                                        <br />Add ₹{(999 - subtotal).toFixed(2)} more for free shipping
+                                    <div className="text-xs text-slate-600 bg-blue-50/80 border border-blue-100 p-3 rounded-xl">
+                                        <span className="font-bold text-blue-600">Free delivery threshold:</span>
+                                        <span className="block mt-0.5 text-slate-500">Add ₹{(999 - subtotal).toFixed(2)} more to qualify for free delivery</span>
                                     </div>
                                 )}
 
                                 {/* Coupon Discount */}
                                 {appliedCoupon && (
-                                    <div className="flex justify-between text-green-600">
-                                        <span className="flex items-center gap-2">
+                                    <div className="flex justify-between items-center text-emerald-700 text-xs font-semibold bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200/60">
+                                        <span className="flex items-center gap-1.5">
+                                            <Tag className="w-3.5 h-3.5 text-emerald-600" />
                                             Coupon ({appliedCoupon.code})
                                             <button
                                                 onClick={handleRemoveCoupon}
-                                                className="text-red-500 hover:text-red-600 text-xs"
+                                                className="text-rose-600 hover:text-rose-700 underline text-[11px] ml-1"
                                             >
                                                 Remove
                                             </button>
                                         </span>
-                                        <span className="font-medium">-₹{cartTotals.discount.toFixed(2)}</span>
+                                        <span className="font-bold">-₹{cartTotals.discount.toFixed(2)}</span>
                                     </div>
                                 )}
 
-                                <div className="flex justify-between text-gray-600">
+                                <div className="flex justify-between text-slate-600">
                                     <span>Tax (10%)</span>
-                                    <span className="font-medium text-gray-900">₹{tax.toFixed(2)}</span>
+                                    <span className="font-bold text-slate-900">₹{tax.toFixed(2)}</span>
                                 </div>
                             </div>
 
                             {/* Promo Code */}
-                            <div className="mb-6 pb-6 border-b border-gray-200">
+                            <div className="mb-6 pb-6 border-b border-slate-100">
                                 {!appliedCoupon ? (
                                     <>
                                         <div className="flex gap-2">
@@ -229,57 +241,58 @@ export default function CartPage() {
                                                 value={localCouponCode}
                                                 onChange={(e) => setLocalCouponCode(e.target.value.toUpperCase())}
                                                 onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
-                                                placeholder="Enter coupon code"
-                                                className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all text-sm font-mono"
+                                                placeholder="Promo code"
+                                                className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all text-xs font-mono uppercase outline-none"
                                             />
                                             <button
                                                 onClick={handleApplyCoupon}
                                                 disabled={couponLoading || !localCouponCode.trim()}
-                                                className="px-5 py-3 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="px-4 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 {couponLoading ? "..." : "Apply"}
                                             </button>
                                         </div>
                                         {couponError && (
-                                            <p className="mt-2 text-sm text-red-500">{couponError}</p>
+                                            <p className="mt-2 text-xs font-medium text-rose-600">{couponError}</p>
                                         )}
                                     </>
                                 ) : (
-                                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">
+                                    <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-xl border border-emerald-200/60">
                                         <div>
-                                            <p className="text-sm font-medium text-green-700">
+                                            <p className="text-xs font-bold text-emerald-800">
                                                 Coupon applied
                                             </p>
-                                            <p className="text-xs text-green-600">
+                                            <p className="text-[11px] text-emerald-600">
                                                 {appliedCoupon.discountType === 'percentage'
                                                     ? `${appliedCoupon.discountValue}% off`
                                                     : `₹${appliedCoupon.discountValue} off`
                                                 }
                                             </p>
                                         </div>
-                                        <span className="font-mono font-bold text-green-700">{appliedCoupon.code}</span>
+                                        <span className="font-mono font-bold text-xs text-emerald-800">{appliedCoupon.code}</span>
                                     </div>
                                 )}
                             </div>
 
                             {/* Total */}
-                            <div className="flex justify-between text-lg font-semibold text-gray-900 mb-6">
-                                <span>Total</span>
-                                <span>₹{total.toFixed(2)}</span>
+                            <div className="flex justify-between items-baseline text-base font-black text-slate-900 mb-6">
+                                <span>Estimated Total</span>
+                                <span className="text-xl font-black text-blue-600">₹{total.toFixed(2)}</span>
                             </div>
 
                             {/* Checkout Button */}
                             <Link
                                 href="/checkout"
-                                className="w-full block text-center px-8 py-4 bg-gray-900 text-white rounded-2xl font-medium hover:bg-gray-800 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg mb-3"
+                                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/20 transition-all mb-3"
                             >
-                                Proceed to Checkout
+                                <span>Proceed to Checkout</span>
+                                <ArrowRight className="w-4 h-4" />
                             </Link>
 
                             {/* Continue Shopping */}
                             <Link
                                 href="/products"
-                                className="w-full block text-center px-8 py-3 border border-gray-200 text-gray-600 rounded-2xl font-medium hover:bg-gray-100 transition-colors"
+                                className="w-full block text-center px-6 py-3 border border-slate-200 text-slate-700 rounded-xl font-semibold text-xs hover:bg-slate-50 transition-colors"
                             >
                                 Continue Shopping
                             </Link>
@@ -288,24 +301,25 @@ export default function CartPage() {
                 </div>
 
                 {/* Trust Badges */}
-                <div className="mt-12 sm:mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
+                <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {[
-                        { icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z", title: "Secure Payment", desc: "256-bit SSL encryption" },
-                        { icon: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4", title: "Free Shipping", desc: "On orders over ₹999" },
-                        { icon: "M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6", title: "Easy Returns", desc: "30-day return policy" },
-                    ].map((badge, i) => (
-                        <div key={i} className="flex items-start gap-4 p-6 bg-gray-50 rounded-2xl">
-                            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={badge.icon} />
-                                </svg>
+                        { icon: ShieldCheck, title: "Secure Checkout", desc: "256-bit SSL encrypted transactions" },
+                        { icon: Truck, title: "Expedited Shipping", desc: "Free delivery on orders over ₹999" },
+                        { icon: RotateCcw, title: "Verified Returns", desc: "Hassle-free 30-day replacement policy" },
+                    ].map((badge, i) => {
+                        const Icon = badge.icon;
+                        return (
+                            <div key={i} className="flex items-start gap-3.5 p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+                                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
+                                    <Icon className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-bold text-slate-900 mb-0.5">{badge.title}</h3>
+                                    <p className="text-xs text-slate-500">{badge.desc}</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-medium text-gray-900 mb-1">{badge.title}</h3>
-                                <p className="text-sm text-gray-500">{badge.desc}</p>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>

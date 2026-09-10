@@ -3,9 +3,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/context/AuthContext";
 import { User, addAddress, Address as ApiAddress } from "@/lib/api/auth";
+import { MapPin, Plus, CheckCircle2 } from "lucide-react";
 
-// Mapping interface to match component internal state structure if slightly different, 
-// but try to align with API Address.
 interface Address {
     fullName: string;
     phone: string;
@@ -83,30 +82,22 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
         if (validateForm()) {
             setIsSaving(true);
             try {
-                // Save address logic if checked
                 if (saveForLater && !useSavedAddress) {
                     await addAddress({
                         fullName: formData.fullName,
                         phone: formData.phone,
-                        street: formData.streetAddress, // Map streetAddress -> street
+                        street: formData.streetAddress,
                         city: formData.city,
                         state: formData.state,
                         zipCode: formData.zipCode,
                         country: formData.country,
-                        // @ts-ignore
-                        apartment: formData.apartment, // Backend doesn't have apartment explicitly in schema I designed? 
-                        // Wait, I designed schema with: street, city, state, zipCode, country.
-                        // I should probably append apartment to street or just ignore it for profile sync?
-                        // Let's check Schema... "street: String". 
-                        // I'll append apartment to street for backend storage if it's not separate.
                         type: 'Home',
                         isDefault: false
                     });
-                    await loadUser(); // Refresh addresses
+                    await loadUser();
                 }
             } catch (error) {
                 console.error("Failed to save address:", error);
-                // Continue to submit order even if save fails, maybe toast warning?
             } finally {
                 setIsSaving(false);
                 onSubmit(formData);
@@ -119,33 +110,25 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
             fullName: addr.fullName,
             phone: addr.phone,
             streetAddress: addr.street,
-            apartment: "", // Populate if we stored it?
+            apartment: "",
             city: addr.city,
             state: addr.state,
             zipCode: addr.zipCode,
             country: addr.country
         });
-        // Auto submit or just fill? 
-        // Just fill and maybe let user confirm? 
-        // Or if "Use Saved Address" mode is active, we just select one and click "Continue".
-
-        // Let's immediately submit if selected from list? 
-        // Or just set form data.
-        // Actually, if we are in "Select Mode", clicking an address card should select it.
-        // Then "Continue" button submits it.
     };
 
     return (
-        <div className="bg-white rounded-2xl p-8 shadow-sm">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Shipping Address</h2>
+        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
+            <h2 className="text-xl font-bold text-slate-900 mb-6">Shipping Address</h2>
 
             {/* Saved Addresses Toggle */}
             {addresses.length > 0 && (
-                <div className="mb-6 flex gap-4 p-1 bg-gray-100 rounded-xl w-fit">
+                <div className="mb-6 flex gap-2 p-1 bg-slate-100 rounded-xl w-fit border border-slate-200/60">
                     <button
                         type="button"
                         onClick={() => setUseSavedAddress(true)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${useSavedAddress ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${useSavedAddress ? 'bg-white shadow-xs text-slate-900' : 'text-slate-500 hover:text-slate-900'
                             }`}
                     >
                         Saved Addresses
@@ -153,7 +136,7 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
                     <button
                         type="button"
                         onClick={() => setUseSavedAddress(false)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${!useSavedAddress ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${!useSavedAddress ? 'bg-white shadow-xs text-slate-900' : 'text-slate-500 hover:text-slate-900'
                             }`}
                     >
                         New Address
@@ -163,41 +146,47 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
 
             {useSavedAddress && addresses.length > 0 ? (
                 <div className="space-y-4">
-                    <div className="grid gap-4">
-                        {addresses.map((addr, index) => (
-                            <label
-                                key={addr._id || index}
-                                className={`block p-4 border-2 rounded-xl cursor-pointer transition-all ${formData.streetAddress === addr.street && formData.zipCode === addr.zipCode
-                                        ? "border-[#2563EB] bg-blue-50"
-                                        : "border-gray-200 hover:border-blue-200"
-                                    }`}
-                            >
-                                <div className="flex items-start gap-4">
-                                    <input
-                                        type="radio"
-                                        name="selectedAddress"
-                                        checked={formData.streetAddress === addr.street && formData.zipCode === addr.zipCode}
-                                        onChange={() => handleSelectAddress(addr)}
-                                        className="mt-1"
-                                    />
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="font-semibold text-gray-900">{addr.fullName}</span>
-                                            <span className="text-xs font-bold uppercase bg-gray-200 px-2 py-0.5 rounded text-gray-600">{addr.type}</span>
+                    <div className="grid gap-3">
+                        {addresses.map((addr, index) => {
+                            const isSelected = formData.streetAddress === addr.street && formData.zipCode === addr.zipCode;
+                            return (
+                                <label
+                                    key={addr._id || index}
+                                    className={`block p-4 border-2 rounded-2xl cursor-pointer transition-all ${isSelected
+                                        ? "border-blue-600 bg-blue-50/40 shadow-xs"
+                                        : "border-slate-200 hover:border-slate-300 bg-white"
+                                        }`}
+                                >
+                                    <div className="flex items-start gap-3.5">
+                                        <input
+                                            type="radio"
+                                            name="selectedAddress"
+                                            checked={isSelected}
+                                            onChange={() => handleSelectAddress(addr)}
+                                            className="mt-1 accent-blue-600"
+                                        />
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="font-bold text-sm text-slate-900">{addr.fullName}</span>
+                                                <span className="text-[10px] font-bold uppercase bg-slate-100 px-2 py-0.5 rounded text-slate-600 border border-slate-200">{addr.type}</span>
+                                            </div>
+                                            <p className="text-xs text-slate-500">{addr.phone}</p>
+                                            <p className="text-xs text-slate-600 mt-0.5">
+                                                {addr.street}, {addr.city}, {addr.state} - {addr.zipCode}
+                                            </p>
                                         </div>
-                                        <p className="text-sm text-gray-600">{addr.phone}</p>
-                                        <p className="text-sm text-gray-600">
-                                            {addr.street}, {addr.city}, {addr.state} - {addr.zipCode}
-                                        </p>
+                                        {isSelected && (
+                                            <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                                        )}
                                     </div>
-                                </div>
-                            </label>
-                        ))}
+                                </label>
+                            );
+                        })}
                     </div>
                     <button
                         type="button"
                         onClick={() => onSubmit(formData)}
-                        className="w-full py-4 bg-black text-white rounded-xl font-semibold text-lg hover:bg-gray-800 transition-colors"
+                        className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/20 transition-all"
                     >
                         Continue to Payment
                     </button>
@@ -205,133 +194,133 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
             ) : (
                 /* Address Form */
                 <form onSubmit={handleSubmit}>
-                    <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    <div className="grid md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Full Name <span className="text-red-500">*</span>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                                Full Name <span className="text-rose-500">*</span>
                             </label>
                             <input
                                 type="text"
                                 name="fullName"
                                 value={formData.fullName}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.fullName ? "border-red-500" : "border-gray-300"
+                                className={`w-full px-3.5 py-2.5 bg-slate-50/50 border rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all ${errors.fullName ? "border-rose-500" : "border-slate-200"
                                     }`}
-                                placeholder="John Doe"
+                                placeholder="e.g. Rahul Sharma"
                             />
                             {errors.fullName && (
-                                <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>
+                                <p className="mt-1 text-xs text-rose-600">{errors.fullName}</p>
                             )}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Phone Number <span className="text-red-500">*</span>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                                Phone Number <span className="text-rose-500">*</span>
                             </label>
                             <input
                                 type="tel"
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.phone ? "border-red-500" : "border-gray-300"
+                                className={`w-full px-3.5 py-2.5 bg-slate-50/50 border rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all ${errors.phone ? "border-rose-500" : "border-slate-200"
                                     }`}
                                 placeholder="+91 9876543210"
                             />
-                            {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                            {errors.phone && <p className="mt-1 text-xs text-rose-600">{errors.phone}</p>}
                         </div>
                     </div>
 
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Street Address <span className="text-red-500">*</span>
+                    <div className="mb-4">
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Street Address <span className="text-rose-500">*</span>
                         </label>
                         <input
                             type="text"
                             name="streetAddress"
                             value={formData.streetAddress}
                             onChange={handleChange}
-                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.streetAddress ? "border-red-500" : "border-gray-300"
+                            className={`w-full px-3.5 py-2.5 bg-slate-50/50 border rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all ${errors.streetAddress ? "border-rose-500" : "border-slate-200"
                                 }`}
-                            placeholder="123 Main Street"
+                            placeholder="Flat/House No., Building Name, Street"
                         />
                         {errors.streetAddress && (
-                            <p className="mt-1 text-sm text-red-600">{errors.streetAddress}</p>
+                            <p className="mt-1 text-xs text-rose-600">{errors.streetAddress}</p>
                         )}
                     </div>
 
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Apartment, Suite, etc. (Optional)
+                    <div className="mb-4">
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                            Apartment, Suite, Landmark (Optional)
                         </label>
                         <input
                             type="text"
                             name="apartment"
                             value={formData.apartment}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
-                            placeholder="Apt 4B"
+                            className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all"
+                            placeholder="Near City Park, Apt 4B"
                         />
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-6 mb-6">
+                    <div className="grid md:grid-cols-3 gap-4 mb-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                City <span className="text-red-500">*</span>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                                City <span className="text-rose-500">*</span>
                             </label>
                             <input
                                 type="text"
                                 name="city"
                                 value={formData.city}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.city ? "border-red-500" : "border-gray-300"
+                                className={`w-full px-3.5 py-2.5 bg-slate-50/50 border rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all ${errors.city ? "border-rose-500" : "border-slate-200"
                                     }`}
-                                placeholder="Mumbai"
+                                placeholder="e.g. Mumbai"
                             />
-                            {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city}</p>}
+                            {errors.city && <p className="mt-1 text-xs text-rose-600">{errors.city}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                State <span className="text-red-500">*</span>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                                State <span className="text-rose-500">*</span>
                             </label>
                             <input
                                 type="text"
                                 name="state"
                                 value={formData.state}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.state ? "border-red-500" : "border-gray-300"
+                                className={`w-full px-3.5 py-2.5 bg-slate-50/50 border rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all ${errors.state ? "border-rose-500" : "border-slate-200"
                                     }`}
-                                placeholder="Maharashtra"
+                                placeholder="e.g. Maharashtra"
                             />
-                            {errors.state && <p className="mt-1 text-sm text-red-600">{errors.state}</p>}
+                            {errors.state && <p className="mt-1 text-xs text-rose-600">{errors.state}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                ZIP Code <span className="text-red-500">*</span>
+                            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                                PIN Code <span className="text-rose-500">*</span>
                             </label>
                             <input
                                 type="text"
                                 name="zipCode"
                                 value={formData.zipCode}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent ${errors.zipCode ? "border-red-500" : "border-gray-300"
+                                className={`w-full px-3.5 py-2.5 bg-slate-50/50 border rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all ${errors.zipCode ? "border-rose-500" : "border-slate-200"
                                     }`}
                                 placeholder="400001"
                             />
                             {errors.zipCode && (
-                                <p className="mt-1 text-sm text-red-600">{errors.zipCode}</p>
+                                <p className="mt-1 text-xs text-rose-600">{errors.zipCode}</p>
                             )}
                         </div>
                     </div>
 
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                    <div className="mb-4">
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Country</label>
                         <select
                             name="country"
                             value={formData.country}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent bg-white"
+                            className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all cursor-pointer"
                         >
                             <option value="India">India</option>
                             <option value="United States">United States</option>
@@ -346,18 +335,18 @@ export default function AddressForm({ onSubmit, initialAddress }: AddressFormPro
                                 type="checkbox"
                                 checked={saveForLater}
                                 onChange={(e) => setSaveForLater(e.target.checked)}
-                                className="w-5 h-5 rounded border-gray-300 text-black focus:ring-black"
+                                className="w-4 h-4 rounded accent-blue-600"
                             />
-                            <span className="text-sm text-gray-700">Save this address for better experience</span>
+                            <span className="text-xs font-medium text-slate-600">Save this address to my profile for faster checkout</span>
                         </label>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSaving}
-                        className="w-full py-4 bg-black text-white rounded-xl font-semibold text-lg hover:bg-gray-800 transition-colors disabled:opacity-70"
+                        className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/20 transition-all disabled:opacity-70"
                     >
-                        {isSaving ? "Saving..." : "Continue to Payment"}
+                        {isSaving ? "Saving Address..." : "Continue to Payment"}
                     </button>
                 </form>
             )}
