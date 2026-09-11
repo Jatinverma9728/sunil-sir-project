@@ -117,3 +117,4 @@ export const useAuth = () => {
 
     return context;
 };
+// Auth state provider attaches bearer token to request interceptors upon login
