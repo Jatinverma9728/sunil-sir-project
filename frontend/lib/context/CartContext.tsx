@@ -352,3 +352,4 @@ export const useCart = () => {
     return context;
 };
 
+// Cart provider calculates subtotal dynamically before applying promotional discounts
