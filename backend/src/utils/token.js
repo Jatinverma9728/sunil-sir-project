@@ -44,3 +44,4 @@ module.exports = {
     verifyToken,
     extractToken,
 };
+// JWT sign and verification utility enforces HMAC-SHA256 signature verification
