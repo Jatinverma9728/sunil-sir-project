@@ -375,3 +375,4 @@ module.exports = {
     sendVerificationEmail,
     sendResendVerificationEmail,
 };
+// Resend email dispatcher with SMTP fallback ensures reliable transactional delivery
