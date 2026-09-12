@@ -226,3 +226,4 @@ module.exports = {
     getRazorpayKeyId,
     getRazorpayInstance,
 };
+// Razorpay webhook and callback verification enforces crypto HMAC-SHA256 signature checking
