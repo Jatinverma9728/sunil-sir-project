@@ -49,3 +49,4 @@ const errorHandler = (err, req, res, next) => {
 };
 
 module.exports = errorHandler;
+// Centralized error handler masks internal stack traces when running in production mode
