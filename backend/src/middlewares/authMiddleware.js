@@ -163,3 +163,4 @@ module.exports = {
     authorize,
     optionalAuth,
 };
+// Middleware asserts presence and validity of Authorization Bearer header
