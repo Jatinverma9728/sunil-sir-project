@@ -177,9 +177,13 @@ const productSchema = new mongoose.Schema(
 
 // Indexes for better query performance
 productSchema.index({ title: 'text', description: 'text' });
+productSchema.index({ isActive: 1, category: 1, createdAt: -1 });
+productSchema.index({ isActive: 1, isFeatured: 1, createdAt: -1 });
+productSchema.index({ isActive: 1, price: 1 });
+productSchema.index({ isActive: 1, price: -1 });
+productSchema.index({ isActive: 1, 'rating.average': -1 });
+productSchema.index({ isActive: 1, stock: 1 });
 productSchema.index({ category: 1, price: 1 });
-productSchema.index({ rating: -1 });
-productSchema.index({ isFeatured: 1 });
 
 // Virtual for in stock status
 productSchema.virtual('inStock').get(function () {

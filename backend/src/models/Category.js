@@ -45,8 +45,7 @@ const categorySchema = new mongoose.Schema(
     }
 );
 
-// Index for faster lookups
-categorySchema.index({ slug: 1 });
+// Indexes (slug index is already created by unique: true)
 categorySchema.index({ isActive: 1 });
 
 // Method to generate slug from name

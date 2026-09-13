@@ -135,8 +135,13 @@ const courseSchema = new mongoose.Schema(
 
 // Indexes
 courseSchema.index({ title: 'text', description: 'text' });
+courseSchema.index({ isPublished: 1, category: 1, createdAt: -1 });
+courseSchema.index({ isPublished: 1, enrolledStudents: -1 });
+courseSchema.index({ isPublished: 1, level: 1 });
+courseSchema.index({ isPublished: 1, price: 1 });
+courseSchema.index({ isPublished: 1, price: -1 });
+courseSchema.index({ isPublished: 1, 'rating.average': -1 });
 courseSchema.index({ category: 1, price: 1 });
-courseSchema.index({ rating: -1 });
 courseSchema.index({ instructor: 1 });
 
 // Virtual for total duration

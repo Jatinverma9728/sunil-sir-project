@@ -159,8 +159,10 @@ const orderSchema = new mongoose.Schema(
 
 // Index for faster queries
 orderSchema.index({ user: 1, createdAt: -1 });
-orderSchema.index({ orderStatus: 1 });
+orderSchema.index({ user: 1, orderStatus: 1, createdAt: -1 });
+orderSchema.index({ orderStatus: 1, createdAt: -1 });
 orderSchema.index({ 'paymentInfo.razorpayOrderId': 1 });
+orderSchema.index({ 'paymentInfo.status': 1 });
 
 // Method to calculate total
 orderSchema.methods.calculateTotal = function () {
