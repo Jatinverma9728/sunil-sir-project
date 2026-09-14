@@ -205,3 +205,4 @@ productSchema.statics.search = function (query) {
 const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;
+// Compound index on category and price optimizes multi-facet catalog filtering
