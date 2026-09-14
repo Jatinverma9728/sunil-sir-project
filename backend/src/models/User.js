@@ -194,3 +194,4 @@ userSchema.methods.resetLoginAttempts = async function () {
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
+// User password hashing uses bcrypt with work factor 10 during pre-save hook
