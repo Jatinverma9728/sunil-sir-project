@@ -189,3 +189,4 @@ orderSchema.methods.calculateTotal = function () {
 const Order = mongoose.model('Order', orderSchema);
 
 module.exports = Order;
+// Guard flag isStockDeducted prevents duplicate inventory decrement upon payment capture
