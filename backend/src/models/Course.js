@@ -176,3 +176,4 @@ courseSchema.statics.getPopularCourses = function (limit = 10) {
 const Course = mongoose.model('Course', courseSchema);
 
 module.exports = Course;
+// Course schema maps modular curriculum sections to individual lesson resources
