@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Montserrat, Inter, Outfit } from "next/font/google";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { CartProvider } from "@/lib/context/CartContext";
 import { ToastProvider } from "@/lib/context/ToastContext";
@@ -14,17 +14,24 @@ import "../src/styles/premium-polish.css";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.northtechhub.in";
 
-// Playful Tech Fonts
+// Robocraze Signature Font
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-montserrat",
+  display: "swap",
+});
+
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-inter",
   display: "swap",
 });
 
 const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["600", "700", "800", "900"],
+  weight: ["600", "700", "800"],
   variable: "--font-outfit",
   display: "swap",
 });
@@ -130,16 +137,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-IN" className={`${inter.variable} ${outfit.variable}`}>
-      <body className="antialiased min-h-screen flex flex-col">
+    <html lang="en-IN" className={`${montserrat.variable} ${inter.variable} ${outfit.variable}`}>
+      <body className={`${montserrat.className} antialiased min-h-screen flex flex-col font-sans`}>
         <ToastProvider>
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
                 <OffersProvider>
-                  {/* Sticky Header Container */}
-                  <header className="sticky top-0 z-50 flex flex-col">
-                    <AnnouncementBar />
+                  {/* Announcement Bar scrolls away naturally */}
+                  <AnnouncementBar />
+
+                  {/* Sticky Navigation Header */}
+                  <header className="sticky top-0 z-50 flex flex-col bg-white shadow-xs">
                     <Navbar />
                   </header>
                   <main className="flex-grow">

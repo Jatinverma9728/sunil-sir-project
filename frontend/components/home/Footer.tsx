@@ -1,124 +1,166 @@
 import Link from "next/link";
 
 const footerLinks = {
-    shop: [
-        { name: "Electronics", href: "/products?category=electronics" },
-        { name: "Laptops & Computers", href: "/products?category=laptops" },
-        { name: "Smartphones", href: "/products?category=smartphones" },
-        { name: "Flash Sales", href: "/products?sale=true" },
+    hardware: [
+        { name: "Certified Refurbished Laptops", href: "/refurbished-laptops" },
+        { name: "IoT & Robotics Components", href: "/iot" },
+        { name: "Computer Accessories & Keyboards", href: "/computer-accessories" },
+        { name: "ThinkPad & Dell Business Series", href: "/refurbished-laptops?search=thinkpad" },
+        { name: "Flash Deals & Clearance", href: "/products?deals=true" },
     ],
-    learn: [
-        { name: "Web Development", href: "/courses?cat=web-dev" },
-        { name: "Data Science", href: "/courses?cat=data-science" },
-        { name: "UI/UX Design", href: "/courses?cat=design" },
-        { name: "Mobile Apps", href: "/courses?cat=mobile" },
+    courses: [
+        { name: "All Online Tech Courses", href: "/courses" },
+        { name: "Full-Stack Web Development", href: "/courses?category=web-dev" },
+        { name: "Python & Machine Learning", href: "/courses?category=programming" },
+        { name: "Microcontroller & IoT Systems", href: "/courses?category=iot" },
+        { name: "Student Skill Certification", href: "/courses" },
     ],
-    company: [
-        { name: "About", href: "/about" },
-        { name: "Contact", href: "/contact" },
-        { name: "FAQ", href: "/faq" },
-        { name: "Shipping", href: "/shipping" },
+    trust: [
+        { name: "32-Point Quality Checklist", href: "/about" },
+        { name: "Warranty & 7-Day Replacement", href: "/about" },
+        { name: "Track Your Order", href: "/orders" },
+        { name: "Shipping & Delivery Policy", href: "/shipping" },
+        { name: "About North Tech Hub", href: "/about" },
     ],
-    support: [
+    legal: [
         { name: "Privacy Policy", href: "/privacy" },
         { name: "Terms & Conditions", href: "/terms" },
-        { name: "Cart", href: "/cart" },
-        { name: "Wishlist", href: "/wishlist" },
+        { name: "Return & Refund Policy", href: "/terms" },
+        { name: "Contact & Help Center", href: "/contact" },
+        { name: "WhatsApp Direct Support", href: "https://wa.me/919355386007" },
     ],
 };
-
-const socialLinks = [
-    { name: "X", href: "https://twitter.com/northtechhub" },
-    { name: "Instagram", href: "https://www.instagram.com/northtechhub" },
-    { name: "LinkedIn", href: "https://www.linkedin.com/company/northtechhub" },
-];
-
-function FooterSection({
-    title,
-    links,
-}: {
-    title: string;
-    links: Array<{ name: string; href: string }>;
-}) {
-    return (
-        <div>
-            <h3 className="mb-5 text-sm font-bold uppercase text-white">{title}</h3>
-            <ul className="space-y-3">
-                {links.map((link) => (
-                    <li key={link.name}>
-                        <Link
-                            href={link.href}
-                            className="inline-flex min-h-8 items-center text-sm font-medium text-gray-400 transition-colors hover:text-white"
-                        >
-                            {link.name}
-                        </Link>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-}
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="border-t border-white/5 bg-[#030303] text-white">
-            <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-                <div className="grid gap-12 lg:grid-cols-[1.2fr_2fr]">
-                    <div className="max-w-md">
-                        <Link href="/" className="inline-flex min-h-11 items-center gap-3">
-                            <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-white text-lg font-bold text-black">
-                                N
-                            </span>
-                            <span className="text-2xl font-bold text-white">North Tech Hub.</span>
+        <footer className="border-t border-slate-800 bg-slate-950 text-slate-300 font-sans">
+            {/* Top Newsletter / Quick Help Bar */}
+            <div className="border-b border-slate-900 py-8 bg-slate-900/40">
+                <div className="max-w-[1600px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-4 text-left">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-2xl shrink-0">
+                            💬
+                        </div>
+                        <div>
+                            <h4 className="text-base font-extrabold text-white">Need advice picking a laptop or course?</h4>
+                            <p className="text-xs text-slate-400">Our certified hardware technicians and instructors are available on WhatsApp.</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <a
+                            href="https://wa.me/919355386007"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors shadow-sm flex items-center gap-2"
+                        >
+                            <span>WhatsApp: +91 93553 86007</span>
+                        </a>
+                        <Link
+                            href="/contact"
+                            className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors border border-slate-700"
+                        >
+                            Help Center
                         </Link>
-                        <p className="mt-5 text-base leading-7 text-gray-400">
-                            India-focused electronics, refurbished laptops, developer tools, and practical online technology courses with clear support paths.
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Links Grid */}
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-12 lg:py-16">
+                <div className="grid gap-10 lg:grid-cols-5">
+                    {/* Brand Info */}
+                    <div className="lg:col-span-1 space-y-4">
+                        <Link href="/" className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-xl shadow-md">
+                                N
+                            </div>
+                            <span className="font-black text-xl text-white tracking-tight">
+                                NORTH<span className="text-blue-500">TECH</span>HUB
+                            </span>
+                        </Link>
+                        <p className="text-xs text-slate-400 leading-relaxed">
+                            India's trusted platform for Certified Refurbished Laptops, Computer Accessories, and Practical Tech & Coding Courses.
                         </p>
-                        <div className="mt-6 flex flex-wrap gap-3">
-                            {socialLinks.map((social) => (
-                                <a
-                                    key={social.name}
-                                    href={social.href}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex min-h-11 items-center rounded-lg border border-white/10 px-4 text-sm font-semibold text-gray-300 transition-colors hover:border-white/30 hover:text-white"
-                                >
-                                    {social.name}
-                                </a>
-                            ))}
+                        <div className="text-xs text-slate-400 space-y-1 pt-2">
+                            <p className="font-semibold text-slate-300">📍 Hub Location:</p>
+                            <p>Nalka Chowk, 12 Quarter, Near Sector 1-4, Hisar, Haryana - 125001, India</p>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-                        <FooterSection title="Shop" links={footerLinks.shop} />
-                        <FooterSection title="Learn" links={footerLinks.learn} />
-                        <FooterSection title="Company" links={footerLinks.company} />
-                        <FooterSection title="Support" links={footerLinks.support} />
+                    {/* Links Columns */}
+                    <div>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4">
+                            💻 Tech Hardware
+                        </h4>
+                        <ul className="space-y-2.5 text-xs font-medium">
+                            {footerLinks.hardware.map((item) => (
+                                <li key={item.name}>
+                                    <Link href={item.href} className="hover:text-blue-400 transition-colors">
+                                        {item.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4">
+                            🎓 Digital Skills
+                        </h4>
+                        <ul className="space-y-2.5 text-xs font-medium">
+                            {footerLinks.courses.map((item) => (
+                                <li key={item.name}>
+                                    <Link href={item.href} className="hover:text-blue-400 transition-colors">
+                                        {item.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4">
+                            🛡️ Assurance & Care
+                        </h4>
+                        <ul className="space-y-2.5 text-xs font-medium">
+                            {footerLinks.trust.map((item) => (
+                                <li key={item.name}>
+                                    <Link href={item.href} className="hover:text-blue-400 transition-colors">
+                                        {item.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white mb-4">
+                            ⚖️ Policies & Contact
+                        </h4>
+                        <ul className="space-y-2.5 text-xs font-medium">
+                            {footerLinks.legal.map((item) => (
+                                <li key={item.name}>
+                                    <Link href={item.href} className="hover:text-blue-400 transition-colors">
+                                        {item.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
 
-                <div className="mt-12 flex flex-col gap-6 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between">
-                    <p className="text-sm font-medium text-gray-500">
-                        {"\u00A9"} {currentYear} North Tech Hub. Crafted for practical technology buying and learning.
-                    </p>
-                    <a
-                        href="https://www.northtechhub.in"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex min-h-11 items-center gap-3 text-sm font-semibold uppercase text-gray-500 transition-colors hover:text-gray-300"
-                    >
-                        Powered by
-                        <span className="flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-[#2563EB]" />
-                            <img
-                                src="/averiq.png"
-                                alt="Averiq"
-                                className="h-7 w-auto object-contain grayscale transition-all hover:grayscale-0"
-                            />
-                        </span>
-                    </a>
+                {/* Bottom Bar with Security & Copyright */}
+                <div className="mt-12 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+                    <p>© {currentYear} North Tech Hub. All rights reserved.</p>
+                    <div className="flex items-center gap-4 text-slate-400">
+                        <span>🔒 100% Safe & Secure Checkout</span>
+                        <span>•</span>
+                        <span>🇮🇳 Made for India</span>
+                        <span>•</span>
+                        <span>UPI / Cards / NetBanking</span>
+                    </div>
                 </div>
             </div>
         </footer>

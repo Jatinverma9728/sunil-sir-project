@@ -140,13 +140,18 @@ const updateOrderStatus = async (req, res) => {
             order.cancelledAt = Date.now();
             order.cancellationReason = reason || 'Cancelled by admin';
 
-            // Restore product stock
-            for (const item of order.orderItems) {
-                const product = await Product.findById(item.product);
-                if (product) {
-                    product.stock += item.quantity;
-                    await product.save();
+            // Restore product stock ONLY if it was previously deducted (prevent inventory inflation)
+            const wasStockDeducted = order.isStockDeducted || order.paymentInfo?.status === 'completed' || order.paymentInfo?.method === 'cod';
+            if (wasStockDeducted && order.orderItems && order.orderItems.length > 0) {
+                console.log(`Restoring product stock for cancelled order ${order._id}...`);
+                for (const item of order.orderItems) {
+                    const product = await Product.findById(item.product);
+                    if (product) {
+                        product.stock += item.quantity;
+                        await product.save();
+                    }
                 }
+                order.isStockDeducted = false;
             }
         }
 

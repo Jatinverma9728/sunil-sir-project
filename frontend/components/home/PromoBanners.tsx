@@ -8,34 +8,22 @@ export default function DynamicPromoBanners() {
     const [banners, setBanners] = useState<Banner[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
     useEffect(() => {
         const fetchBanners = async () => {
             try {
                 const res = await getActiveBanners("hero");
-                if (res.success && res.data) {
+                if (res.success && res.data && res.data.length > 0) {
                     setBanners(res.data);
                 }
             } catch (error) {
-                console.error("Error fetching banners:", error);
+                console.error("Error fetching promo banners:", error);
             } finally {
                 setLoading(false);
             }
         };
         fetchBanners();
     }, []);
-
-    // Auto-rotate banners
-    useEffect(() => {
-        if (banners.length <= 1 || !isAutoPlaying) return;
-
-        const interval = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % banners.length);
-        }, 5000);
-
-        return () => clearInterval(interval);
-    }, [banners.length, isAutoPlaying]);
 
     const handleBannerClick = useCallback(async (banner: Banner) => {
         try {
@@ -45,186 +33,120 @@ export default function DynamicPromoBanners() {
         }
     }, []);
 
-    const goToSlide = (index: number) => {
-        setCurrentIndex(index);
-        setIsAutoPlaying(false);
-        setTimeout(() => setIsAutoPlaying(true), 10000);
-    };
-
-    // Show static banners as fallback if no dynamic banners
     if (!loading && banners.length === 0) {
         return <StaticPromoBanners />;
     }
 
     if (loading) {
         return (
-            <section className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 py-16">
-                <div className="grid md:grid-cols-2 gap-8">
-                    <div className="h-[300px] animate-pulse rounded-lg bg-gray-50" />
-                    <div className="h-[300px] animate-pulse rounded-lg bg-gray-50" />
+            <section className="max-w-[1600px] mx-auto px-4 sm:px-6 py-10">
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div className="h-64 rounded-3xl animate-pulse bg-slate-100" />
+                    <div className="h-64 rounded-3xl animate-pulse bg-slate-100" />
                 </div>
             </section>
         );
     }
 
-    const current = banners[currentIndex];
-
     return (
-        <section className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 py-16">
-            {/* Hero Banner Carousel */}
-            {banners.length === 1 ? (
-                <SingleBanner banner={current} onClick={() => handleBannerClick(current)} />
-            ) : (
-                <div className="relative">
-                    <div className="overflow-hidden rounded-lg">
+        <section className="max-w-[1600px] mx-auto px-4 sm:px-6 py-10">
+            {banners.length > 0 ? (
+                <div className="grid md:grid-cols-2 gap-6">
+                    {banners.slice(0, 2).map((banner) => (
                         <div
-                            className="flex transition-transform duration-700 ease-out"
-                            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                            key={banner._id}
+                            onClick={() => handleBannerClick(banner)}
+                            className="relative rounded-3xl p-8 overflow-hidden shadow-xs border border-slate-200/80 flex flex-col justify-between min-h-[260px]"
+                            style={{ backgroundColor: banner.backgroundColor || '#0F172A', color: banner.textColor || '#FFFFFF' }}
                         >
-                            {banners.map((banner) => (
-                                <div key={banner._id} className="w-full flex-shrink-0">
-                                    <SingleBanner banner={banner} onClick={() => handleBannerClick(banner)} />
-                                </div>
-                            ))}
+                            <div className="relative z-10">
+                                <h3 className="text-2xl font-black mb-2">{banner.title}</h3>
+                                {banner.subtitle && <p className="text-sm opacity-90">{banner.subtitle}</p>}
+                            </div>
+                            {banner.link && (
+                                <Link
+                                    href={banner.link}
+                                    className="relative z-10 w-fit px-5 py-2.5 rounded-xl bg-white text-slate-900 font-bold text-xs hover:bg-blue-50 transition-colors mt-6 shadow-xs"
+                                >
+                                    {banner.buttonText || "Learn More"} →
+                                </Link>
+                            )}
                         </div>
-                    </div>
-
-                    {/* Navigation Arrows */}
-                    <button
-                        onClick={() => goToSlide((currentIndex - 1 + banners.length) % banners.length)}
-                        aria-label="Previous promotion"
-                        className="absolute left-6 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-lg bg-white/80 text-gray-800 shadow-sm backdrop-blur-md transition-all hover:bg-white hover:shadow-md"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <button
-                        onClick={() => goToSlide((currentIndex + 1) % banners.length)}
-                        aria-label="Next promotion"
-                        className="absolute right-6 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-lg bg-white/80 text-gray-800 shadow-sm backdrop-blur-md transition-all hover:bg-white hover:shadow-md"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
-
-                    {/* Dots */}
-                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-                        {banners.map((_, index) => (
-                            <button
-                                key={index}
-                                onClick={() => goToSlide(index)}
-                                aria-label={`Go to promotion ${index + 1}`}
-                                className={`h-1.5 rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-gray-800 w-8' : 'bg-gray-300 w-2 hover:bg-gray-400'
-                                    }`}
-                            />
-                        ))}
-                    </div>
+                    ))}
                 </div>
+            ) : (
+                <StaticPromoBanners />
             )}
         </section>
     );
 }
 
-// Single banner display
-function SingleBanner({ banner, onClick }: { banner: Banner; onClick: () => void }) {
-    const content = (
-        <div
-            className="group relative h-[300px] cursor-pointer overflow-hidden rounded-lg md:h-[400px]"
-            style={{ backgroundColor: banner.backgroundColor }}
-        >
-            {banner.image && (
-                <img
-                    src={banner.image}
-                    alt={banner.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-            )}
-
-            {banner.overlay && (
-                <div
-                    className="absolute inset-0"
-                    style={{ backgroundColor: `rgba(0,0,0,${banner.overlayOpacity})` }}
-                />
-            )}
-
-            <div className="absolute inset-0 flex flex-col justify-center p-10 md:p-20" style={{ color: banner.textColor }}>
-                <div className="max-w-xl">
-                    <h2 className="mb-4 text-4xl font-bold leading-tight md:text-5xl">{banner.title}</h2>
-                    {banner.subtitle && (
-                        <p className="text-xl md:text-2xl mb-8 opacity-90 font-light">{banner.subtitle}</p>
-                    )}
-                    {banner.buttonText && (
-                        <span className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-8 py-4 font-medium text-white transition-all hover:bg-[var(--primary-electric)] group-hover:-translate-y-0.5 group-hover:shadow-lg">
-                            {banner.buttonText}
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                            </svg>
-                        </span>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-
-    if (banner.link || banner.buttonLink) {
-        return (
-            <Link href={banner.buttonLink || banner.link || "/"} onClick={onClick}>
-                {content}
-            </Link>
-        );
-    }
-
-    return content;
-}
-
-// Static fallback banners (Soft Light Theme)
+// Elevated Editorial Dual Banners
 function StaticPromoBanners() {
     return (
-        <section className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 py-16">
-            <div className="grid md:grid-cols-2 gap-8">
-                <Link href="/products?sale=true" className="group">
-                    <div className="relative flex h-full min-h-[320px] cursor-pointer flex-col justify-between overflow-hidden rounded-lg border border-blue-100/70 bg-gradient-to-br from-blue-50 to-cyan-50 p-10 transition-all duration-500 hover:shadow-lg md:p-14">
-                        <div className="relative z-10">
-                            <span className="mb-4 inline-block rounded-md border border-blue-100 bg-white/70 px-4 py-1.5 text-xs font-bold uppercase text-[var(--primary-electric)] backdrop-blur-sm">
-                                Limited Time
+        <section className="max-w-[1600px] mx-auto px-4 sm:px-6 py-10 border-b border-slate-200/80">
+            <div className="grid md:grid-cols-2 gap-6">
+                {/* Banner 1: Hardware Performance Combo */}
+                <Link
+                    href="/products?category=components"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-slate-50/50 p-8 hover:bg-white hover:border-slate-300 hover:shadow-md transition-all duration-300"
+                >
+                    <div>
+                        <div className="flex items-center gap-2 mb-3">
+                            <span className="inline-flex items-center gap-1 rounded bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#028eff]">
+                                Performance Boost
                             </span>
-                            <h3 className="mb-3 text-4xl font-bold leading-tight text-gray-900 md:text-5xl">Mega Sale</h3>
-                            <p className="text-gray-500 text-xl font-medium">Up to 70% OFF</p>
+                            <span className="text-xs text-slate-500 font-medium">Micron and Samsung Chips</span>
                         </div>
-                        <div className="relative z-10 flex items-center justify-between mt-8">
-                            <span className="inline-flex items-center gap-3 text-gray-900 font-semibold group-hover:gap-4 transition-all duration-300">
-                                Shop Now
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[var(--primary-electric)] shadow-sm transition-colors group-hover:bg-[var(--primary-electric)] group-hover:text-white">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                    </svg>
-                                </div>
-                            </span>
+                        <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-snug mb-2 text-slate-900 group-hover:text-[#028eff] transition-colors">
+                            RAM and NVMe SSD Upgrade Combos
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed">
+                            Upgrade your ThinkPad, Dell or desktop with 16GB DDR4 RAM + 512GB PCIe NVMe SSD. Pre-tested with full warranty.
+                        </p>
+                    </div>
+
+                    <div className="mt-8 flex items-center justify-between pt-4 border-t border-slate-200/70">
+                        <div>
+                            <span className="text-[10px] uppercase font-bold text-slate-400 block">Combo Starting At</span>
+                            <span className="text-xl font-black text-[#028eff]">₹3,499</span>
                         </div>
+                        <span className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-[#202020] group-hover:bg-[#028eff] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-xs">
+                            <span>Shop Combos</span>
+                            <span>→</span>
+                        </span>
                     </div>
                 </Link>
 
-                <Link href="/products" className="group">
-                    <div className="relative flex h-full min-h-[320px] cursor-pointer flex-col justify-between overflow-hidden rounded-lg border border-emerald-100/70 bg-gradient-to-br from-emerald-50 to-sky-50 p-10 transition-all duration-500 hover:shadow-lg md:p-14">
-                        <div className="relative z-10">
-                            <span className="mb-4 inline-block rounded-md border border-emerald-100 bg-white/70 px-4 py-1.5 text-xs font-bold uppercase text-emerald-700 backdrop-blur-sm">
-                                Special Offer
+                {/* Banner 2: Online Tech Course Career Pass */}
+                <Link
+                    href="/courses"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-slate-50/50 p-8 hover:bg-white hover:border-slate-300 hover:shadow-md transition-all duration-300"
+                >
+                    <div>
+                        <div className="flex items-center gap-2 mb-3">
+                            <span className="inline-flex items-center gap-1 rounded bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#028eff]">
+                                Career Accelerator
                             </span>
-                            <h3 className="mb-3 text-4xl font-bold leading-tight text-gray-900 md:text-5xl">Free Shipping</h3>
-                            <p className="text-gray-500 text-xl font-medium">On orders over {"\u20B9"}999</p>
+                            <span className="text-xs text-slate-500 font-medium">Lifetime Access and Doubt Support</span>
                         </div>
-                        <div className="relative z-10 flex items-center justify-between mt-8">
-                            <span className="inline-flex items-center gap-3 text-gray-900 font-semibold group-hover:gap-4 transition-all duration-300">
-                                Learn More
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-emerald-700 shadow-sm transition-colors group-hover:bg-emerald-700 group-hover:text-white">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                    </svg>
-                                </div>
-                            </span>
+                        <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-snug mb-2 text-slate-900 group-hover:text-[#028eff] transition-colors">
+                            Full-Stack Web and Python AI Pass
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed">
+                            From foundations to scalable production applications. Build real-world portfolio projects and earn verified certificates.
+                        </p>
+                    </div>
+
+                    <div className="mt-8 flex items-center justify-between pt-4 border-t border-slate-200/70">
+                        <div>
+                            <span className="text-[10px] uppercase font-bold text-slate-400 block">Enrollment From</span>
+                            <span className="text-xl font-black text-[#028eff]">₹499</span>
                         </div>
+                        <span className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-[#202020] group-hover:bg-[#028eff] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-xs">
+                            <span>View Syllabus</span>
+                            <span>→</span>
+                        </span>
                     </div>
                 </Link>
             </div>

@@ -1,5 +1,7 @@
 const Order = require('../models/Order');
 const User = require('../models/User');
+const Product = require('../models/Product');
+const Coupon = require('../models/Coupon');
 const { verifyWebhookSignature } = require('../utils/payment');
 const { sendOrderConfirmationEmail } = require('../utils/email');
 
@@ -119,6 +121,38 @@ const handlePaymentCaptured = async (payload) => {
         if (!order) {
             console.warn(`⚠️ Order not found for razorpay order: ${orderId}`);
             return;
+        }
+
+        // Deduct stock upon successful payment capture (if not already deducted by client verifyPayment)
+        if (!order.isStockDeducted && order.orderItems && order.orderItems.length > 0) {
+            console.log(`📦 Deducting stock via webhook for order ${order._id}...`);
+            const stockUpdatesToApply = order.orderItems.map(item => ({
+                productId: item.product,
+                quantity: item.quantity
+            }));
+
+            await Promise.all(stockUpdatesToApply.map(update =>
+                Product.findByIdAndUpdate(
+                    update.productId,
+                    { $inc: { stock: -update.quantity } },
+                    { new: true }
+                )
+            ));
+            order.isStockDeducted = true;
+
+            // Update usage count for coupon
+            if (order.coupon) {
+                console.log(`🎟️ Updating coupon usage via webhook for order ${order._id}...`);
+                await Coupon.findByIdAndUpdate(order.coupon, {
+                    $inc: { usedCount: 1 },
+                    $push: {
+                        usedBy: {
+                            user: order.user,
+                            count: 1
+                        }
+                    }
+                });
+            }
         }
 
         // Update order status

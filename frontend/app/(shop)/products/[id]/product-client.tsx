@@ -200,7 +200,28 @@ export default function ProductDetailClient({ initialProduct = null }: ProductDe
                         <li aria-hidden="true">›</li>
                         <li><Link href="/products" className="hover:text-blue-600 hover:underline">Products</Link></li>
                         <li aria-hidden="true">›</li>
-                        <li><Link href={`/products?category=${product.category}`} className="hover:text-blue-600 hover:underline">{product.category}</Link></li>
+                        <li>
+                            <Link
+                                href={
+                                    product.category === 'laptops'
+                                        ? '/refurbished-laptops'
+                                        : ['iot', 'raspberry-pi', 'diy-kits', 'rfid', 'drone-kit', 'sensor', 'arduino', '3d-printer'].includes(product.category)
+                                        ? '/iot'
+                                        : ['computer-accessories', 'accessories', 'computers-hardware', 'laptop-computer-parts'].includes(product.category)
+                                        ? '/computer-accessories'
+                                        : `/products?category=${product.category}`
+                                }
+                                className="hover:text-blue-600 hover:underline capitalize"
+                            >
+                                {product.category === 'laptops'
+                                    ? 'Refurbished Laptops'
+                                    : ['iot', 'raspberry-pi', 'diy-kits', 'rfid', 'drone-kit', 'sensor', 'arduino', '3d-printer'].includes(product.category)
+                                    ? 'IoT & Robotics'
+                                    : ['computer-accessories', 'accessories', 'computers-hardware', 'laptop-computer-parts'].includes(product.category)
+                                    ? 'Computer Accessories'
+                                    : product.category}
+                            </Link>
+                        </li>
                         <li aria-hidden="true">›</li>
                         <li className="text-gray-900 truncate max-w-[200px] sm:max-w-none" aria-current="page">{product.title.substring(0, 50)}</li>
                     </ol>

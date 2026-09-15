@@ -25,18 +25,15 @@ export default function Newsletter() {
 
             if (response.success) {
                 setStatus("success");
-                // Backend returns message at root level, not in data
-                setMessage(response.message || response.data?.message || "Thank you for subscribing!");
+                setMessage(response.message || "Welcome! Use code NORTH500 for ₹500 off your order.");
                 setEmail("");
-
-                // Reset after 5 seconds
                 setTimeout(() => {
                     setStatus("idle");
                     setMessage("");
-                }, 5000);
+                }, 6000);
             } else {
                 setStatus("error");
-                setMessage(response.message || response.error || "Subscription failed. Please try again.");
+                setMessage(response.message || "Subscription failed. Please try again.");
             }
         } catch (error: any) {
             setStatus("error");
@@ -45,75 +42,50 @@ export default function Newsletter() {
     };
 
     return (
-        <section className="py-24">
-            <div className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8">
-                <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm md:p-12">
-                    <div className="relative z-10 max-w-2xl mx-auto">
-                        {/* Header */}
-                        <div className="mb-8">
-                            <span className="mb-6 inline-flex items-center gap-2 rounded-md border border-blue-100 bg-blue-50 px-4 py-1.5 text-xs font-bold uppercase text-[var(--primary-electric)]">
-                                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                                Newsletter
-                            </span>
-                            <h2 className="mb-4 text-4xl font-bold leading-tight text-gray-900 md:text-5xl">
-                                Stay in the loop
-                            </h2>
-                            <p className="text-gray-600 text-lg md:text-xl">
-                                Join our community to get the latest updates on new products and exclusive offers.
-                            </p>
+        <section className="py-12 bg-white" aria-label="VIP Newsletter">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6">
+                <div className="relative overflow-hidden rounded-xl bg-slate-50 text-slate-900 p-8 sm:p-12 md:p-14 border border-slate-200">
+                    <div className="relative z-10 max-w-2xl mx-auto text-center">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#028eff] text-xs font-bold uppercase tracking-wider mb-3">
+                            Member Privilege
+                        </span>
+
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900 mb-2">
+                            Get ₹500 OFF Your First Order
+                        </h2>
+                        <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mb-5 leading-relaxed">
+                            Subscribe for exclusive member deals on certified refurbished laptops, hardware upgrades, and free course modules.
+                        </p>
+
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-xs font-bold text-amber-900 mb-6">
+                            <span>Voucher Code:</span>
+                            <span className="bg-amber-200/60 px-2 py-0.5 rounded font-mono text-amber-950 font-black">NORTH500</span>
                         </div>
 
                         {/* Form */}
-                        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto mb-8">
-                            <div className="relative flex-1 group">
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Enter your email"
-                                    className="w-full rounded-lg border border-gray-200 bg-white px-6 py-4 text-gray-900 shadow-sm transition-all duration-300 placeholder:text-gray-400 focus:border-[var(--primary-electric)] focus:outline-none focus:ring-4 focus:ring-[var(--primary-electric)]/10"
-                                    disabled={status === "loading"}
-                                />
-                            </div>
+                        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2.5 max-w-md mx-auto">
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Enter your email address..."
+                                className="flex-1 px-4 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-xs outline-none focus:border-[#028eff] focus:ring-2 focus:ring-blue-500/20 font-medium"
+                                disabled={status === "loading"}
+                            />
                             <button
                                 type="submit"
                                 disabled={status === "loading"}
-                                className="whitespace-nowrap rounded-lg bg-gradient-to-r from-[var(--primary-electric)] to-[var(--primary-deep)] px-8 py-4 text-base font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[var(--glow-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-electric)] focus-visible:ring-offset-2 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
+                                className="px-6 py-2.5 rounded-lg bg-[#028eff] hover:bg-[#0070d6] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-xs disabled:opacity-50 shrink-0"
                             >
-                                {status === "loading" ? (
-                                    <span className="flex items-center gap-2">
-                                        <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Joining...
-                                    </span>
-                                ) : "Subscribe"}
+                                {status === "loading" ? "Joining..." : "Get Voucher"}
                             </button>
                         </form>
 
                         {message && (
-                            <div className={`mb-8 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ${status === "success" ? "bg-green-50 text-green-700 border border-green-100" : "bg-red-50 text-red-700 border border-red-100"} animate-fade-in`}>
-                                {status === "success" && (
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                )}
+                            <p className={`mt-3 text-xs font-semibold ${status === "success" ? "text-emerald-600" : "text-rose-600"}`}>
                                 {message}
-                            </div>
+                            </p>
                         )}
-
-                        {/* Features */}
-                        <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 text-gray-500">
-                            {["Exclusive Deals", "Early Access", "No Spam"].map((feature) => (
-                                <span key={feature} className="flex items-center gap-2 text-sm font-medium">
-                                    <div className="flex h-5 w-5 items-center justify-center rounded-md bg-blue-100 text-[var(--primary-electric)]">
-                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    {feature}
-                                </span>
-                            ))}
-                        </div>
                     </div>
                 </div>
             </div>

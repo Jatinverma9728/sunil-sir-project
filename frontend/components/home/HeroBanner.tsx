@@ -3,285 +3,207 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { getProducts } from "@/lib/api/products";
 
-interface Product {
-    _id: string;
-    title: string;
-    price: number;
-    originalPrice?: number;
-    category: string;
-    images: Array<{ url: string; alt?: string }>;
-    rating?: { average: number; count: number };
-    createdAt?: string;
-    updatedAt?: string;
-}
-
-function displayTitle(title: string, maxLength = 82) {
-    if (title.length <= maxLength) return title;
-    return `${title.slice(0, maxLength - 3).trimEnd()}...`;
-}
+const HERO_SLIDES = [
+    {
+        id: "laptops",
+        tabLabel: "Refurbished Laptops",
+        badge: "Grade A+ Certified • 32-Point Inspected",
+        badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200/80",
+        headline: "Enterprise Laptops at Half the Price.",
+        subheadline: "Certified Lenovo ThinkPads, Dell Latitudes, and MacBooks with verified battery health and 1-year warranty.",
+        priceLabel: "Starting from",
+        price: "₹14,999",
+        originalPrice: "₹48,000",
+        savingsBadge: "Save up to 70%",
+        primaryCta: { text: "Shop Laptops", href: "/refurbished-laptops" },
+        secondaryCta: { text: "Learn More", href: "/about" },
+        floatingTag: "ThinkPad T480 & Dell Latitude Series",
+        floatingRating: "4.9 ★ (850+ Reviews)",
+        warrantyText: "Up to 1-Year Warranty",
+        productImage: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=900&auto=format&fit=crop&q=80"
+    },
+    {
+        id: "accessories",
+        tabLabel: "RAM & Storage Upgrades",
+        badge: "Genuine Hardware • Fast Dispatch",
+        badgeColor: "bg-blue-50 text-blue-700 border-blue-200/80",
+        headline: "High-Speed NVMe Storage & RAM Kits.",
+        subheadline: "Genuine DDR4/DDR5 memory modules and PCIe 4.0 SSDs tested for uncompromising speed and reliability.",
+        priceLabel: "Upgrades from",
+        price: "₹899",
+        originalPrice: "₹2,499",
+        savingsBadge: "Free Shipping Over ₹999",
+        primaryCta: { text: "Shop Upgrades", href: "/computer-accessories" },
+        secondaryCta: { text: "Browse All", href: "/products" },
+        floatingTag: "Crucial, Samsung & Kingston OEM",
+        floatingRating: "4.8 ★ (1,200+ Delivered)",
+        warrantyText: "3-Year Brand Warranty",
+        productImage: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=900&auto=format&fit=crop&q=80"
+    },
+    {
+        id: "courses",
+        tabLabel: "Practical Tech Courses",
+        badge: "Career Tracks • Verified Certification",
+        badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200/80",
+        headline: "Master Real-World Software & Tech Skills.",
+        subheadline: "Hands-on, project-driven curriculums in Full-Stack, Python AI, and IoT built by senior industry engineers.",
+        priceLabel: "Enrollment from",
+        price: "₹499",
+        originalPrice: "₹2,999",
+        savingsBadge: "Lifetime Access",
+        primaryCta: { text: "Explore Courses", href: "/courses" },
+        secondaryCta: { text: "View Curriculum", href: "/courses" },
+        floatingTag: "Full-Stack Web & Python AI",
+        floatingRating: "4.9 ★ (4,200+ Students)",
+        warrantyText: "Certificate of Completion",
+        productImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=900&auto=format&fit=crop&q=80"
+    }
+];
 
 export default function HeroBanner() {
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [newArrivals, setNewArrivals] = useState<Product[]>([]);
-    const [trendingProduct, setTrendingProduct] = useState<Product | null>(null);
-    const [bestSeller, setBestSeller] = useState<Product | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
+    // Auto-advance slides every 7 seconds
     useEffect(() => {
-        fetchHeroProducts();
+        const interval = setInterval(() => {
+            setCurrentSlideIndex((prev) => (prev + 1) % HERO_SLIDES.length);
+        }, 7000);
+        return () => clearInterval(interval);
     }, []);
 
-    const fetchHeroProducts = async () => {
-        try {
-            const response = await getProducts({ limit: 10 });
+    const slide = HERO_SLIDES[currentSlideIndex];
 
-            if (!response.success || !response.data || response.data.length === 0) {
-                setLoading(false);
-                return;
-            }
+    return (
+        <section className="relative overflow-hidden bg-slate-50/60 border-b border-slate-200/80">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
+                <div className="relative z-10 grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                    {/* Left Column: Clear, Spacious Headline & Action */}
+                    <div className="lg:col-span-7 flex flex-col justify-center">
+                        <div className="mb-3">
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${slide.badgeColor}`}>
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                </svg>
+                                {slide.badge}
+                            </span>
+                        </div>
 
-            const allProducts = response.data;
+                        {/* Main Headline */}
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#202020] tracking-tight leading-[1.1] mb-4">
+                            {slide.headline}
+                        </h1>
 
-            // 1. NEW ARRIVALS - Sort by creation date (newest first)
-            const sortedByDate = [...allProducts].sort((a: any, b: any) => {
-                const dateA = new Date(a.createdAt || 0).getTime();
-                const dateB = new Date(b.createdAt || 0).getTime();
-                return dateB - dateA;
-            });
-            setNewArrivals(sortedByDate.slice(0, 3));
+                        {/* Description */}
+                        <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed mb-6 max-w-xl">
+                            {slide.subheadline}
+                        </p>
 
-            // 2. TRENDING - Most reviews
-            const productsWithReviews = allProducts.filter(p => p.rating && p.rating.count > 0);
-            const sortedByReviewCount = [...productsWithReviews].sort((a, b) => {
-                return (b.rating?.count || 0) - (a.rating?.count || 0);
-            });
-            const mostReviewed = sortedByReviewCount[0] || null;
-            setTrendingProduct(mostReviewed);
+                        {/* Price Block */}
+                        <div className="flex flex-wrap items-baseline gap-3 mb-8">
+                            <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
+                                {slide.priceLabel}
+                            </span>
+                            <span className="text-3xl sm:text-4xl font-black text-[#028eff]">
+                                {slide.price}
+                            </span>
+                            <span className="text-sm sm:text-base text-slate-400 line-through font-semibold">
+                                {slide.originalPrice}
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+                                {slide.savingsBadge}
+                            </span>
+                        </div>
 
-            // 3. BEST SELLER - Highest rating
-            const sortedByRating = [...productsWithReviews]
-                .filter(p => {
-                    if (mostReviewed && p._id === mostReviewed._id) return false;
-                    return p.rating && p.rating.average >= 3.5 && p.rating.count > 0;
-                })
-                .sort((a, b) => {
-                    const ratingDiff = (b.rating?.average || 0) - (a.rating?.average || 0);
-                    if (Math.abs(ratingDiff) > 0.1) return ratingDiff;
-                    return (b.rating?.count || 0) - (a.rating?.count || 0);
-                });
-            const highestRated = sortedByRating[0] || null;
-            setBestSeller(highestRated);
+                        {/* CTAs */}
+                        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                            <Link
+                                href={slide.primaryCta.href}
+                                className="px-8 py-3.5 rounded-lg bg-[#028eff] hover:bg-[#0070d6] text-white text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-md hover:shadow-lg flex items-center gap-2 active:scale-95"
+                            >
+                                <span>{slide.primaryCta.text}</span>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </Link>
+                            <Link
+                                href={slide.secondaryCta.href}
+                                className="px-6 py-3.5 rounded-lg bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs sm:text-sm font-bold uppercase tracking-wider transition-colors shadow-xs"
+                            >
+                                {slide.secondaryCta.text}
+                            </Link>
+                        </div>
+                    </div>
 
-        } catch (error) {
-            console.error("Error fetching hero products:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+                    {/* Right Column: Clean, Premium Hardware Visual */}
+                    <div className="lg:col-span-5 relative flex items-center justify-center">
+                        <div className="relative w-full aspect-[4/3] max-w-lg rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-xl group">
+                            <Image
+                                src={slide.productImage}
+                                alt={slide.headline}
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                priority
+                            />
+                            {/* Subtle dark gradient overlay for text readability */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/20 pointer-events-none" />
 
-    // Auto-rotate slides
-    useEffect(() => {
-        if (newArrivals.length === 0) return;
-        const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % newArrivals.length);
-        }, 5000);
-        return () => clearInterval(timer);
-    }, [newArrivals.length]);
+                            {/* Floating Glass Spec Banner at Bottom */}
+                            <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-white/95 backdrop-blur-md border border-white/40 shadow-md flex items-center justify-between pointer-events-none">
+                                <div>
+                                    <span className="text-[10px] font-black uppercase text-[#028eff] tracking-wider block">
+                                        {slide.tabLabel}
+                                    </span>
+                                    <h4 className="text-xs font-bold text-slate-900 truncate max-w-[200px] sm:max-w-[240px]">
+                                        {slide.floatingTag}
+                                    </h4>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-[11px] font-bold text-emerald-600 block">
+                                        {slide.warrantyText}
+                                    </span>
+                                    <span className="text-[10px] font-semibold text-slate-500">
+                                        {slide.floatingRating}
+                                    </span>
+                                </div>
+                            </div>
 
-    if (loading) {
-        return (
-            <section className="py-4 sm:py-6 md:py-8">
-                <div className="max-w-[1600px] mx-auto px-3 sm:px-4">
-                    <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 h-auto md:h-[500px] lg:h-[600px] animate-shimmer">
-                        <div className="lg:col-span-2 h-[400px] rounded-lg bg-gray-100 sm:h-[450px] md:h-full" />
-                        <div className="hidden md:flex flex-col gap-3 sm:gap-4 md:gap-6">
-                            <div className="flex-1 rounded-lg bg-gray-100" />
-                            <div className="flex-1 rounded-lg bg-gray-100" />
+                            {/* Slider Navigation Arrows */}
+                            <button
+                                onClick={() => setCurrentSlideIndex((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
+                                aria-label="Previous slide"
+                                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-800 shadow-md border border-slate-200 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <button
+                                onClick={() => setCurrentSlideIndex((prev) => (prev + 1) % HERO_SLIDES.length)}
+                                aria-label="Next slide"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-slate-800 shadow-md border border-slate-200 flex items-center justify-center transition-all opacity-80 hover:opacity-100 hover:scale-105"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
-            </section>
-        );
-    }
 
-    if (newArrivals.length === 0) {
-        return null;
-    }
-
-    return (
-        <section className="py-4 sm:py-6 md:py-8">
-            <div className="max-w-[1600px] mx-auto px-3 sm:px-4">
-                <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 h-auto md:h-[500px] lg:h-[600px]">
-                    {/* Main Slideshow - New Arrivals */}
-                    <div className="relative h-[400px] overflow-hidden rounded-lg border border-gray-100 bg-white shadow-md sm:h-[450px] md:h-full lg:col-span-2">
-                        {newArrivals.map((product, index) => (
-                            <div
-                                key={product._id}
-                                className={`absolute inset-0 transition-opacity duration-700 ease-out ${index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
-                                    }`}
-                            >
-                                {/* Background Image with Overlay */}
-                                <div className="absolute inset-0">
-                                    {product.images?.[0]?.url && (
-                                        <Image
-                                            src={product.images[0].url}
-                                            alt={product.title}
-                                            fill
-                                            className="object-cover"
-                                            priority={index === 0}
-                                        />
-                                    )}
-                                    {/* Subtle Gradient Overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
-                                </div>
-
-                                {/* Content */}
-                                <div className="relative h-full flex flex-col md:flex-row items-center">
-                                    <div className="flex-1 p-5 sm:p-6 md:p-10 lg:p-16 flex flex-col justify-center z-10">
-                                        <span className="mb-3 inline-block w-fit rounded-md bg-[var(--primary-electric)] px-3 py-1.5 text-xs font-bold text-white shadow-md sm:mb-4 sm:px-4 sm:text-sm md:mb-6">
-                                            New Arrival
-                                        </span>
-                                        <h2 className="font-heading mb-2 line-clamp-2 text-2xl font-bold leading-tight text-white sm:mb-3 sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">
-                                            {displayTitle(product.title)}
-                                        </h2>
-                                        <p className="text-white/90 text-sm sm:text-base md:text-lg mb-1 sm:mb-2 font-medium">
-                                            {product.category}
-                                        </p>
-                                        <div className="flex items-baseline gap-2 sm:gap-3 mb-4 sm:mb-6 md:mb-8">
-                                            <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-                                                {"\u20B9"}{product.price.toLocaleString("en-IN")}
-                                            </span>
-                                            {product.originalPrice && product.originalPrice > product.price && (
-                                                <span className="text-base sm:text-lg md:text-xl text-white/60 line-through">
-                                                    {"\u20B9"}{product.originalPrice.toLocaleString("en-IN")}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <Link
-                                            href={`/products/${product._id}`}
-                                            className="touch-target inline-flex w-fit items-center justify-center rounded-lg bg-white px-6 py-2.5 text-sm font-bold text-gray-900 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-[var(--primary-electric)] hover:text-white hover:shadow-[var(--glow-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 active:translate-y-0 sm:px-8 sm:py-3 sm:text-base md:py-3.5"
-                                        >
-                                            Shop Now
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-
-                        {/* Slide Indicators */}
-                        {newArrivals.length > 1 && (
-                            <div className="absolute bottom-5 left-5 sm:bottom-6 sm:left-6 md:bottom-8 md:left-10 lg:left-16 flex gap-1.5 sm:gap-2 z-20">
-                                {newArrivals.map((_, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => setCurrentSlide(index)}
-                                        className="flex h-11 w-11 items-center justify-center rounded-lg"
-                                        aria-label={`Go to slide ${index + 1}`}
-                                    >
-                                        <span
-                                            className={`h-2 rounded-full transition-all duration-200 ease-out ${index === currentSlide
-                                                ? "w-8 bg-white"
-                                                : "w-2 bg-white/40"
-                                                }`}
-                                        />
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Right Side Column - Stacked Banners */}
-                    <div className="hidden lg:flex flex-col gap-6 h-full">
-                        {/* Top Card - Trending Product */}
-                        {trendingProduct && (
-                            <div className="flex-1">
-                                <Link
-                                    href={`/products/${trendingProduct._id}`}
-                                    className="group relative block h-full overflow-hidden rounded-lg border border-gray-100 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg"
-                                >
-                                    {/* Background Image */}
-                                    <div className="absolute inset-0">
-                                        {trendingProduct.images?.[0]?.url && (
-                                            <Image
-                                                src={trendingProduct.images[0].url}
-                                                alt={trendingProduct.title}
-                                                fill
-                                                className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                                            />
-                                        )}
-                                        {/* Gradient Overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="relative h-full flex flex-col justify-end p-4 sm:p-5 md:p-6 z-10">
-                                        <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                                            <span className="inline-block rounded-md bg-[var(--secondary-pop)] px-2 py-0.5 text-[10px] font-bold text-white sm:px-3 sm:py-1 sm:text-xs">
-                                                Trending
-                                            </span>
-                                            {trendingProduct.rating && (
-                                                <span className="text-white/90 text-xs sm:text-sm font-medium">
-                                                    {trendingProduct.rating.count} reviews
-                                                </span>
-                                            )}
-                                        </div>
-                                        <h3 className="font-heading text-base sm:text-lg md:text-xl font-bold text-white mb-1 line-clamp-2">
-                                            {displayTitle(trendingProduct.title, 64)}
-                                        </h3>
-                                        <p className="text-white/90 font-semibold text-sm sm:text-base md:text-lg">
-                                            From {"\u20B9"}{trendingProduct.price.toLocaleString("en-IN")}
-                                        </p>
-                                    </div>
-                                </Link>
-                            </div>
-                        )}
-
-                        {/* Bottom Card - Best Seller */}
-                        {bestSeller && (
-                            <div className="flex-1">
-                                <Link
-                                    href={`/products/${bestSeller._id}`}
-                                    className="group relative block h-full overflow-hidden rounded-lg border border-gray-100 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg"
-                                >
-                                    {/* Background Image */}
-                                    <div className="absolute inset-0">
-                                        {bestSeller.images?.[0]?.url && (
-                                            <Image
-                                                src={bestSeller.images[0].url}
-                                                alt={bestSeller.title}
-                                                fill
-                                                className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                                            />
-                                        )}
-                                        {/* Gradient Overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="relative h-full flex flex-col justify-end p-4 sm:p-5 md:p-6 z-10">
-                                        <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                                            <span className="inline-block rounded-md bg-[var(--success)] px-2 py-0.5 text-[10px] font-bold text-white sm:px-3 sm:py-1 sm:text-xs">
-                                                Best Seller
-                                            </span>
-                                            {bestSeller.rating && (
-                                                <span className="text-white/90 text-xs sm:text-sm font-medium">
-                                                    {bestSeller.rating.average.toFixed(1)} rating
-                                                </span>
-                                            )}
-                                        </div>
-                                        <h3 className="font-heading text-base sm:text-lg md:text-xl font-bold text-white mb-1 line-clamp-2">
-                                            {displayTitle(bestSeller.title, 64)}
-                                        </h3>
-                                        <p className="text-white/90 font-semibold text-sm sm:text-base md:text-lg">
-                                            {"\u20B9"}{bestSeller.price.toLocaleString("en-IN")}
-                                        </p>
-                                    </div>
-                                </Link>
-                            </div>
-                        )}
-                    </div>
+                {/* Minimalist Centered Pagination Dots */}
+                <div className="mt-8 flex items-center justify-center gap-2">
+                    {HERO_SLIDES.map((_, idx) => (
+                        <button
+                            key={idx}
+                            onClick={() => setCurrentSlideIndex(idx)}
+                            aria-label={`Go to slide ${idx + 1}`}
+                            className={`transition-all rounded-full ${idx === currentSlideIndex
+                                ? "w-8 h-2.5 bg-[#028eff]"
+                                : "w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400"
+                                }`}
+                        />
+                    ))}
                 </div>
             </div>
         </section>

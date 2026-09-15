@@ -10,7 +10,7 @@ const {
     markLessonComplete,
     getEnrollmentProgress,
 } = require('../controllers/courseController');
-const { protect } = require('../middlewares/authMiddleware');
+const { protect, optionalAuth } = require('../middlewares/authMiddleware');
 
 // Public routes
 router.get('/', getCourses);
@@ -28,6 +28,6 @@ router.post('/:id/purchase', protect, purchaseCourse);
 router.post('/:id/verify-payment', protect, verifyCoursePurchase);
 
 // Dynamic route - MUST be last
-router.get('/:id', getCourse);
+router.get('/:id', optionalAuth, getCourse);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import CourseCard from "@/components/courses/CourseCard";
 import { API_URL } from "@/lib/constants";
@@ -172,7 +173,7 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Keywords..."
-                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-gray-900 outline-none"
+                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-gray-900 outline-none"
                     />
                     <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -274,29 +275,61 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
     );
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white font-sans">
+            {/* Breadcrumb Bar */}
+            <div className="border-b border-slate-200/80 bg-white">
+                <div className="mx-auto max-w-[1400px] px-4 py-3 sm:px-6 md:px-8">
+                    <nav className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                        <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
+                        <span>›</span>
+                        <span className="font-bold text-slate-900">Online Tech Courses</span>
+                    </nav>
+                </div>
+            </div>
+
             {/* Minimal Dark Hero */}
-            <div className="bg-gray-900 text-white py-20 lg:py-24 relative overflow-hidden">
+            <div className="bg-slate-900 text-white py-12 lg:py-16 relative overflow-hidden border-b border-slate-800">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[128px] opacity-20 -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-600 rounded-full blur-[96px] opacity-20 translate-y-1/2 -translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600 rounded-full blur-[96px] opacity-20 translate-y-1/2 -translate-x-1/2"></div>
 
                 <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 relative z-10">
                     <div className="max-w-2xl">
-                        <h1 className="text-5xl lg:text-7xl font-bold mb-6 tracking-tight">
-                            Explore <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Knowledge.</span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-wider mb-3">
+                            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                            Industry-Ready Tech Certifications
+                        </div>
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-3">
+                            Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">Knowledge & Skills</span>
                         </h1>
-                        <p className="text-lg text-gray-400 leading-relaxed max-w-lg">
-                            Master new skills with our expertly curated courses.
-                            From coding to design, find your next breakthrough.
+                        <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl">
+                            Master modern full-stack development, Python, and IoT systems with practical curriculum, code reviews, and verifiable completion diplomas.
                         </p>
+                    </div>
+
+                    {/* Trust Strip */}
+                    <div className="mt-8 pt-6 border-t border-slate-800 grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[
+                            { title: "Real-World Projects", desc: "Build production apps" },
+                            { title: "Instructor Support", desc: "Direct code guidance" },
+                            { title: "Skill Certification", desc: "Verifiable student diploma" },
+                            { title: "Lifetime Access", desc: "Self-paced video lessons" }
+                        ].map((tp, idx) => (
+                            <div key={idx} className="flex items-center gap-2.5">
+                                <div className="w-7 h-7 rounded-full bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-xs font-bold shrink-0">
+                                    ✓
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-bold text-slate-100">{tp.title}</h4>
+                                    <p className="text-[11px] text-slate-400">{tp.desc}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
 
             <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-12">
                 <div className="lg:grid lg:grid-cols-4 gap-12">
-
                     {/* Desktop Sidebar */}
                     <aside className="hidden lg:block lg:col-span-1">
                         <div className="sticky top-24">
@@ -311,7 +344,7 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
                     <div className="lg:col-span-3">
                         {/* Top Bar */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                            <p className="text-gray-500 font-medium">
+                            <p className="text-gray-500 font-medium text-sm">
                                 Showing <span className="text-gray-900 font-bold">{filteredCourses.length}</span> results
                             </p>
 
@@ -374,35 +407,23 @@ export default function CoursesClient({ initialCourses = [] }: CoursesClientProp
 
             {/* Mobile Filter Drawer */}
             {mobileFiltersOpen && (
-                <>
-                    <div
-                        className="fixed inset-0 bg-black/50 z-50 lg:hidden"
-                        onClick={() => setMobileFiltersOpen(false)}
-                    />
-                    <div className="fixed inset-y-0 right-0 w-full max-w-xs bg-white z-50 p-6 overflow-y-auto lg:hidden">
-                        <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-xl font-bold text-gray-900">Filters</h2>
+                <div className="fixed inset-0 z-50 flex lg:hidden">
+                    <div className="fixed inset-0 bg-black/50" onClick={() => setMobileFiltersOpen(false)} />
+                    <div className="relative ml-auto w-full max-w-xs h-full bg-white p-6 overflow-y-auto z-10">
+                        <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
+                            <h2 className="text-lg font-bold text-gray-900">Filters</h2>
                             <button
                                 onClick={() => setMobileFiltersOpen(false)}
-                                className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-gray-100"
-                                aria-label="Close filters"
+                                className="p-2 text-gray-400 hover:text-gray-600"
                             >
-                                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
                         <FilterContent />
-                        <div className="mt-8 pt-6 border-t border-gray-100">
-                            <button
-                                onClick={() => setMobileFiltersOpen(false)}
-                                className="w-full py-4 bg-gray-900 text-white font-bold rounded-xl"
-                            >
-                                Show {filteredCourses.length} Results
-                            </button>
-                        </div>
                     </div>
-                </>
+                </div>
             )}
         </div>
     );

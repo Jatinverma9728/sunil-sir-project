@@ -235,7 +235,8 @@ const createOrder = async (req, res) => {
             shippingPrice: calculatedShippingPrice,
             totalPrice: calculatedTotalPrice,
             discountPrice: calculatedDiscount,
-            coupon: appliedCoupon
+            coupon: appliedCoupon,
+            isStockDeducted: paymentMethod === 'cod'
         });
 
         logTime('Order saved: ' + order._id);
@@ -346,33 +347,36 @@ const verifyPayment = async (req, res) => {
         order.paymentInfo.status = 'completed';
         order.orderStatus = 'processing';
 
-        // Deduct stock upon successful payment verification
-        console.log('Deducting stock after successful payment...');
-        const stockUpdatesToApply = order.orderItems.map(item => ({
-            productId: item.product,
-            quantity: item.quantity
-        }));
+        // Deduct stock upon successful payment verification (if not already deducted)
+        if (!order.isStockDeducted) {
+            console.log('Deducting stock after successful payment...');
+            const stockUpdatesToApply = order.orderItems.map(item => ({
+                productId: item.product,
+                quantity: item.quantity
+            }));
 
-        await Promise.all(stockUpdatesToApply.map(update =>
-            Product.findByIdAndUpdate(
-                update.productId,
-                { $inc: { stock: -update.quantity } },
-                { new: true }
-            )
-        ));
+            await Promise.all(stockUpdatesToApply.map(update =>
+                Product.findByIdAndUpdate(
+                    update.productId,
+                    { $inc: { stock: -update.quantity } },
+                    { new: true }
+                )
+            ));
+            order.isStockDeducted = true;
 
-        console.log('Updating coupon...');
-        // Update usage count for coupon
-        if (order.coupon) {
-            await Coupon.findByIdAndUpdate(order.coupon, {
-                $inc: { usedCount: 1 },
-                $push: {
-                    usedBy: {
-                        user: req.user._id,
-                        count: 1 // simplified, tracking individual uses
+            console.log('Updating coupon...');
+            // Update usage count for coupon
+            if (order.coupon) {
+                await Coupon.findByIdAndUpdate(order.coupon, {
+                    $inc: { usedCount: 1 },
+                    $push: {
+                        usedBy: {
+                            user: req.user._id,
+                            count: 1 // simplified, tracking individual uses
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         await order.save();

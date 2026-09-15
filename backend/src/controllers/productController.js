@@ -15,9 +15,14 @@ const getProducts = async (req, res) => {
         // Build query
         let query = {};
 
-        // Category filter
+        // Category filter (supports comma-separated list, e.g. "iot,raspberry-pi,diy-kits")
         if (req.query.category) {
-            query.category = req.query.category;
+            if (req.query.category.includes(',')) {
+                const categories = req.query.category.split(',').map(c => c.trim()).filter(Boolean);
+                query.category = { $in: categories };
+            } else {
+                query.category = req.query.category;
+            }
         }
 
         // Price range filter

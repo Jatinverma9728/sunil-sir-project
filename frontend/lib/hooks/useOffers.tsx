@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from "react";
+import { useState, useEffect, useCallback, useMemo, createContext, useContext, ReactNode } from "react";
 import { getActiveOffers, Offer } from "@/lib/api/promotions";
 
 interface OfferPrice {
@@ -160,13 +160,10 @@ export function useOffers() {
 // Standalone hook for simple discount calculation without context
 export function useProductDiscount(productId: string, category: string, price: number) {
     const { getProductOffer, loading } = useOffers();
-    const [offerPrice, setOfferPrice] = useState<OfferPrice | null>(null);
 
-    useEffect(() => {
-        if (!loading) {
-            const result = getProductOffer(productId, category, price);
-            setOfferPrice(result);
-        }
+    const offerPrice = useMemo(() => {
+        if (loading) return null;
+        return getProductOffer(productId, category, price);
     }, [productId, category, price, loading, getProductOffer]);
 
     return { offerPrice, loading };
