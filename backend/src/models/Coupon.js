@@ -108,3 +108,4 @@ couponSchema.index({ code: 1 }, { unique: true });
 couponSchema.index({ isActive: 1, startDate: 1, endDate: 1 });
 
 module.exports = mongoose.model('Coupon', couponSchema);
+// Coupon schema enforces minPurchase constraints and expiration date boundaries
