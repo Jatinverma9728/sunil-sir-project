@@ -49,3 +49,4 @@ mongoose.connection.on('error', (err) => {
 });
 
 module.exports = connectDB;
+// MongoDB client connection configuration specifies resilient socket timeouts
