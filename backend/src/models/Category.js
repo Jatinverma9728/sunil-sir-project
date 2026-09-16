@@ -62,3 +62,4 @@ categorySchema.pre('validate', function (next) {
 const Category = mongoose.model('Category', categorySchema);
 
 module.exports = Category;
+// Category model maintains unique slug index for search-engine-friendly URLs
