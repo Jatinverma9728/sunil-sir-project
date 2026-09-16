@@ -8,22 +8,24 @@ const { getActiveAnnouncements, dismissAnnouncement } = require('../controllers/
 const { validateCoupon, applyCoupon } = require('../controllers/admin/couponController');
 const { getActiveOffers } = require('../controllers/admin/offerController');
 
+const { cacheMiddleware } = require('../middlewares/cacheMiddleware');
+
 // ============================================
 // BANNER ROUTES (Public)
 // ============================================
-router.get('/banners', getActiveBanners);
+router.get('/banners', cacheMiddleware({ ttl: 300, tags: ['banners'] }), getActiveBanners);
 router.post('/banners/:id/click', trackBannerClick);
 
 // ============================================
 // ANNOUNCEMENT ROUTES (Public)
 // ============================================
-router.get('/announcements', getActiveAnnouncements);
+router.get('/announcements', cacheMiddleware({ ttl: 300, tags: ['announcements'] }), getActiveAnnouncements);
 router.post('/announcements/:id/dismiss', optionalAuth, dismissAnnouncement);
 
 // ============================================
 // OFFER ROUTES (Public)
 // ============================================
-router.get('/offers', getActiveOffers);
+router.get('/offers', cacheMiddleware({ ttl: 300, tags: ['offers'] }), getActiveOffers);
 
 // ============================================
 // COUPON ROUTES (Authenticated)

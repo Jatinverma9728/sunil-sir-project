@@ -12,9 +12,11 @@ const {
 } = require('../controllers/courseController');
 const { protect, optionalAuth } = require('../middlewares/authMiddleware');
 
+const { cacheMiddleware } = require('../middlewares/cacheMiddleware');
+
 // Public routes
-router.get('/', getCourses);
-router.get('/categories', getCategories);
+router.get('/', cacheMiddleware({ ttl: 120, tags: ['courses'] }), getCourses);
+router.get('/categories', cacheMiddleware({ ttl: 900, tags: ['categories', 'courses'] }), getCategories);
 
 // Protected routes - MUST come before /:id to avoid route catching
 router.get('/my-courses', protect, getMyCourses);
