@@ -1,4 +1,5 @@
 const Product = require('../../models/Product');
+const { invalidateCacheTags } = require('../../middlewares/cacheMiddleware');
 
 /**
  * @desc    Create new product (Admin)
@@ -52,6 +53,7 @@ const createProduct = async (req, res) => {
         }
 
         const product = await Product.create(productData);
+        invalidateCacheTags(['products', 'categories']);
 
         res.status(201).json({
             success: true,
@@ -141,6 +143,7 @@ const updateProduct = async (req, res) => {
         }
 
         await product.save();
+        invalidateCacheTags(['products', 'categories']);
 
         res.status(200).json({
             success: true,
@@ -174,6 +177,7 @@ const deleteProduct = async (req, res) => {
         }
 
         await product.deleteOne();
+        invalidateCacheTags(['products', 'categories']);
 
         res.status(200).json({
             success: true,
@@ -211,12 +215,14 @@ const getAllProducts = async (req, res) => {
             query.isActive = req.query.isActive === 'true';
         }
 
-        const products = await Product.find(query)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
-
-        const total = await Product.countDocuments(query);
+        const [products, total] = await Promise.all([
+            Product.find(query)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Product.countDocuments(query)
+        ]);
 
         res.status(200).json({
             success: true,

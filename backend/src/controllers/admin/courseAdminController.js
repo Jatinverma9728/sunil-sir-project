@@ -1,5 +1,6 @@
 const Course = require('../../models/Course');
 const Enrollment = require('../../models/Enrollment');
+const { invalidateCacheTags } = require('../../middlewares/cacheMiddleware');
 
 /**
  * @desc    Create new course (Admin/Instructor)
@@ -45,6 +46,8 @@ const createCourse = async (req, res) => {
             tags: tags || [],
             language: language || 'English',
         });
+
+        invalidateCacheTags(['courses']);
 
         res.status(201).json({
             success: true,
@@ -100,6 +103,7 @@ const updateCourse = async (req, res) => {
         });
 
         await course.save();
+        invalidateCacheTags(['courses']);
 
         res.status(200).json({
             success: true,
@@ -136,6 +140,7 @@ const deleteCourse = async (req, res) => {
         await Enrollment.deleteMany({ course: course._id });
 
         await course.deleteOne();
+        invalidateCacheTags(['courses']);
 
         res.status(200).json({
             success: true,
@@ -173,13 +178,15 @@ const getAllCourses = async (req, res) => {
             query.isPublished = req.query.isPublished === 'true';
         }
 
-        const courses = await Course.find(query)
-            .populate('instructor', 'name email')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
-
-        const total = await Course.countDocuments(query);
+        const [courses, total] = await Promise.all([
+            Course.find(query)
+                .populate('instructor', 'name email')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Course.countDocuments(query)
+        ]);
 
         res.status(200).json({
             success: true,

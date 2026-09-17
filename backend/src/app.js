@@ -6,8 +6,10 @@ const compression = require('compression');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const cookieParser = require('cookie-parser');
-// CSRF not needed for JWT Bearer token auth (see comments below)
+const mongoose = require('mongoose');
 const { apiLimiter, authLimiter, paymentLimiter, adminLimiter } = require('./middlewares/rateLimiter');
+const responseTime = require('./middlewares/responseTime');
+const { cacheInstance } = require('./middlewares/cacheMiddleware');
 
 /**
  * Initialize Express Application
@@ -20,6 +22,9 @@ const createApp = () => {
     // ============================================
     // MIDDLEWARE SETUP
     // ============================================
+
+    // High-resolution response timing header (X-Response-Time)
+    app.use(responseTime);
 
     // Security Headers with enhanced configuration
     app.use(helmet({
@@ -102,8 +107,8 @@ const createApp = () => {
     app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
     app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
 
-    // Compression Middleware
-    app.use(compression());
+    // Compression Middleware (threshold: 1KB to avoid compressing tiny payloads)
+    app.use(compression({ threshold: 1024 }));
 
     // CSRF Protection Strategy
     // -------------------------
@@ -121,7 +126,6 @@ const createApp = () => {
     const passport = require('passport');
     app.use(passport.initialize());
 
-
     // Logging Middleware
     if (process.env.NODE_ENV === 'development') {
         app.use(morgan('dev'));
@@ -133,13 +137,28 @@ const createApp = () => {
     // ROUTES
     // ============================================
 
-    // Health Check Route
+    // Health Check Route with DB, uptime, memory, and cache diagnostics
     const healthCheck = (req, res) => {
+        const dbStates = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+        const dbState = dbStates[mongoose.connection.readyState] || 'unknown';
+        const memoryUsage = process.memoryUsage();
+
         res.status(200).json({
             success: true,
             message: 'Server is running',
             timestamp: new Date().toISOString(),
-            environment: process.env.NODE_ENV || 'development'
+            uptime: Math.floor(process.uptime()),
+            environment: process.env.NODE_ENV || 'development',
+            database: {
+                status: dbState,
+                readyState: mongoose.connection.readyState
+            },
+            memory: {
+                rss: `${Math.round(memoryUsage.rss / 1024 / 1024)}MB`,
+                heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
+                heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)}MB`
+            },
+            cache: cacheInstance.stats()
         });
     };
 
@@ -193,12 +212,9 @@ const createApp = () => {
                     orders: 'GET/PUT /api/admin/orders (Admin)',
                     stats: 'GET /api/admin/{products|courses|orders}/stats (Admin)',
                 }
-                // TODO: Add more endpoints as they are implemented
             }
         });
     });
-
-
 
     // ============================================
     // API ROUTES
@@ -214,7 +230,6 @@ const createApp = () => {
     const uploadRoutes = require('./routes/uploadRoutes');
     const reviewRoutes = require('./routes/reviewRoutes');
     const promotionsRoutes = require('./routes/promotionsRoutes');
-    // const userRoutes = require('./routes/userRoutes');
 
     // Serve static files for uploads with CORS headers
     const path = require('path');
@@ -238,8 +253,6 @@ const createApp = () => {
     app.use('/api/wishlist', apiLimiter, require('./routes/wishlistRoutes')); // Wishlist routes
     app.use('/api', apiLimiter, promotionsRoutes); // Public promotions routes (banners, announcements, coupons)
     app.use('/api/newsletter', apiLimiter, require('./routes/newsletterRoutes')); // Newsletter routes
-    // app.use('/api/users', userRoutes);
-
 
     // ============================================
     // ERROR HANDLING

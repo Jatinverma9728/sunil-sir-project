@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const { invalidateCacheTags } = require('../middlewares/cacheMiddleware');
 
 /**
  * @desc    Get all products with pagination and filtering
@@ -63,26 +64,28 @@ const getProducts = async (req, res) => {
             sort.createdAt = -1; // Default: newest first
         }
 
-        // Execute query
-        const products = await Product.find(query)
-            .sort(sort)
-            .skip(skip)
-            .limit(limit)
-            .select('-__v');
+        // Execute query and count concurrently for optimal performance
+        const [products, total] = await Promise.all([
+            Product.find(query)
+                .sort(sort)
+                .skip(skip)
+                .limit(limit)
+                .select('-__v')
+                .lean(),
+            Product.countDocuments(query)
+        ]);
 
-        // Get total count for pagination
-        const total = await Product.countDocuments(query);
         const totalPages = Math.ceil(total / limit);
 
         res.status(200).json({
             success: true,
-            count: products.length, // This is the count of products on the current page
+            count: products.length,
             data: products,
             pagination: {
                 currentPage: page,
                 totalPages: totalPages,
                 limit: limit,
-                total: total, // This is the total count of all products matching the query
+                total: total,
                 hasNextPage: page < totalPages,
                 hasPrevPage: page > 1
             }
@@ -169,6 +172,8 @@ const createProduct = async (req, res) => {
             sku,
         });
 
+        invalidateCacheTags(['products', 'categories']);
+
         res.status(201).json({
             success: true,
             message: 'Product created successfully',
@@ -223,6 +228,7 @@ const updateProduct = async (req, res) => {
         });
 
         await product.save();
+        invalidateCacheTags(['products', 'categories']);
 
         res.status(200).json({
             success: true,
@@ -256,6 +262,7 @@ const deleteProduct = async (req, res) => {
         }
 
         await product.deleteOne();
+        invalidateCacheTags(['products', 'categories']);
 
         res.status(200).json({
             success: true,
@@ -284,7 +291,8 @@ const getCategories = async (req, res) => {
         // Fetch all active categories from database, sorted by name
         const categories = await Category.find({ isActive: true })
             .sort({ name: 1 })
-            .select('name slug icon image description productCount');
+            .select('name slug icon image description productCount')
+            .lean();
 
         // Return category data with slugs for backward compatibility
         const categoryData = categories.map(cat => ({

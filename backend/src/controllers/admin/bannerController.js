@@ -1,4 +1,5 @@
 const Banner = require('../../models/Banner');
+const { invalidateCacheTags } = require('../../middlewares/cacheMiddleware');
 
 /**
  * @desc    Get all banners
@@ -25,12 +26,14 @@ const getAllBanners = async (req, res) => {
             query.endDate = { $lt: now, $ne: null };
         }
 
-        const banners = await Banner.find(query)
-            .sort({ priority: -1, createdAt: -1 })
-            .skip(skip)
-            .limit(parseInt(limit));
-
-        const total = await Banner.countDocuments(query);
+        const [banners, total] = await Promise.all([
+            Banner.find(query)
+                .sort({ priority: -1, createdAt: -1 })
+                .skip(skip)
+                .limit(parseInt(limit))
+                .lean(),
+            Banner.countDocuments(query)
+        ]);
 
         res.status(200).json({
             success: true,
@@ -71,6 +74,7 @@ const getBannerById = async (req, res) => {
 const createBanner = async (req, res) => {
     try {
         const banner = await Banner.create(req.body);
+        invalidateCacheTags(['banners']);
         res.status(201).json({ success: true, data: banner });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
@@ -94,6 +98,7 @@ const updateBanner = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Banner not found' });
         }
 
+        invalidateCacheTags(['banners']);
         res.status(200).json({ success: true, data: banner });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
@@ -113,6 +118,7 @@ const deleteBanner = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Banner not found' });
         }
 
+        invalidateCacheTags(['banners']);
         res.status(200).json({ success: true, message: 'Banner deleted successfully' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -136,16 +142,19 @@ const getActiveBanners = async (req, res) => {
             $or: [{ endDate: null }, { endDate: { $gte: now } }]
         })
             .sort({ priority: -1 })
-            .select('-clickCount -viewCount -createdAt -updatedAt');
-
-        // Increment view count for all returned banners
-        const bannerIds = banners.map(b => b._id);
-        await Banner.updateMany(
-            { _id: { $in: bannerIds } },
-            { $inc: { viewCount: 1 } }
-        );
+            .select('-clickCount -viewCount -createdAt -updatedAt')
+            .lean();
 
         res.status(200).json({ success: true, data: banners });
+
+        // Non-blocking asynchronous view count increment
+        if (banners.length > 0) {
+            const bannerIds = banners.map(b => b._id);
+            Banner.updateMany(
+                { _id: { $in: bannerIds } },
+                { $inc: { viewCount: 1 } }
+            ).catch(err => console.error('Error updating banner view counts:', err.message));
+        }
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

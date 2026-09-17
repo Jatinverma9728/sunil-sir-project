@@ -44,20 +44,21 @@ const getCourses = async (req, res) => {
         else if (req.query.sort === 'popular') sort.enrolledStudents = -1;
         else sort.createdAt = -1;
 
-        const courses = await Course.find(query)
-            .sort(sort)
-            .skip(skip)
-            .limit(limit)
-            .populate({
-                path: 'instructor',
-                select: 'name email',
-                // Fallback for missing instructors
-                match: {},
-            })
-            .select('-lessons') // Don't send lessons in list view
-            .lean(); // Use lean for better performance
-
-        const total = await Course.countDocuments(query);
+        // Execute query and count concurrently
+        const [courses, total] = await Promise.all([
+            Course.find(query)
+                .sort(sort)
+                .skip(skip)
+                .limit(limit)
+                .populate({
+                    path: 'instructor',
+                    select: 'name email',
+                    match: {},
+                })
+                .select('-lessons')
+                .lean(),
+            Course.countDocuments(query)
+        ]);
 
         res.status(200).json({
             success: true,

@@ -249,40 +249,42 @@ const syncCart = async (req, res) => {
             cart = await Cart.create({ user: req.user._id, items: [] });
         }
 
-        // Merge logic
+        // Batch fetch all products in a single O(1) query instead of O(N) sequential round-trips
+        const productIds = items
+            .map(item => item.product?._id || item.product)
+            .filter(Boolean);
+
+        const products = await Product.find({ _id: { $in: productIds } })
+            .select('_id title price image stock images category isActive')
+            .lean();
+
+        // Create O(1) lookup Map for valid products
+        const productMap = new Map();
+        products.forEach(p => productMap.set(p._id.toString(), p));
+
+        // Create O(1) lookup Map for existing cart items: productId -> index
+        const cartItemMap = new Map();
+        cart.items.forEach((item, index) => {
+            cartItemMap.set(item.product.toString(), index);
+        });
+
+        // Merge logic in a single O(N) in-memory pass
         for (const localItem of items) {
-            const product = await Product.findById(localItem.product._id || localItem.product); // Handle full object or ID
-            if (!product) continue;
+            const rawId = (localItem.product?._id || localItem.product)?.toString();
+            if (!rawId || !productMap.has(rawId)) continue;
 
-            const existingIndex = cart.items.findIndex(
-                item => item.product.toString() === product._id.toString()
-            );
-
-            if (existingIndex > -1) {
-                // Strategy: Keep max? Sum? Or Backend wins?
-                // Usually for sync on login, if conflicts, maybe we take local (fresh user intent) or sum.
-                // Let's take the MAX of both or simple overwrite? 
-                // Let's assume Local overrides Backend if sync is called explicitly on login 
-                // OR we can sum them up if user was adding things as guest.
-                // Summing is safest to avoid data loss.
-                // However, often "Sync" implies "Replace backend with this state" OR "Merge".
-                // Let's do simple merge: Add local items to backend.
-
-                // IMPORTANT: If we just sum, and user refreshes page causing sync again, we might double sum?
-                // Sync should probably be idempotent.
-                // But "adding guest items to account" is a one-time operation usually.
-
-                // For now, let's implement strict "Add/Update" logic.
-                // We'll trust the quantity sent from frontend logic.
-                // Let's use the helper logic: "Merge" = Ensure these items exist in backend cart.
-
-                // Simplified: We assume frontend sends "guest cart". We add it to backend cart.
-                cart.items[existingIndex].quantity = Math.max(cart.items[existingIndex].quantity, localItem.quantity); // Keep higher?
+            const existingIndex = cartItemMap.get(rawId);
+            if (existingIndex !== undefined) {
+                cart.items[existingIndex].quantity = Math.max(
+                    cart.items[existingIndex].quantity,
+                    localItem.quantity
+                );
             } else {
                 cart.items.push({
-                    product: product._id,
+                    product: rawId,
                     quantity: localItem.quantity
                 });
+                cartItemMap.set(rawId, cart.items.length - 1);
             }
         }
 
