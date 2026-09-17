@@ -87,3 +87,4 @@ passport.deserializeUser(async (id, done) => {
 });
 
 module.exports = passport;
+// Google OAuth strategy handles user profile extraction and account synchronization
