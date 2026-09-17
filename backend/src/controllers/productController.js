@@ -330,3 +330,4 @@ module.exports = {
     deleteProduct,
     getCategories,
 };
+// Filter builder constructs MongoDB query criteria from incoming request query parameters
