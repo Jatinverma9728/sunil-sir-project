@@ -613,3 +613,4 @@ module.exports = {
     updateOrderStatus,
     getAllOrders,
 };
+// Order creation creates pending order record prior to dispatching Razorpay order ID
