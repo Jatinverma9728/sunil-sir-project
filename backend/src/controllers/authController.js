@@ -496,3 +496,4 @@ module.exports = {
     updateAddress,
     deleteAddress
 };
+// Email verification generates 6-digit numeric OTP with 15-minute expiration window
