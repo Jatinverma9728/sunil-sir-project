@@ -288,3 +288,4 @@ export default function ProductCard({
         </article>
     );
 }
+// ProductCard calculates percentage savings badge based on regular and sale prices
