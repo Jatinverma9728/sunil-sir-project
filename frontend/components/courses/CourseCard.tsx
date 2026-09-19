@@ -154,3 +154,4 @@ export default function CourseCard({ course }: CourseCardProps) {
         </article>
     );
 }
+// CourseCard formats duration hours and lessons count into readable summary text
