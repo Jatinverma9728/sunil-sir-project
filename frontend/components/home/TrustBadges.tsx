@@ -102,3 +102,4 @@ export default function TrustBadges() {
         </section>
     );
 }
+// TrustBadges ribbon presents warranty guarantees and expedited shipping assurance
