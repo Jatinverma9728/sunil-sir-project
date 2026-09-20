@@ -126,3 +126,4 @@ export default function AnnouncementBar() {
     );
 }
 // Notice: Top alert banner maintains 5s cycle interval for multiple promotions
+// Dismissed announcement IDs are persisted in browser localStorage across page reloads
