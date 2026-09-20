@@ -193,3 +193,4 @@ export default function Footer() {
         </footer>
     );
 }
+// Footer provides quick access to corporate policies, customer support, and categories
