@@ -211,3 +211,4 @@ export default function CategoryGrid() {
         </section>
     );
 }
+// CategoryGrid presents direct route targets to dedicated vertical storefronts
