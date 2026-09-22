@@ -38,3 +38,4 @@ export function truncate(str: string, length: number): string {
     return str.slice(0, length) + '...';
 }
 // Currency formatter helper standardizes price rendering across all storefront views
+// Merges class strings seamlessly with tailwind-merge and clsx conflict resolution
