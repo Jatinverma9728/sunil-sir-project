@@ -188,3 +188,4 @@ export const useWishlist = () => {
     return context;
 };
 // Synchronize in-memory wishlist with cloud endpoint whenever auth state updates
+// Wishlist toggling employs optimistic state updates for instantaneous UI response
