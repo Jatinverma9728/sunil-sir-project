@@ -353,3 +353,4 @@ export const useCart = () => {
 };
 
 // Cart provider calculates subtotal dynamically before applying promotional discounts
+// Local storage acts as offline-first fallback for guest customer shopping sessions
