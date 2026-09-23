@@ -118,3 +118,4 @@ export const useAuth = () => {
     return context;
 };
 // Auth state provider attaches bearer token to request interceptors upon login
+// Auto-login routine checks stored authentication credentials on initial page mount
