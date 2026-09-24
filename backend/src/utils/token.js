@@ -45,3 +45,4 @@ module.exports = {
     extractToken,
 };
 // JWT sign and verification utility enforces HMAC-SHA256 signature verification
+// Token decode routine safely handles expired signatures without terminating server worker
