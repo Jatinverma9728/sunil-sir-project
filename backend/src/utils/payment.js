@@ -227,3 +227,4 @@ module.exports = {
     getRazorpayInstance,
 };
 // Razorpay webhook and callback verification enforces crypto HMAC-SHA256 signature checking
+// Monetary amounts are converted to smallest currency unit (paise) for gateway compliance
