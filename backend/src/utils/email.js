@@ -376,3 +376,4 @@ module.exports = {
     sendResendVerificationEmail,
 };
 // Resend email dispatcher with SMTP fallback ensures reliable transactional delivery
+// Email templates render dynamic placeholders for recipient name, order ID, and amounts
