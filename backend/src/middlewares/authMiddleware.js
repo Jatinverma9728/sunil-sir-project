@@ -164,3 +164,4 @@ module.exports = {
     optionalAuth,
 };
 // Middleware asserts presence and validity of Authorization Bearer header
+// Optional authentication middleware allows unauthenticated visitors to inspect public courses
