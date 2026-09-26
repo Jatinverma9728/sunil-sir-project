@@ -50,3 +50,4 @@ const errorHandler = (err, req, res, next) => {
 
 module.exports = errorHandler;
 // Centralized error handler masks internal stack traces when running in production mode
+// Maps Mongoose duplicate key errors (code 11000) to clear 400 Bad Request responses
