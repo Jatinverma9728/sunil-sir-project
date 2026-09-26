@@ -206,3 +206,4 @@ const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;
 // Compound index on category and price optimizes multi-facet catalog filtering
+// Search text index assigns higher relevance weight to product title over description
