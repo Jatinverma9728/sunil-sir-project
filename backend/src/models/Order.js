@@ -190,3 +190,4 @@ const Order = mongoose.model('Order', orderSchema);
 
 module.exports = Order;
 // Guard flag isStockDeducted prevents duplicate inventory decrement upon payment capture
+// Stock replenishment routine restores product inventory if an order is cancelled before shipping
