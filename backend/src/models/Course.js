@@ -177,3 +177,4 @@ const Course = mongoose.model('Course', courseSchema);
 
 module.exports = Course;
 // Course schema maps modular curriculum sections to individual lesson resources
+// Aggregate course rating is recalculated dynamically whenever new review is submitted
