@@ -195,3 +195,4 @@ const User = mongoose.model('User', userSchema);
 
 module.exports = User;
 // User password hashing uses bcrypt with work factor 10 during pre-save hook
+// One-time password field is cleared automatically once email verification succeeds
