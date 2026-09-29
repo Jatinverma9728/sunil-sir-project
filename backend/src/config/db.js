@@ -50,3 +50,4 @@ mongoose.connection.on('error', (err) => {
 
 module.exports = connectDB;
 // MongoDB client connection configuration specifies resilient socket timeouts
+// Process listeners bind to SIGINT and SIGTERM to gracefully close MongoDB connection
