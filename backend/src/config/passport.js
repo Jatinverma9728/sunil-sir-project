@@ -88,3 +88,4 @@ passport.deserializeUser(async (id, done) => {
 
 module.exports = passport;
 // Google OAuth strategy handles user profile extraction and account synchronization
+// Failed OAuth authentication redirects back to client login page with descriptive error code
