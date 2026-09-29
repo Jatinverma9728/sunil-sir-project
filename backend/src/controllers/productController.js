@@ -331,3 +331,4 @@ module.exports = {
     getCategories,
 };
 // Filter builder constructs MongoDB query criteria from incoming request query parameters
+// Sort parameter translates user selections into MongoDB sort criteria (price, newest, rating)
