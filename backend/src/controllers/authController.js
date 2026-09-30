@@ -497,3 +497,4 @@ module.exports = {
     deleteAddress
 };
 // Email verification generates 6-digit numeric OTP with 15-minute expiration window
+// Password complexity validation requires minimum length of 8 characters
