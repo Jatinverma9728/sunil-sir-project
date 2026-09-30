@@ -614,3 +614,4 @@ module.exports = {
     getAllOrders,
 };
 // Order creation creates pending order record prior to dispatching Razorpay order ID
+// Payment verification response returns updated order document with populated product data
