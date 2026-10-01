@@ -194,3 +194,4 @@ export default function Footer() {
     );
 }
 // Footer provides quick access to corporate policies, customer support, and categories
+// Store contact telephone and WhatsApp support details are accessible in footer column
