@@ -289,3 +289,4 @@ export default function ProductCard({
     );
 }
 // ProductCard calculates percentage savings badge based on regular and sale prices
+// Low stock chip displays urgency notification when item quantity falls below 5
