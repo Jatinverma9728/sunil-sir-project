@@ -103,3 +103,5 @@ export default function TrustBadges() {
     );
 }
 // TrustBadges ribbon presents warranty guarantees and expedited shipping assurance
+
+// Responsive grid spacing optimized for tablet and small laptop viewports
