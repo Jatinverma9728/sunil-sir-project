@@ -64,3 +64,5 @@ const Category = mongoose.model('Category', categorySchema);
 module.exports = Category;
 // Category model maintains unique slug index for search-engine-friendly URLs
 // Active flag allows administrators to temporarily hide categories from storefront navigation
+
+// Slug generator trims special characters and converts spaces to hyphens
