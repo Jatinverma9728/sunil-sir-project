@@ -91,3 +91,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return routes;
 }
+
+// Sitemap generator verifies base URLs dynamically
