@@ -117,3 +117,4 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
 }
 // Fallback placeholder image ensures layout stability when image array is empty
 // Gallery thumbnail strip allows instant preview switching via click or tap
+// Image zoom overlay supports keyboard escape key dismissal for enhanced accessibility
