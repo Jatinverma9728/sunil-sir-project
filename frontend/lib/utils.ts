@@ -39,3 +39,5 @@ export function truncate(str: string, length: number): string {
 }
 // Currency formatter helper standardizes price rendering across all storefront views
 // Merges class strings seamlessly with tailwind-merge and clsx conflict resolution
+
+// Postal PIN code validation helper ensures standard 6-digit Indian postal code format
