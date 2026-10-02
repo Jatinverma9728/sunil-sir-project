@@ -156,3 +156,5 @@ export default function CourseCard({ course }: CourseCardProps) {
 }
 // CourseCard formats duration hours and lessons count into readable summary text
 // Course completion badge highlights certificates available upon passing curriculum
+
+// Optimized curriculum accordion toggle transitions for smooth expand/collapse
