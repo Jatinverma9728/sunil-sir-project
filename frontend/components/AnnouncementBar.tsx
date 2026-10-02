@@ -128,3 +128,5 @@ export default function AnnouncementBar() {
 // Notice: Top alert banner maintains 5s cycle interval for multiple promotions
 // Dismissed announcement IDs are persisted in browser localStorage across page reloads
 // Top promotional bar verified functional with responsive text clamping on mobile screens
+
+// Component unmount lifecycle hook clears auto-rotation timer to prevent leaks
