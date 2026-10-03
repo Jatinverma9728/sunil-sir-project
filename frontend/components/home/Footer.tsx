@@ -11,6 +11,7 @@ import {
     CreditCard
 } from "lucide-react";
 
+
 const footerLinks = {
     hardware: [
         { name: "Certified Refurbished Laptops", href: "/refurbished-laptops" },
