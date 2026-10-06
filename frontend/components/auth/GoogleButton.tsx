@@ -13,7 +13,6 @@ export default function GoogleButton({ onLoading, text = "Continue with Google" 
         // Redirect to backend Google OAuth endpoint
         window.location.href = `${API_URL}/auth/google`;
     };
-
     return (
         <button
             onClick={handleGoogleLogin}
