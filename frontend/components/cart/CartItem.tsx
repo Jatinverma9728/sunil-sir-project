@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useOffers } from "@/lib/hooks/useOffers";
 import { Minus, Plus, Trash2, Package } from "lucide-react";
 
+
 interface CartItemProps {
     item: {
         product: {
