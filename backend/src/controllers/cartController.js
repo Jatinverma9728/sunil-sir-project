@@ -257,8 +257,9 @@ const syncCart = async (req, res) => {
         const products = await Product.find({ _id: { $in: productIds } })
             .select('_id title price image stock images category isActive')
             .lean();
-            
 
+
+            
         // Create O(1) lookup Map for valid products
         const productMap = new Map();
         products.forEach(p => productMap.set(p._id.toString(), p));
