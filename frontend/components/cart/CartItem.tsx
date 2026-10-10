@@ -22,6 +22,8 @@ interface CartItemProps {
     onRemove: (productId: string) => void;
 }
 
+
+
 export default function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
     const { product, quantity } = item;
     const { getProductOffer } = useOffers();
