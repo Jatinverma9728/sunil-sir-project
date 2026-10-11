@@ -6,7 +6,6 @@ interface LessonPlayerProps {
     lesson: Lesson;
 }
 
-
 export default function LessonPlayer({ lesson }: LessonPlayerProps) {
     if (!lesson.videoUrl) {
         return (
