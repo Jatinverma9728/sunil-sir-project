@@ -24,6 +24,7 @@ export default function WishlistEmpty() {
                         />
                     </svg>
                 </div>
+                
 
                 {/* Message */}
                 <h2 className="text-2xl font-semibold text-gray-900 mb-3">
