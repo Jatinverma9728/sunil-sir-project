@@ -32,6 +32,7 @@ const DEFAULT_CATEGORIES = [
         accentBg: "bg-rose-50/80 border-rose-100 group-hover:bg-rose-600 group-hover:border-rose-600",
         iconColorClass: "text-rose-600 group-hover:text-white"
     },
+    
     {
         name: "Arduino & IoT",
         slug: "iot",
