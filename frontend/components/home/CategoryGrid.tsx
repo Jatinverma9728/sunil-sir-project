@@ -32,7 +32,7 @@ const DEFAULT_CATEGORIES = [
         accentBg: "bg-rose-50/80 border-rose-100 group-hover:bg-rose-600 group-hover:border-rose-600",
         iconColorClass: "text-rose-600 group-hover:text-white"
     },
-    
+
     {
         name: "Arduino & IoT",
         slug: "iot",
@@ -46,6 +46,7 @@ const DEFAULT_CATEGORIES = [
         accentBg: "bg-teal-50/80 border-teal-100 group-hover:bg-teal-600 group-hover:border-teal-600",
         iconColorClass: "text-teal-600 group-hover:text-white"
     },
+    
     {
         name: "3D Printers & CNC",
         slug: "3d-printer",
