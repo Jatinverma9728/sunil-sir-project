@@ -5,7 +5,6 @@ import Link from "next/link";
 import ProductCard from "@/components/products/ProductCard";
 import { getActiveOffers, Offer } from "@/lib/api/promotions";
 import { getProducts, Product } from "@/lib/api/products";
-
 interface TimeLeft {
     days: number;
     hours: number;
