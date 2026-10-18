@@ -46,7 +46,6 @@ const DEFAULT_CATEGORIES = [
         accentBg: "bg-teal-50/80 border-teal-100 group-hover:bg-teal-600 group-hover:border-teal-600",
         iconColorClass: "text-teal-600 group-hover:text-white"
     },
-    
     {
         name: "3D Printers & CNC",
         slug: "3d-printer",

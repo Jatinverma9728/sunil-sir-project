@@ -27,6 +27,7 @@ export default function FeaturedSection() {
                 setLoading(false);
             }
         };
+        
 
         fetchFeatured();
     }, []);
