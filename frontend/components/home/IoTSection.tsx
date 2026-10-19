@@ -12,6 +12,7 @@ const IOT_TABS = [
     { id: "robotics", label: "Robots & 3D Printers" },
 ];
 
+
 export default function IoTSection() {
     const [products, setProducts] = useState<Product[]>([]);
     const [activeTab, setActiveTab] = useState("all");
