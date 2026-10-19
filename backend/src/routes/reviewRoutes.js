@@ -12,6 +12,7 @@ const {
 } = require('../controllers/reviewController');
 const { protect } = require('../middlewares/authMiddleware');
 
+
 // Public routes
 console.log('Mounting /testimonials route');
 router.get('/testimonials', getTopReviews);

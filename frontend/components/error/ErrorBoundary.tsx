@@ -13,7 +13,6 @@ interface State {
     hasError: boolean;
     error: Error | null;
 }
-
 /**
  * Error Boundary component to catch and handle React errors
  * Prevents the entire app from crashing when an error occurs
