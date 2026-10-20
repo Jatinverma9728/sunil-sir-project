@@ -21,6 +21,7 @@ interface ToastContextType {
     warning: (message: string) => void;
 }
 
+
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
